@@ -145,25 +145,9 @@ The packaged app will be available in the project directory as `Chronology.dmg`.
 * Schedule updates are periodic - manual refresh not yet implemented
 * Limited to TimeEdit iCal format (other calendar systems not tested)
 
-## 🗺️ Roadmap
-
-* [ ] Manual schedule refresh button
-* [ ] Export schedule to other formats
-* [ ] Custom event colors per course
-* [ ] Event notes and reminders
-* [ ] Calendar overlay with other calendars
-* [ ] Keyboard shortcuts for common actions
-* [ ] Multiple window support
-
 ## 🤝 Contributing
 
 Contributions are welcome! If you have suggestions for improvements or find bugs:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ## 📄 License
 
