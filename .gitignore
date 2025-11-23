@@ -1,0 +1,19 @@
+# Swift / SwiftPM
+.build/
+.swiftpm/
+
+# macOS junk
+.DS_Store
+
+# Xcode build output (if any later)
+DerivedData/
+
+# IDE settings
+.vscode/
+
+# App packaging output
+*.dmg
+*.pkg
+
+# Icon caches (optional)
+*.icns
