@@ -17,3 +17,7 @@ DerivedData/
 
 # Icon caches (optional)
 *.icns
+
+# Claude Code local context
+CLAUDE.md
+.claude/
