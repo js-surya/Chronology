@@ -8,6 +8,7 @@ struct EventDetailPopover: View {
     @State private var noteText = ""
     @State private var isEditingNote = false
     @State private var showingColorPicker = false
+    @State private var showingPalettePicker = false
     @State private var selectedColor: Color
     @State private var customReminderTime: Int = 15
     
@@ -179,6 +180,8 @@ struct EventDetailPopover: View {
                 }
             }
             
+            Divider()
+
             // Color Customization
             VStack(alignment: .leading, spacing: 8) {
                 Label("Course Color", systemImage: "paintpalette")
@@ -188,14 +191,23 @@ struct EventDetailPopover: View {
                     .textCase(.uppercase)
                 
                 HStack(spacing: 10) {
-                    ColorPicker("", selection: $selectedColor)
-                        .labelsHidden()
+                    // Current color preview
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(selectedColor)
                         .frame(width: 40, height: 30)
-                        .onChange(of: selectedColor) { _, newColor in
-                            appViewModel.setCustomColor(for: event.title, color: newColor)
-                        }
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.primary.opacity(0.2), lineWidth: 1)
+                        )
                     
-                    Button("Reset to Default") {
+                    Button("Choose from Palettes") {
+                        showingPalettePicker = true
+                    }
+                    .buttonStyle(.bordered)
+                    
+                    Spacer()
+                    
+                    Button("Reset") {
                         selectedColor = event.color(from: event.title)
                         appViewModel.setCustomColor(for: event.title, color: nil)
                     }
@@ -207,6 +219,14 @@ struct EventDetailPopover: View {
             .padding(16)
         }
         .frame(width: 360, height: 600)
+        .sheet(isPresented: $showingPalettePicker) {
+            ColorPalettePickerSheet(
+                selectedColor: $selectedColor,
+                isPresented: $showingPalettePicker,
+                event: event
+            )
+            .environmentObject(appViewModel)
+        }
         .onAppear {
             if let existingNote = appViewModel.getNote(for: event) {
                 noteText = existingNote.note
@@ -256,7 +276,6 @@ struct EventDetailPopover: View {
             // Trigger notification rescheduling to include this important event
             NotificationCenter.default.post(name: .rescheduleNotifications, object: nil)
             
-            print("✅ Important reminder saved and scheduled for \(self.event.title) (\(self.customReminderTime) min before)")
         }
     }
     
@@ -270,7 +289,75 @@ struct EventDetailPopover: View {
             
             // Cancel scheduled notifications
             UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["important-\(self.event.id)"])
-            print("✅ Cancelled important reminder for \(self.event.title)")
         }
+    }
+}
+
+// MARK: - Color Palette Picker Sheet
+struct ColorPalettePickerSheet: View {
+    @Binding var selectedColor: Color
+    @Binding var isPresented: Bool
+    let event: Event
+    @EnvironmentObject var appViewModel: AppViewModel
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Text("Course Color")
+                    .font(.headline)
+                Spacer()
+                Button("Done") {
+                    isPresented = false
+                }
+                .buttonStyle(.bordered)
+            }
+            .padding(.horizontal)
+            .padding(.top)
+            
+            ScrollView {
+                VStack(spacing: 12) {
+                    // Color Palettes
+                    ForEach(ColorPalettes.palettes.indices, id: \.self) { index in
+                        HStack(spacing: 6) {
+                            ForEach(ColorPalettes.palettes[index], id: \.self) { colorHex in
+                                Button {
+                                    selectedColor = Color(hex: colorHex)
+                                    appViewModel.setCustomColor(for: event.title, color: Color(hex: colorHex))
+                                    isPresented = false
+                                } label: {
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(Color(hex: colorHex))
+                                        .frame(height: 44)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .stroke(Color.primary.opacity(0.2), lineWidth: 1)
+                                        )
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+                    
+                    Divider()
+                        .padding(.vertical, 8)
+                    
+                    // Custom Color Picker
+                    HStack {
+                        Text("Custom Color")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        Spacer()
+                        ColorPicker("", selection: $selectedColor)
+                            .labelsHidden()
+                            .onChange(of: selectedColor) { _, newColor in
+                                appViewModel.setCustomColor(for: event.title, color: newColor)
+                            }
+                    }
+                    .padding(.horizontal, 8)
+                }
+                .padding()
+            }
+        }
+        .frame(width: 400, height: 500)
     }
 }

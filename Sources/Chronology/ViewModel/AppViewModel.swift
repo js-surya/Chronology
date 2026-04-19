@@ -34,6 +34,18 @@ class AppViewModel: ObservableObject {
     @Published var accentColor: Color = .blue
     @AppStorage("accentColorData") private var accentColorData: Data = Data()
     
+    // MARK: - Event Card Customization
+    @AppStorage("eventCardStyle") var eventCardStyle: String = "filled" // "filled", "bordered", "minimal"
+    @AppStorage("eventCornerRadius") var eventCornerRadius: Double = 6
+    @AppStorage("eventShadowEnabled") var eventShadowEnabled: Bool = true
+    @AppStorage("eventBorderWidth") var eventBorderWidth: Double = 1.5
+    @AppStorage("showEventIcons") var showEventIcons: Bool = true
+    
+    // MARK: - Grid Background Customization
+    @AppStorage("gridBackgroundOpacity") var gridBackgroundOpacity: Double = 0.05
+    @AppStorage("gridLineThickness") var gridLineThickness: Double = 0.5
+    @AppStorage("gridLineOpacity") var gridLineOpacity: Double = 0.2
+    
     // MARK: - Profile Management
     @Published var profiles: [ScheduleProfile] = []
     @AppStorage("profilesData") private var profilesData: Data = Data()
@@ -92,7 +104,6 @@ class AppViewModel: ObservableObject {
         // Auto-select first profile for menu bar if no active profile
         if activeProfileId.isEmpty && !profiles.isEmpty {
             activeProfileId = profiles[0].id.uuidString
-            print("DEBUG: Auto-selected first profile for menu bar: \(profiles[0].name)")
         }
         
         // Request notification authorization if enabled (handles case where permission was reset or not yet granted)
@@ -178,13 +189,10 @@ class AppViewModel: ObservableObject {
     }
     
     func saveAccentColor(_ color: Color) {
-        print("DEBUG: Saving accent color: \(color)")
         accentColor = color
         if let encoded = try? JSONEncoder().encode(CodableColor(color: color)) {
             accentColorData = encoded
-            print("DEBUG: Accent color saved successfully")
         } else {
-            print("DEBUG: Failed to encode accent color")
         }
         objectWillChange.send() // Force UI update
     }
@@ -202,12 +210,9 @@ class AppViewModel: ObservableObject {
     func loadProfiles() {
         if let decoded = try? JSONDecoder().decode([ScheduleProfile].self, from: profilesData) {
             profiles = decoded
-            print("DEBUG: Loaded \(profiles.count) profiles")
             for profile in profiles {
-                print("DEBUG: Profile - ID: \(profile.id.uuidString), Name: \(profile.name), URL: \(profile.icalUrl)")
             }
         } else {
-            print("DEBUG: No profiles found or decode failed")
         }
     }
     
@@ -248,10 +253,7 @@ class AppViewModel: ObservableObject {
     }
     
     func switchToProfile(_ profile: ScheduleProfile) {
-        print("DEBUG: switchToProfile called with ID: \(profile.id.uuidString), Name: \(profile.name)")
-        print("DEBUG: Before switch - activeProfileId: '\(activeProfileId)'")
         activeProfileId = profile.id.uuidString
-        print("DEBUG: After switch - activeProfileId: '\(activeProfileId)'")
     }
     
     // MARK: - Course Customizations

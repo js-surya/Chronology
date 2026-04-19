@@ -37,12 +37,14 @@ struct ProfileSelectionView: View {
                             .foregroundColor(appViewModel.accentColor)
                     }
                     
-                    Text("Chronology")
-                        .font(.system(size: 36, weight: .bold))
-                    
-                    Text("Schedule Viewer")
-                        .font(.title3)
-                        .foregroundColor(.secondary)
+                    VStack(spacing: 4) {
+                        Text("Chronology")
+                            .font(.system(size: 36, weight: .bold, design: .rounded))
+
+                        Text("Schedule Viewer")
+                            .font(.title3)
+                            .foregroundColor(.secondary)
+                    }
                 }
                 .padding(.bottom, 60)
                 
@@ -81,7 +83,9 @@ struct ProfileSelectionView: View {
             }
             .frame(width: 400)
             .background(isAmoledTheme ? Color.black : Color(nsColor: .controlBackgroundColor))
-            
+
+            Divider().opacity(0.5)
+
             // Right panel - Recent Profiles
             VStack(alignment: .leading, spacing: 0) {
                 if !appViewModel.profiles.isEmpty {
@@ -140,9 +144,6 @@ struct ProfileSelectionView: View {
         .background(isAmoledTheme ? Color.black : Color.clear)
         .sheet(isPresented: $showingAddProfile) {
             AddProfileSheet(name: $tempName, url: $tempUrl, description: $tempDescription, appViewModel: appViewModel) { emoji, emojiColor in
-                print("DEBUG: Add Profile button clicked")
-                print("DEBUG: Name: \(tempName), URL: \(tempUrl)")
-                print("DEBUG: Emoji: \(emoji), Color: \(emojiColor)")
                 
                 let profile = ScheduleProfile(
                     name: tempName,
@@ -151,14 +152,10 @@ struct ProfileSelectionView: View {
                     emoji: emoji,
                     emojiColor: CodableColor(color: emojiColor)
                 )
-                print("DEBUG: Profile created: \(profile.name)")
                 appViewModel.addProfile(profile)
-                print("DEBUG: Profile added to viewmodel")
                 appViewModel.switchToProfile(profile)
-                print("DEBUG: Switched to profile")
                 showingAddProfile = false
             } onCancel: {
-                print("DEBUG: Cancel clicked")
                 showingAddProfile = false
             }
         }
@@ -234,7 +231,6 @@ struct ProfileRow: View {
         .background(isHovering ? appViewModel.accentColor.opacity(0.05) : Color.clear)
         .contentShape(Rectangle())
         .onTapGesture {
-            print("DEBUG: ProfileRow clicked for profile: \(profile.name), ID: \(profile.id.uuidString)")
             action()
         }
         .onHover { hovering in
@@ -264,43 +260,8 @@ struct AddProfileSheet: View {
     let onSave: (String, Color) -> Void
     let onCancel: () -> Void
     
-    let emojiOptions = [
-        // General
-        "calendar", "clock.fill", "person.fill", "house.fill", "building.2.fill",
-        
-        // Academic & Work
-        "book.fill", "graduationcap.fill", "pencil", "book.closed.fill", "building.columns.fill",
-        "briefcase.fill", "doc.text.fill", "folder.fill", "paperclip", "archivebox.fill",
-        "studentdesk", "backpack.fill", "lanyard.card.fill", "printer.fill",
-        
-        // Science & Tech
-        "atom", "flask.fill", "stethoscope", "cross.case.fill", "pills.fill",
-        "desktopcomputer", "laptopcomputer", "keyboard.fill", "cpu", "server.rack",
-        "display", "printer.fill", "scanner.fill", "faxmachine",
-        
-        // Tools & Objects
-        "alarm.fill", "lightbulb.fill", "hammer.fill", "wrench.and.screwdriver.fill",
-        "gearshape.fill", "scissors", "paintbrush.fill", "paintpalette.fill",
-        
-        // Activities & Sports
-        "figure.run", "dumbbell.fill", "tennis.racket", "trophy.fill", "medal.fill",
-        "soccerball", "basketball.fill", "baseball.fill", "volleyball.fill", "football.fill",
-        "gamecontroller.fill", "music.note", "guitar.fill", "pianokeys", "mic.fill",
-        "theatermasks.fill", "party.popper.fill", "film.fill", "ticket.fill",
-        
-        // Travel & Nature
-        "airplane", "car.fill", "bus.fill", "tram.fill", "bicycle",
-        "leaf.fill", "sun.max.fill", "cloud.rain.fill", "moon.fill", "flame.fill",
-        "drop.fill", "bolt.fill", "snowflake",
-        
-        // Food & Drink
-        "cup.and.saucer.fill", "fork.knife", "takeoutbag.and.cup.and.straw.fill", "wineglass.fill",
-        
-        // Misc
-        "heart.fill", "star.fill", "gift.fill", "cart.fill", "creditcard.fill",
-        "tag.fill", "bookmark.fill", "flag.fill", "bell.fill", "target"
-    ]
-    
+    private let gridColumns = Array(repeating: GridItem(.fixed(40), spacing: 8), count: 8)
+
     private var isAmoledTheme: Bool {
         if appViewModel.themeMode == "amoled" {
             return true
@@ -346,9 +307,9 @@ struct AddProfileSheet: View {
                         .foregroundColor(.secondary)
                         .textCase(.uppercase)
                     
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(emojiOptions, id: \.self) { emojiOption in
+                    ScrollView {
+                        LazyVGrid(columns: gridColumns, spacing: 8) {
+                            ForEach(EmojiOptions.all, id: \.self) { emojiOption in
                                 Button {
                                     emoji = emojiOption
                                 } label: {
@@ -356,19 +317,25 @@ struct AddProfileSheet: View {
                                         if emoji == emojiOption {
                                             Circle()
                                                 .fill(appViewModel.accentColor.opacity(0.2))
-                                                .frame(width: 44, height: 44)
+                                                .frame(width: 38, height: 38)
                                         }
-                                        
+
                                         Image(systemName: emojiOption)
-                                            .font(.title2)
+                                            .font(.title3)
                                             .foregroundColor(emoji == emojiOption ? appViewModel.accentColor : .primary)
-                                            .frame(width: 44, height: 44)
+                                            .frame(width: 38, height: 38)
                                     }
                                 }
                                 .buttonStyle(.plain)
                             }
                         }
+                        .padding(.vertical, 4)
                     }
+                    .frame(height: 150)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.primary.opacity(0.04))
+                    )
                     
                     HStack {
                         Text("Icon Color:")
@@ -412,7 +379,6 @@ struct AddProfileSheet: View {
             
             HStack(spacing: 12) {
                 Button {
-                    print("DEBUG: Cancel button tapped")
                     onCancel()
                 } label: {
                     Text("Cancel")
@@ -423,10 +389,6 @@ struct AddProfileSheet: View {
                 Spacer()
                 
                 Button {
-                    print("DEBUG: Add Profile button tapped in AddProfileSheet")
-                    print("DEBUG: Name is empty: \(name.isEmpty), URL is empty: \(url.isEmpty)")
-                    print("DEBUG: Name: '\(name)', URL: '\(url)'")
-                    print("DEBUG: Emoji: '\(emoji)', Color: \(emojiColor)")
                     onSave(emoji, emojiColor)
                 } label: {
                     Text("Add Profile")
