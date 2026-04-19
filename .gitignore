@@ -19,5 +19,4 @@ DerivedData/
 *.icns
 
 # Claude Code local context
-CLAUDE.md
 .claude/
