@@ -186,38 +186,53 @@ struct MenuBarView: View {
 
 struct MenuBarEventRow: View {
     let event: Event
-    
+    @EnvironmentObject var appViewModel: AppViewModel
+    @State private var isHovering = false
+
+    private var eventColor: Color {
+        appViewModel.getCustomColor(for: event.title) ?? event.color(from: event.title)
+    }
+
     var body: some View {
         HStack(spacing: 12) {
             VStack(alignment: .trailing, spacing: 2) {
                 Text(event.startTime.formatted(date: .omitted, time: .shortened))
                     .font(.caption)
                     .fontWeight(.semibold)
+                    .monospacedDigit()
                 Text(event.endTime.formatted(date: .omitted, time: .shortened))
                     .font(.caption2)
                     .foregroundColor(.secondary)
+                    .monospacedDigit()
             }
             .frame(width: 60, alignment: .trailing)
-            
+
             RoundedRectangle(cornerRadius: 2)
-                .fill(event.color(from: event.title))
-                .frame(width: 4)
+                .fill(eventColor)
+                .frame(width: 3)
                 .padding(.vertical, 4)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(event.title)
                     .font(.caption)
                     .fontWeight(.medium)
                     .lineLimit(2)
-                Text(event.location)
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
+                if !event.location.isEmpty {
+                    Text(event.location)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
             }
-            
+
             Spacer()
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 12)
-        .background(Color(nsColor: .controlBackgroundColor))
+        .background(isHovering ? eventColor.opacity(0.08) : Color(nsColor: .controlBackgroundColor))
+        .contentShape(Rectangle())
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.12)) { isHovering = hovering }
+        }
     }
 }

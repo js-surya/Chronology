@@ -63,58 +63,58 @@ struct WeekGridView: View {
     // MARK: - Header
     
     private var weekHeader: some View {
-        HStack {
-            Button("Today") {
-                initializeWeek()
+        ZStack {
+            HStack {
+                Button("Today") { initializeWeek() }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                Spacer()
             }
-            .buttonStyle(.plain)
-            
-            Spacer()
-            
-            Button(action: { moveWeek(by: -1) }) {
-                Image(systemName: "chevron.left")
-            }
-            .buttonStyle(.plain)
-            
-            Button(action: { isDatePickerPresented.toggle() }) {
-                HStack(spacing: 4) {
-                    Text(weekTitle)
-                        .font(.headline)
-                    Image(systemName: "chevron.down")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
+
+            HStack(spacing: 6) {
+                Button { moveWeek(by: -1) } label: {
+                    Image(systemName: "chevron.left")
                 }
-                .padding(.horizontal, 10)
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .popover(isPresented: $isDatePickerPresented) {
-                DatePicker("Select Date", selection: Binding(
-                    get: { currentWeekStart },
-                    set: { newDate in
-                        let calendar = Calendar.current
-                        let weekday = calendar.component(.weekday, from: newDate)
-                        let daysFromMonday = (weekday + 5) % 7
-                        if let monday = calendar.date(byAdding: .day, value: -daysFromMonday, to: newDate) {
-                            currentWeekStart = calendar.startOfDay(for: monday)
-                        }
+                .buttonStyle(.plain)
+                .help("Previous week")
+
+                Button { isDatePickerPresented.toggle() } label: {
+                    HStack(spacing: 4) {
+                        Text(weekTitle).font(.headline)
+                        Image(systemName: "chevron.down")
+                            .font(.caption2).foregroundColor(.secondary)
                     }
-                ), displayedComponents: [.date])
-                .datePickerStyle(.graphical)
-                .padding()
+                    .padding(.horizontal, 10)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .popover(isPresented: $isDatePickerPresented) {
+                    DatePicker("", selection: Binding(
+                        get: { currentWeekStart },
+                        set: { newDate in
+                            let calendar = Calendar.current
+                            let weekday = calendar.component(.weekday, from: newDate)
+                            let daysFromMonday = (weekday + 5) % 7
+                            if let monday = calendar.date(byAdding: .day, value: -daysFromMonday, to: newDate) {
+                                currentWeekStart = calendar.startOfDay(for: monday)
+                            }
+                        }
+                    ), displayedComponents: [.date])
+                    .datePickerStyle(.graphical)
+                    .labelsHidden()
+                    .padding(8)
+                }
+
+                Button { moveWeek(by: 1) } label: {
+                    Image(systemName: "chevron.right")
+                }
+                .buttonStyle(.plain)
+                .help("Next week")
             }
-            
-            Button(action: { moveWeek(by: 1) }) {
-                Image(systemName: "chevron.right")
-            }
-            .buttonStyle(.plain)
-            
-            Spacer()
-            
-            // Invisible spacer to balance the "Today" button
-            Text("Today").opacity(0).accessibilityHidden(true)
         }
-        .padding()
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(isAmoledTheme ? AnyShapeStyle(Color.black) : AnyShapeStyle(.regularMaterial))
     }
     
     // MARK: - Calendar Grid
@@ -146,24 +146,33 @@ struct WeekGridView: View {
     private func dayHeaders(dayWidth: CGFloat) -> some View {
         HStack(spacing: 0) {
             Color.clear.frame(width: timeColumnWidth)
-            
+
             ForEach(0..<7) { dayOffset in
                 if let date = Calendar.current.date(byAdding: .day, value: dayOffset, to: currentWeekStart) {
-                    VStack(spacing: 2) {
+                    let isToday = Calendar.current.isDateInToday(date)
+                    VStack(spacing: 4) {
                         Text(date.formatted(.dateTime.weekday(.abbreviated)))
                             .font(.caption)
                             .fontWeight(.semibold)
+                            .foregroundColor(isToday ? appViewModel.accentColor : .secondary)
+                            .textCase(.uppercase)
+                            .tracking(0.5)
                         Text(date.formatted(.dateTime.day()))
-                            .font(.caption2)
+                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .monospacedDigit()
+                            .foregroundColor(isToday ? .white : .primary)
+                            .frame(width: 26, height: 26)
+                            .background(
+                                Circle()
+                                    .fill(isToday ? appViewModel.accentColor : Color.clear)
+                            )
                     }
                     .frame(width: dayWidth)
-                    .padding(.vertical, 8)
-                    .background(Calendar.current.isDateInToday(date) ? appViewModel.accentColor.opacity(0.15) : Color.clear)
-                    .cornerRadius(6)
+                    .padding(.vertical, 2)
                 }
             }
         }
-        .padding(.bottom, 8)
+        .padding(.bottom, 4)
     }
     
     private var timeGrid: some View {
@@ -177,8 +186,8 @@ struct WeekGridView: View {
                     .offset(y: -8)
                 
                 Rectangle()
-                    .fill(Color.gray.opacity(0.2))
-                    .frame(height: 1)
+                    .fill(Color.primary.opacity(appViewModel.gridLineOpacity))
+                    .frame(height: appViewModel.gridLineThickness)
             }
             .frame(height: hourHeight, alignment: .top)
         }
@@ -187,11 +196,15 @@ struct WeekGridView: View {
     private func daySeparators(dayWidth: CGFloat) -> some View {
         HStack(spacing: 0) {
             Color.clear.frame(width: timeColumnWidth)
-            ForEach(0..<7) { _ in
+            ForEach(0..<7) { dayIndex in
                 Rectangle()
-                    .fill(Color.gray.opacity(0.1))
-                    .frame(width: 1)
+                    .fill(Color.primary.opacity(appViewModel.gridLineOpacity))
+                    .frame(width: appViewModel.gridLineThickness)
                     .frame(width: dayWidth, alignment: .leading)
+                    .background(
+                        // Apply background to each day column
+                        Color.clear.frame(width: dayWidth)
+                    )
             }
         }
         .offset(y: 40)
@@ -279,25 +292,35 @@ struct WeekGridView: View {
         TimelineView(.periodic(from: .now, by: 60.0)) { context in
             let yPos = getYPosition(for: context.date)
             let hour = Calendar.current.component(.hour, from: context.date)
-            
+
             if hour >= startHour && hour <= endHour {
-                HStack(spacing: 0) {
-                    HStack(spacing: 2) {
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 9, weight: .bold))
-                        Text(context.date.formatted(date: .omitted, time: .shortened))
-                            .font(.caption2)
-                            .fontWeight(.semibold)
+                ZStack(alignment: .leading) {
+                    HStack(spacing: 0) {
+                        Spacer().frame(width: timeColumnWidth)
+                        Rectangle()
+                            .fill(appViewModel.accentColor.opacity(0.55))
+                            .frame(height: 1)
                     }
-                    .foregroundColor(appViewModel.accentColor)
-                    .frame(width: timeColumnWidth, alignment: .trailing)
-                    .padding(.trailing, 4)
-                    .background(isAmoledTheme ? Color.black.opacity(0.8) : Color.white.opacity(0.8))
-                    
-                    Circle()
-                        .fill(appViewModel.accentColor)
-                        .frame(width: 6, height: 6)
-                        .offset(x: -3)
+
+                    HStack(spacing: 0) {
+                        HStack(spacing: 3) {
+                            Text(context.date.formatted(date: .omitted, time: .shortened))
+                                .font(.caption2).fontWeight(.semibold)
+                                .monospacedDigit()
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(
+                            Capsule().fill(appViewModel.accentColor)
+                        )
+                        .frame(width: timeColumnWidth - 4, alignment: .trailing)
+
+                        Circle()
+                            .fill(appViewModel.accentColor)
+                            .frame(width: 7, height: 7)
+                            .offset(x: -3)
+                    }
                 }
                 .offset(y: yPos + 40)
             }
@@ -328,7 +351,13 @@ struct EventItemView: View {
     private var eventColor: Color {
         appViewModel.getCustomColor(for: event.title) ?? event.color(from: event.title)
     }
-    
+
+    private var textColorForFill: Color {
+        guard let ns = NSColor(eventColor).usingColorSpace(.deviceRGB) else { return .white }
+        let lum = 0.299 * ns.redComponent + 0.587 * ns.greenComponent + 0.114 * ns.blueComponent
+        return lum > 0.65 ? Color(white: 0.15) : .white
+    }
+
     private var timeFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.timeStyle = .short
@@ -366,35 +395,48 @@ struct EventItemView: View {
             ZStack(alignment: .bottomTrailing) {
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 4) {
+                        if appViewModel.showEventIcons {
+                            Image(systemName: getEventIcon())
+                                .font(.caption2)
+                                .foregroundColor(textColor.opacity(0.85))
+                        }
+
                         Text(event.title)
                             .font(.caption)
                             .fontWeight(.semibold)
                             .lineLimit(2)
                         Spacer()
-                        
-                        // Important star button (visible on hover or when important)
+
                         if isHovering || isImportant {
                             Button {
                                 toggleImportant()
                             } label: {
                                 Image(systemName: isImportant ? "star.fill" : "star")
                                     .font(.caption)
-                                    .foregroundColor(isImportant ? .yellow : .white.opacity(0.7))
+                                    .foregroundColor(isImportant ? .yellow : textColor.opacity(0.6))
                             }
                             .buttonStyle(.plain)
                             .help(isImportant ? "Remove important reminder" : "Mark as important")
                         }
-                        
+
                         if appViewModel.getNote(for: event) != nil {
                             Image(systemName: "note.text")
                                 .font(.caption2)
-                                .foregroundColor(.white.opacity(0.8))
+                                .foregroundColor(textColor.opacity(0.75))
                         }
                     }
                     if !event.location.isEmpty {
-                        Text(event.location)
-                            .font(.caption2)
-                            .lineLimit(1)
+                        HStack(spacing: 2) {
+                            if appViewModel.showEventIcons {
+                                Image(systemName: "mappin.circle.fill")
+                                    .font(.system(size: 8))
+                                    .foregroundColor(textColor.opacity(0.7))
+                            }
+                            Text(event.location)
+                                .font(.caption2)
+                                .foregroundColor(textColor.opacity(0.85))
+                                .lineLimit(1)
+                        }
                     }
                 }
                 .padding(6)
@@ -414,14 +456,13 @@ struct EventItemView: View {
                         .transition(.scale.combined(with: .opacity))
                 }
             }
-            .background(eventColor.opacity(0.9))
-            .cornerRadius(6)
-            .overlay(
-                RoundedRectangle(cornerRadius: 6)
-                    .stroke(eventColor, lineWidth: 1.5)
-            )
-            .foregroundColor(.white)
-            .shadow(color: .black.opacity(0.15), radius: isHovering ? 4 : 2)
+            .background(cardBackground())
+            .cornerRadius(appViewModel.eventCornerRadius)
+            .overlay(cardOverlay())
+            .overlay(accentBar, alignment: .leading)
+            .foregroundColor(textColor)
+            .shadow(color: .black.opacity(appViewModel.eventShadowEnabled ? 0.15 : 0),
+                   radius: isHovering ? 4 : 2)
             .scaleEffect(isHovering ? 1.02 : 1.0)
         }
         .buttonStyle(.plain)
@@ -433,6 +474,65 @@ struct EventItemView: View {
         .popover(isPresented: $showingDetail) {
             EventDetailPopover(event: event)
                 .environmentObject(appViewModel)
+        }
+    }
+    
+    private var textColor: Color {
+        switch appViewModel.eventCardStyle {
+        case "filled": return textColorForFill
+        default: return .primary
+        }
+    }
+
+    @ViewBuilder
+    private func cardBackground() -> some View {
+        switch appViewModel.eventCardStyle {
+        case "filled":
+            eventColor.opacity(0.9)
+        case "bordered":
+            Color.clear
+        case "minimal":
+            eventColor.opacity(0.15)
+        default:
+            eventColor.opacity(0.9)
+        }
+    }
+
+    @ViewBuilder
+    private func cardOverlay() -> some View {
+        RoundedRectangle(cornerRadius: appViewModel.eventCornerRadius)
+            .stroke(eventColor, lineWidth: appViewModel.eventBorderWidth)
+    }
+
+    @ViewBuilder
+    private var accentBar: some View {
+        if appViewModel.eventCardStyle == "minimal" {
+            RoundedRectangle(cornerRadius: 1.5)
+                .fill(eventColor)
+                .frame(width: 3)
+                .padding(.vertical, 4)
+                .padding(.leading, 2)
+        } else {
+            EmptyView()
+        }
+    }
+    
+    private func getEventIcon() -> String {
+        // Check description first (more accurate), fallback to title
+        let searchText = (event.description?.lowercased() ?? "") + " " + event.title.lowercased()
+        
+        if searchText.contains("lab") || searchText.contains("practical") {
+            return "flask.fill"
+        } else if searchText.contains("lecture") || searchText.contains("class") {
+            return "book.fill"
+        } else if searchText.contains("exam") || searchText.contains("test") {
+            return "doc.text.fill"
+        } else if searchText.contains("tutorial") || searchText.contains("seminar") {
+            return "person.2.fill"
+        } else if searchText.contains("project") {
+            return "hammer.fill"
+        } else {
+            return "calendar"
         }
     }
     

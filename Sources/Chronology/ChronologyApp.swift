@@ -55,7 +55,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         // Set notification delegate
         UNUserNotificationCenter.current().delegate = NotificationDelegate.shared
         
-        // Set legacy notification center delegate to show banners
+        // Set legacy notification center delegate
         NSUserNotificationCenter.default.delegate = self
         
         // Ensure initialization happens after app launch
@@ -76,6 +76,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     // Prevent app from terminating when main window is closed (keep menu bar running)
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return false
+    }
+    
+    // Force notifications to show as banners even when app is active
+    func userNotificationCenter(_ center: NSUserNotificationCenter, shouldPresent notification: NSUserNotification) -> Bool {
+        return true
     }
     
     // Handle window closing - hide dock icon but keep menu bar
@@ -103,10 +108,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         return true
     }
     
-    // Force notifications to show as banners even when app is active
-    func userNotificationCenter(_ center: NSUserNotificationCenter, shouldPresent notification: NSUserNotification) -> Bool {
-        return true
-    }
 }
 
 extension Notification.Name {

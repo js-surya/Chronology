@@ -1,164 +1,61 @@
 # Chronology
 
-**Chronology** is a beautiful, modern macOS application designed to help students and faculty manage their TimeEdit schedules effortlessly. Built with SwiftUI, it lives in your menu bar and provides a clean, native interface for your academic life.
+Menu bar schedule viewer for macOS. Subscribe to a TimeEdit iCal URL, see your next class in the menu bar, browse week/day views in a native SwiftUI window.
 
-![Chronology App Icon](chronology_app_icon.svg)
+![Chronology](chronology_app_icon.svg)
 
-## ✨ Features
+## Features
 
-### 📅 Schedule Management
+- **Menu bar countdown** — next class + time remaining ("In 15m", "Ends in 45m")
+- **Week & Day views** — custom visible hour range
+- **Multiple profiles** — unlimited iCal URLs, per-profile icon & color
+- **Notifications** — configurable lead time (5m / 15m / 30m / 1h), mark events important
+- **Per-course colors** — pick from curated palettes or custom
+- **Personal notes** — attach notes to any event
+- **Themes** — Light / Dark / AMOLED black, 7 accent presets + custom color, 12/24h time
+- **Privacy** — all data stored locally, no cloud sync
+- **Launch at login**, menu-bar-only mode
 
-* **Menu Bar Integration**: See your next class and time remaining directly in the menu bar (e.g., "In 15m", "Ends in 45m")
-* **Quick Glance**: Click the menu bar icon to see your schedule for the rest of the day
-* **Week & Day Views**: Switch between comprehensive week view and focused daily view
-* **Customizable Calendar Hours**: Set visible hours range (e.g., 8 AM - 6 PM) to fit your schedule
+## Requirements
 
-### 👤 Multiple Profiles
+- macOS 14.0 (Sonoma)+
+- Xcode 15 / Swift 5.9 (only if building from source)
 
-* **Profile Management**: Create unlimited schedule profiles with custom names and descriptions
-* **iCal Integration**: Direct TimeEdit iCal URL support for automatic schedule syncing
-* **Custom Icons**: Choose from 80+ SF Symbols icons to represent each profile
-* **Color Coding**: Assign custom colors to profiles for easy identification
-* **Profile Switching**: Quickly switch between different schedules (courses, exam schedules, etc.)
+## Install
 
-### 🔔 Smart Notifications
+Download `Chronology.dmg` from [Releases](https://github.com/js-surya/Chronology/releases) → open → drag to `/Applications`.
 
-* **Configurable Reminders**: Get notified 5, 15, 30 minutes, or 1 hour before classes
-* **Test Notifications**: Send test notifications to verify your settings
-* **System Integration**: Native macOS notification support with banner display
-
-### 🎨 Beautiful Customization
-
-* **Appearance Modes**:
-  * Auto (follows system)
-  * Light mode
-  * Dark mode
-  * **AMOLED Black** mode (pure black for OLED displays)
-* **Dark Mode Preferences**: Choose between standard dark or AMOLED when using auto mode
-* **Accent Colors**: Select from 7 preset colors (Blue, Purple, Pink, Red, Orange, Green, Teal) or pick any custom color
-* **Time Format**: Toggle between 12-hour and 24-hour time display
-
-### 🔐 Privacy & System
-
-* **Privacy Focused**: All schedule data is stored locally on your device - no cloud syncing
-* **Launch at Login**: Automatically start Chronology when you log in
-* **Menu Bar Only Mode**: Hide dock icon and run purely from the menu bar
-* **Native macOS**: Built with SwiftUI for optimal performance and battery efficiency
-
-## 💻 Tech Stack
-
-* **Language**: Swift 5.9+
-* **UI Framework**: SwiftUI
-* **Platform**: macOS 14.0+ (Sonoma and later)
-* **Architecture**: MVVM (Model-View-ViewModel)
-* **Dependencies**: Native macOS frameworks only (no third-party dependencies)
-  * UserNotifications for notification management
-  * Combine for reactive programming
-  * AppKit for menu bar integration
-  * EventKit-style iCal parsing
-
-## 🤖 Built with AI
-
-This project was built with the assistance of **AI**. From architectural decisions to SwiftUI implementation and refactoring, AI played a co-pilot role in bringing Chronology to life.
-
-* **Development Assistants**: GitHub Copilot & Google Gemini
-* **Design Philosophy**: Clean, native macOS experience with modern SwiftUI patterns
-* **Code Quality**: AI-assisted code reviews and optimizations
-
-## 🚀 Installation
-
-1. Download the latest `Chronology.dmg` from the [Releases](https://github.com/js-surya/chronology/releases) page.
-2. Open the DMG file.
-3. Drag **Chronology** to your **Applications** folder.
-4. Launch the app!
-
-## 🛠️ Building from Source
-
-**Requirements:**
-
-* macOS 14.0 (Sonoma) or later
-* Xcode 15.0 or later
-* Swift 5.9+
-
-**Build Instructions:**
+## Build from source
 
 ```bash
-# Clone the repository
-git clone https://github.com/js-surya/chronology.git
-
-# Navigate to the project folder
-cd chronology
-
-# Build the release version
-swift build -c release
-
-# Package as a macOS application
+git clone https://github.com/js-surya/Chronology.git
+cd Chronology
 sh package_app.sh
 ```
 
-The packaged app will be available in the project directory as `Chronology.dmg`.
+Output: `Chronology.dmg` in project root.
 
-## 📝 Usage
+## Usage
 
-### Getting Started
+1. Launch → **Create Profile** → paste TimeEdit iCal URL → pick icon + color.
+2. Menu bar shows next class. Click icon for today's schedule.
+3. `⌘,` for settings: appearance, hours, notifications, reminders.
 
-1. **Add Your First Profile**:
-   * Launch Chronology
-   * Click the menu bar icon or open Settings (`Cmd+,`)
-   * Navigate to the **Profiles** tab
-   * Click the **+** button
-   * Enter a profile name (e.g., "Winter 2024")
-   * Paste your TimeEdit iCal URL
-   * Choose an icon and color for easy identification
-   * Click **Save**
+Find your iCal URL on your TimeEdit schedule page → **Subscribe / Export** → copy the `.ics` link.
 
-2. **Customize Your Experience**:
-   * Go to **General** settings (`Cmd+,`)
-   * Select your preferred appearance (Light, Dark, or AMOLED)
-   * Choose an accent color
-   * Set your notification preferences
-   * Configure calendar hours to match your schedule
+## Limitations
 
-3. **Daily Use**:
-   * Check the menu bar for your next class and countdown
-   * Click the menu bar icon for a quick schedule overview
-   * Switch between profiles using the profile selector
-   * Get notified before classes start
+- iCal URL must be public (no auth)
+- TimeEdit format only (other providers untested)
 
-### Finding Your TimeEdit iCal URL
+## Stack
 
-1. Go to your TimeEdit schedule page
-2. Look for an "Export" or "Subscribe" option
-3. Copy the iCal/ICS URL (usually ends with `.ics`)
-4. Paste it into Chronology
+Swift 5.9 · SwiftUI · MVVM · UserNotifications · AppKit (menu bar). No third-party dependencies.
 
-### Tips
+## License
 
-* Use **Week View** for planning ahead
-* Use **Day View** for focusing on today's schedule
-* Enable **Launch at Login** to never miss an update
-* Use **Menu Bar Only Mode** for a cleaner desktop experience
-
-## � Known Issues & Limitations
-
-* iCal URL must be publicly accessible (no authentication support yet)
-* Schedule updates are periodic - manual refresh not yet implemented
-* Limited to TimeEdit iCal format (other calendar systems not tested)
-
-## 🤝 Contributing
-
-Contributions are welcome! If you have suggestions for improvements or find bugs:
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-* TimeEdit for providing iCal export functionality
-* Apple for SwiftUI and SF Symbols
-* The Swift community for excellent documentation and resources
+MIT — see [LICENSE](LICENSE).
 
 ---
 
-Made with ❤️ by Surya & AI
+v3.0.0 — Made by Surya with AI assistance.

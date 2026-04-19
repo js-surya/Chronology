@@ -45,7 +45,39 @@ struct ContentView: View {
                         scheduleViewModel = nil
                         appViewModel.activeProfileId = ""
                     } label: {
-                        Image(systemName: "person.crop.circle")
+                        if let profile = appViewModel.activeProfile {
+                            ZStack {
+                                if let emojiColor = profile.emojiColor {
+                                    Circle()
+                                        .fill(emojiColor.color.opacity(0.15))
+                                        .frame(width: 22, height: 22)
+                                    
+                                    if profile.emoji.allSatisfy({ $0.isASCII }) {
+                                        Image(systemName: profile.emoji)
+                                            .font(.system(size: 12))
+                                            .foregroundColor(emojiColor.color)
+                                    } else {
+                                        Text(profile.emoji)
+                                            .font(.system(size: 14))
+                                    }
+                                } else {
+                                    Circle()
+                                        .fill(Color.blue.opacity(0.15))
+                                        .frame(width: 22, height: 22)
+                                    
+                                    if profile.emoji.allSatisfy({ $0.isASCII }) {
+                                        Image(systemName: profile.emoji)
+                                            .font(.system(size: 12))
+                                            .foregroundColor(.blue)
+                                    } else {
+                                        Text(profile.emoji)
+                                            .font(.system(size: 14))
+                                    }
+                                }
+                            }
+                        } else {
+                            Image(systemName: "person.crop.circle")
+                        }
                     }
                     .help("Change Profile")
                 }
@@ -95,32 +127,22 @@ struct ContentView: View {
             
             // Initialize scheduleViewModel if there's an active profile
             if !appViewModel.activeProfileId.isEmpty {
-                print("DEBUG: Initial load - Creating ScheduleViewModel for profile: \(appViewModel.activeProfileId)")
-                print("DEBUG: Active profile URL: \(appViewModel.activeProfileUrl)")
                 let vm = ScheduleViewModel(appViewModel: appViewModel)
                 scheduleViewModel = vm
                 Task {
-                    print("DEBUG: Loading schedule...")
                     await vm.loadSchedule()
-                    print("DEBUG: Schedule loaded. Events count: \(vm.events.count)")
                 }
             }
         }
         .onChange(of: appViewModel.activeProfileId) { oldId, newId in
-            print("DEBUG: Profile changed from '\(oldId)' to '\(newId)'")
             // Recreate scheduleViewModel when profile changes
             if !newId.isEmpty {
-                print("DEBUG: Creating new ScheduleViewModel for profile: \(newId)")
-                print("DEBUG: Active profile URL: \(appViewModel.activeProfileUrl)")
                 let vm = ScheduleViewModel(appViewModel: appViewModel)
                 scheduleViewModel = vm
                 Task {
-                    print("DEBUG: Loading schedule...")
                     await vm.loadSchedule()
-                    print("DEBUG: Schedule loaded. Events count: \(vm.events.count)")
                 }
             } else {
-                print("DEBUG: Clearing scheduleViewModel")
                 scheduleViewModel = nil
             }
         }
@@ -156,41 +178,51 @@ struct ScheduleContainerView: View {
     
     var body: some View {
         if vm.isLoading {
-            ProgressView("Loading schedule...")
+            ProgressView("Loading schedule…")
+                .controlSize(.regular)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let error = vm.errorMessage {
-            VStack(spacing: 16) {
+            VStack(spacing: 12) {
                 Image(systemName: "exclamationmark.triangle")
-                    .font(.system(size: 48))
+                    .font(.system(size: 44, weight: .light))
                     .foregroundColor(.orange)
+                Text("Couldn't load schedule")
+                    .font(.title3).fontWeight(.semibold)
                 Text(error)
+                    .font(.callout)
+                    .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
-                    .padding()
-                Button("Retry") {
+                    .padding(.horizontal)
+                Button {
                     Task { await vm.loadSchedule() }
+                } label: {
+                    Label("Retry", systemImage: "arrow.clockwise")
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.bordered)
+                .controlSize(.regular)
+                .padding(.top, 4)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if vm.events.isEmpty && !vm.isLoading {
-            // Check if URL is empty
             if appViewModel.activeProfileUrl.isEmpty {
-                // This case should ideally be handled by parent, but safe fallback
-                Text("No URL configured")
+                Text("No URL configured").foregroundColor(.secondary)
             } else {
-                // URL exists but no events - might be loading or empty schedule
-                VStack(spacing: 16) {
-                    Image(systemName: "calendar")
-                        .font(.system(size: 48))
-                        .foregroundColor(.secondary)
+                VStack(spacing: 12) {
+                    Image(systemName: "tray")
+                        .font(.system(size: 44, weight: .light))
+                        .foregroundColor(.secondary.opacity(0.8))
                     Text("No Events")
-                        .font(.title2)
-                    Text("Your schedule is empty or no events found")
-                        .foregroundColor(.secondary)
-                    Button("Refresh") {
+                        .font(.title3).fontWeight(.semibold)
+                    Text("Your schedule is empty or still syncing.")
+                        .font(.callout).foregroundColor(.secondary)
+                    Button {
                         Task { await vm.loadSchedule() }
+                    } label: {
+                        Label("Refresh", systemImage: "arrow.clockwise")
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.bordered)
+                    .controlSize(.regular)
+                    .padding(.top, 4)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
@@ -208,23 +240,30 @@ struct ScheduleContainerView: View {
 
 struct EmptyStateView: View {
     @Binding var showingSettings: Bool
-    
+
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 14) {
             Image(systemName: "calendar.badge.exclamationmark")
-                .font(.system(size: 64))
-                .foregroundColor(.secondary)
-            
+                .font(.system(size: 56, weight: .light))
+                .foregroundColor(.secondary.opacity(0.8))
+
             Text("No Schedule Configured")
-                .font(.title)
-            
-            Text("Add your TimeEdit iCal URL in settings to get started")
+                .font(.title3).fontWeight(.semibold)
+
+            Text("Add your TimeEdit iCal URL in settings to get started.")
+                .font(.callout)
                 .foregroundColor(.secondary)
-            
-            Button("Open Settings") {
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
+
+            Button {
                 showingSettings = true
+            } label: {
+                Label("Open Settings", systemImage: "gearshape")
             }
             .buttonStyle(.borderedProminent)
+            .controlSize(.regular)
+            .padding(.top, 4)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

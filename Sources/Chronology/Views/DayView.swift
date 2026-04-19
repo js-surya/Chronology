@@ -63,48 +63,50 @@ struct DayView: View {
     // MARK: - Header
     
     private var dateHeader: some View {
-        HStack {
-            Button("Today") {
-                selectedDate = Date()
+        ZStack {
+            HStack {
+                Button("Today") { selectedDate = Date() }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                Spacer()
             }
-            .buttonStyle(.plain)
-            
-            Spacer()
-            
-            Button(action: { moveDay(by: -1) }) {
-                Image(systemName: "chevron.left")
-            }
-            .buttonStyle(.plain)
-            
-            Button(action: { isDatePickerPresented.toggle() }) {
-                HStack(spacing: 4) {
-                    Text(selectedDate.formatted(.dateTime.weekday(.wide)) + ", " + selectedDate.formatted(.dateTime.month(.wide).day()))
-                        .font(.headline)
-                    Image(systemName: "chevron.down")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
+
+            HStack(spacing: 6) {
+                Button { moveDay(by: -1) } label: {
+                    Image(systemName: "chevron.left")
                 }
-                .padding(.horizontal, 10)
-                .contentShape(Rectangle())
+                .buttonStyle(.plain)
+                .help("Previous day")
+
+                Button { isDatePickerPresented.toggle() } label: {
+                    HStack(spacing: 4) {
+                        Text(selectedDate.formatted(.dateTime.weekday(.wide))
+                             + ", "
+                             + selectedDate.formatted(.dateTime.month(.wide).day()))
+                            .font(.headline)
+                        Image(systemName: "chevron.down")
+                            .font(.caption2).foregroundColor(.secondary)
+                    }
+                    .padding(.horizontal, 10)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .popover(isPresented: $isDatePickerPresented) {
+                    DatePicker("Select Date", selection: $selectedDate, displayedComponents: [.date])
+                        .datePickerStyle(.graphical)
+                        .padding(8)
+                }
+
+                Button { moveDay(by: 1) } label: {
+                    Image(systemName: "chevron.right")
+                }
+                .buttonStyle(.plain)
+                .help("Next day")
             }
-            .buttonStyle(.plain)
-            .popover(isPresented: $isDatePickerPresented) {
-                DatePicker("Select Date", selection: $selectedDate, displayedComponents: [.date])
-                    .datePickerStyle(.graphical)
-                    .padding()
-            }
-            
-            Button(action: { moveDay(by: 1) }) {
-                Image(systemName: "chevron.right")
-            }
-            .buttonStyle(.plain)
-            
-            Spacer()
-            
-            // Invisible spacer to balance the "Today" button
-            Text("Today").opacity(0).accessibilityHidden(true)
         }
-        .padding()
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(isAmoledTheme ? AnyShapeStyle(Color.black) : AnyShapeStyle(.regularMaterial))
     }
     
     // MARK: - Day Grid
@@ -133,13 +135,14 @@ struct DayView: View {
                 Text(formatHour(hour))
                     .font(.subheadline)
                     .foregroundColor(.secondary)
+                    .monospacedDigit()
                     .frame(width: timeColumnWidth, alignment: .trailing)
                     .padding(.trailing, 12)
                     .offset(y: -10)
-                
+
                 Rectangle()
-                    .fill(Color.gray.opacity(0.2))
-                    .frame(height: 1)
+                    .fill(Color.primary.opacity(appViewModel.gridLineOpacity))
+                    .frame(height: appViewModel.gridLineThickness)
             }
             .frame(height: hourHeight, alignment: .top)
         }
@@ -157,25 +160,31 @@ struct DayView: View {
         TimelineView(.periodic(from: .now, by: 60.0)) { context in
             let yPos = getYPosition(for: context.date)
             let hour = Calendar.current.component(.hour, from: context.date)
-            
+
             if hour >= startHour && hour <= endHour {
-                HStack(spacing: 0) {
-                    HStack(spacing: 2) {
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 9, weight: .bold))
-                        Text(context.date.formatted(date: .omitted, time: .shortened))
-                            .font(.caption2)
-                            .fontWeight(.semibold)
+                ZStack(alignment: .leading) {
+                    HStack(spacing: 0) {
+                        Spacer().frame(width: timeColumnWidth)
+                        Rectangle()
+                            .fill(appViewModel.accentColor.opacity(0.55))
+                            .frame(height: 1)
                     }
-                    .foregroundColor(appViewModel.accentColor)
-                    .frame(width: timeColumnWidth - 8, alignment: .trailing)
-                    .padding(.trailing, 4)
-                    .background(isAmoledTheme ? Color.black.opacity(0.8) : Color.white.opacity(0.8))
-                    
-                    Circle()
-                        .fill(appViewModel.accentColor)
-                        .frame(width: 6, height: 6)
-                        .offset(x: -3)
+
+                    HStack(spacing: 0) {
+                        Text(context.date.formatted(date: .omitted, time: .shortened))
+                            .font(.caption2).fontWeight(.semibold)
+                            .monospacedDigit()
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(appViewModel.accentColor))
+                            .frame(width: timeColumnWidth - 8, alignment: .trailing)
+
+                        Circle()
+                            .fill(appViewModel.accentColor)
+                            .frame(width: 7, height: 7)
+                            .offset(x: -3)
+                    }
                 }
                 .offset(y: yPos)
             }
