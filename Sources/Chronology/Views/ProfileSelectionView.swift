@@ -7,15 +7,17 @@ struct ProfileSelectionView: View {
     @State private var tempName = ""
     @State private var tempUrl = ""
     @State private var tempDescription = ""
-    
-    private var isAmoledTheme: Bool {
-        if appViewModel.themeMode == "amoled" {
-            return true
+
+    private var theme: AppTheme { appViewModel.resolvedTheme(for: systemColorScheme) }
+    private var isAmoledTheme: Bool { theme == .amoled }
+    private var isSolidTheme: Bool { theme.isSolid }
+
+    private var solidBg: Color {
+        switch theme {
+        case .amoled:    return .black
+        case .darkSolid: return Color(nsColor: NSColor(red: 0.11, green: 0.11, blue: 0.13, alpha: 1))
+        default:         return Color(nsColor: .windowBackgroundColor)
         }
-        if appViewModel.themeMode == "auto" && appViewModel.preferredDarkMode == "amoled" {
-            return systemColorScheme == .dark
-        }
-        return false
     }
     
     var body: some View {
@@ -82,7 +84,7 @@ struct ProfileSelectionView: View {
                 Spacer()
             }
             .frame(width: 400)
-            .background(isAmoledTheme ? Color.black : Color(nsColor: .controlBackgroundColor))
+            .background(isSolidTheme ? solidBg : Color(nsColor: .controlBackgroundColor))
 
             Divider().opacity(0.5)
 
@@ -138,10 +140,10 @@ struct ProfileSelectionView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(isAmoledTheme ? Color.black : Color(nsColor: .windowBackgroundColor))
+            .background(isSolidTheme ? solidBg : Color(nsColor: .windowBackgroundColor))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(isAmoledTheme ? Color.black : Color.clear)
+        .background(isSolidTheme ? solidBg : Color.clear)
         .sheet(isPresented: $showingAddProfile) {
             AddProfileSheet(name: $tempName, url: $tempUrl, description: $tempDescription, appViewModel: appViewModel) { emoji, emojiColor in
                 
@@ -262,16 +264,16 @@ struct AddProfileSheet: View {
     
     private let gridColumns = Array(repeating: GridItem(.fixed(40), spacing: 8), count: 8)
 
-    private var isAmoledTheme: Bool {
-        if appViewModel.themeMode == "amoled" {
-            return true
+    private var theme: AppTheme { appViewModel.resolvedTheme(for: systemColorScheme) }
+    private var isSolidTheme: Bool { theme.isSolid }
+    private var solidBg: Color {
+        switch theme {
+        case .amoled:    return .black
+        case .darkSolid: return Color(nsColor: NSColor(red: 0.11, green: 0.11, blue: 0.13, alpha: 1))
+        default:         return Color(nsColor: .windowBackgroundColor)
         }
-        if appViewModel.themeMode == "auto" && appViewModel.preferredDarkMode == "amoled" {
-            return systemColorScheme == .dark
-        }
-        return false
     }
-    
+
     var body: some View {
         VStack(spacing: 24) {
             VStack(spacing: 8) {
@@ -400,6 +402,6 @@ struct AddProfileSheet: View {
         }
         .padding(32)
         .frame(width: 500, height: 650)
-        .background(isAmoledTheme ? Color.black : Color(nsColor: .windowBackgroundColor))
+        .background(isSolidTheme ? solidBg : Color(nsColor: .windowBackgroundColor))
     }
 }

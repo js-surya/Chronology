@@ -207,12 +207,35 @@ class AppViewModel: ObservableObject {
         activeProfile?.icalUrl ?? ""
     }
     
+    func resolvedTheme(for systemScheme: ColorScheme) -> AppTheme {
+        switch themeMode {
+        case "light":     return .light
+        case "dark":      return .dark
+        case "darkSolid": return .darkSolid
+        case "amoled":    return .amoled
+        case "auto":
+            return systemScheme == .dark
+                ? (preferredDarkMode == "amoled" ? .amoled : .dark)
+                : .light
+        default:          return .light
+        }
+    }
+
+    func toggleImportant(_ event: Event) {
+        if isEventImportant(event) {
+            importantEvents.removeAll { $0.eventTitle == event.title && abs($0.eventDate.timeIntervalSince(event.startTime)) < 60 }
+            saveImportantEvents()
+        } else {
+            let ie = ImportantEvent(eventTitle: event.title, eventDate: event.startTime, reminderMinutes: 15)
+            importantEvents.append(ie)
+            saveImportantEvents()
+            NotificationCenter.default.post(name: .rescheduleNotifications, object: nil)
+        }
+    }
+
     func loadProfiles() {
         if let decoded = try? JSONDecoder().decode([ScheduleProfile].self, from: profilesData) {
             profiles = decoded
-            for profile in profiles {
-            }
-        } else {
         }
     }
     

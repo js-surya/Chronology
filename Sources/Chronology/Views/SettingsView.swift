@@ -39,12 +39,19 @@ struct SettingsView: View {
     @Binding var isPresented: Bool
     @State private var selection: SettingsPane = .appearance
 
-    private var isAmoledTheme: Bool {
-        if appViewModel.themeMode == "amoled" { return true }
-        if appViewModel.themeMode == "auto" && appViewModel.preferredDarkMode == "amoled" {
-            return systemColorScheme == .dark
+    private var resolvedTheme: AppTheme {
+        appViewModel.resolvedTheme(for: systemColorScheme)
+    }
+
+    private var isAmoledTheme: Bool { resolvedTheme == .amoled }
+    private var isSolidTheme: Bool { resolvedTheme.isSolid }
+
+    private var solidBackground: Color {
+        switch resolvedTheme {
+        case .amoled:    return .black
+        case .darkSolid: return Color(nsColor: NSColor(red: 0.11, green: 0.11, blue: 0.13, alpha: 1))
+        default:         return Color(nsColor: .windowBackgroundColor)
         }
-        return false
     }
 
     var body: some View {
@@ -69,18 +76,18 @@ struct SettingsView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 12)
-                .background(isAmoledTheme ? Color.black : Color(nsColor: .windowBackgroundColor))
+                .background(solidBackground)
             }
         }
         .frame(width: 820, height: 560)
         .tint(appViewModel.accentColor)
-        .background(isAmoledTheme ? Color.black : Color(nsColor: .windowBackgroundColor))
+        .background(solidBackground)
     }
 
     @ViewBuilder
     private var paneContent: some View {
         switch selection {
-        case .profiles: ProfilesPane(appViewModel: appViewModel, isAmoledTheme: isAmoledTheme)
+        case .profiles: ProfilesPane(appViewModel: appViewModel, solidBackground: solidBackground)
         case .appearance: AppearancePane(appViewModel: appViewModel)
         case .events: EventsPane(appViewModel: appViewModel)
         case .grid: GridPane(appViewModel: appViewModel)
@@ -95,7 +102,7 @@ struct SettingsView: View {
 
 struct ProfilesPane: View {
     @ObservedObject var appViewModel: AppViewModel
-    let isAmoledTheme: Bool
+    let solidBackground: Color
 
     @State private var showingAddSheet = false
     @State private var showingEditSheet = false
@@ -147,7 +154,7 @@ struct ProfilesPane: View {
             ProfileSheet(title: "Add Profile",
                          name: $tempName, url: $tempUrl, description: $tempDescription,
                          emoji: $tempEmoji, emojiColor: $tempEmojiColor,
-                         appViewModel: appViewModel, isAmoledTheme: isAmoledTheme,
+                         appViewModel: appViewModel, solidBackground: solidBackground,
                          onSave: {
                 let profile = ScheduleProfile(name: tempName, icalUrl: tempUrl,
                                               description: tempDescription,
@@ -161,7 +168,7 @@ struct ProfilesPane: View {
             ProfileSheet(title: "Edit Profile",
                          name: $tempName, url: $tempUrl, description: $tempDescription,
                          emoji: $tempEmoji, emojiColor: $tempEmojiColor,
-                         appViewModel: appViewModel, isAmoledTheme: isAmoledTheme,
+                         appViewModel: appViewModel, solidBackground: solidBackground,
                          onSave: {
                 if var profile = editingProfile {
                     profile.name = tempName
@@ -256,7 +263,7 @@ struct ProfilesPane: View {
         .padding(10)
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .fill(isAmoledTheme ? Color.white.opacity(0.04) : Color(nsColor: .controlBackgroundColor))
+                .fill(solidBackground == Color(nsColor: .windowBackgroundColor) ? Color(nsColor: .controlBackgroundColor) : Color.white.opacity(0.04))
         )
     }
 }
@@ -318,34 +325,53 @@ struct AppearancePane: View {
             }
 
             SettingsSection(title: "Theme", systemImage: "circle.lefthalf.filled") {
-                Picker("", selection: $appViewModel.themeMode) {
-                    Label("Auto", systemImage: "circle.lefthalf.filled").tag("auto")
-                    Label("Light", systemImage: "sun.max.fill").tag("light")
-                    Label("Dark", systemImage: "moon.fill").tag("dark")
-                    Label("AMOLED", systemImage: "moon.stars.fill").tag("amoled")
+                HStack(spacing: 8) {
+                    ForEach(AppTheme.allCases, id: \.self) { t in
+                        Button {
+                            appViewModel.themeMode = t.rawValue
+                        } label: {
+                            VStack(spacing: 6) {
+                                Image(systemName: t.systemImage)
+                                    .font(.system(size: 18))
+                                    .frame(width: 40, height: 40)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .fill(appViewModel.themeMode == t.rawValue
+                                                  ? appViewModel.accentColor.opacity(0.15)
+                                                  : Color.primary.opacity(0.05))
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(appViewModel.themeMode == t.rawValue
+                                                    ? appViewModel.accentColor
+                                                    : Color.clear, lineWidth: 1.5)
+                                    )
+                                Text(t.displayName)
+                                    .font(.caption2)
+                                    .foregroundColor(appViewModel.themeMode == t.rawValue
+                                                     ? appViewModel.accentColor : .secondary)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    Spacer()
+                }
+
+                if appViewModel.themeMode == "amoled" {
+                    InlineCallout(text: "Pure black background for OLED displays. Saves battery on supported Macs.")
+                }
+                if appViewModel.themeMode == "darkSolid" {
+                    InlineCallout(text: "Opaque dark surface — no translucency. Consistent on all display types.")
+                }
+            }
+
+            SettingsSection(title: "Time Format", systemImage: "clock") {
+                Picker("", selection: $appViewModel.use24HourFormat) {
+                    Text("24-hour").tag(true)
+                    Text("12-hour").tag(false)
                 }
                 .pickerStyle(.segmented)
                 .labelsHidden()
-
-                if appViewModel.themeMode == "auto" {
-                    HStack {
-                        Text("When auto switches to dark:")
-                            .font(.caption).foregroundColor(.secondary)
-                        Spacer()
-                        Picker("", selection: $appViewModel.preferredDarkMode) {
-                            Text("Standard").tag("dark")
-                            Text("AMOLED").tag("amoled")
-                        }
-                        .pickerStyle(.menu)
-                        .labelsHidden()
-                        .frame(width: 130)
-                    }
-                }
-
-                if appViewModel.themeMode == "amoled"
-                    || (appViewModel.themeMode == "auto" && appViewModel.preferredDarkMode == "amoled") {
-                    InlineCallout(text: "Pure black background for OLED displays. Saves battery on supported Macs.")
-                }
             }
         }
         .onAppear { draftAccent = appViewModel.accentColor }
@@ -641,7 +667,7 @@ struct AboutPane: View {
                 VStack(spacing: 4) {
                     Text("Chronology")
                         .font(.system(size: 32, weight: .bold, design: .rounded))
-                    Text("Version 3.0.0")
+                    Text("Version 4.0.0")
                         .font(.subheadline).foregroundColor(.secondary)
                 }
                 Text("A beautiful schedule viewer for TimeEdit.")
@@ -707,7 +733,7 @@ struct ProfileSheet: View {
     @Binding var emoji: String
     @Binding var emojiColor: Color
     @ObservedObject var appViewModel: AppViewModel
-    let isAmoledTheme: Bool
+    let solidBackground: Color
     let onSave: () -> Void
     let onCancel: () -> Void
 
@@ -778,8 +804,10 @@ struct ProfileSheet: View {
         }
         .padding(24)
         .frame(width: 480, height: 580)
-        .background(isAmoledTheme ? Color.black : Color(nsColor: .windowBackgroundColor))
+        .background(profileSheetBackground)
     }
+
+    private var profileSheetBackground: Color { solidBackground }
 
     @ViewBuilder
     private func labeledField(_ label: String, placeholder: String, text: Binding<String>) -> some View {
