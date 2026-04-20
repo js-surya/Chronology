@@ -4,360 +4,278 @@ import UserNotifications
 struct EventDetailPopover: View {
     let event: Event
     @EnvironmentObject var appViewModel: AppViewModel
-    
+
     @State private var noteText = ""
     @State private var isEditingNote = false
-    @State private var showingColorPicker = false
-    @State private var showingPalettePicker = false
     @State private var selectedColor: Color
-    @State private var customReminderTime: Int = 15
-    
-    private var isImportant: Bool {
-        appViewModel.isEventImportant(event)
+
+    private var eventColor: Color {
+        appViewModel.getCustomColor(for: event.title) ?? event.color(from: event.title)
     }
-    
-    private var currentReminderTime: Int {
-        appViewModel.getImportantEvent(event)?.reminderMinutes ?? 15
-    }
-    
+
+    private var isImportant: Bool { appViewModel.isEventImportant(event) }
+
     init(event: Event) {
         self.event = event
         _selectedColor = State(initialValue: event.color(from: event.title))
     }
-    
-    private var dateFormatter: DateFormatter {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE, MMM d, yyyy"
-        return formatter
-    }
-    
-    private var timeFormatter: DateFormatter {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        return formatter
-    }
-    
+
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 14) {
-                // Title
-                Text(event.title)
-                    .font(.title3)
-                    .fontWeight(.semibold)
-                    .fixedSize(horizontal: false, vertical: true)
-                
-                Divider()
-                
-                // Date
-                HStack(alignment: .top, spacing: 10) {
-                    Image(systemName: "calendar")
-                        .foregroundColor(appViewModel.accentColor)
-                        .font(.body)
-                        .frame(width: 20)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(dateFormatter.string(from: event.startTime))
-                            .font(.body)
-                    }
+        VStack(spacing: 0) {
+            // Accent band header
+            accentBand
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    // Detail rows
+                    detailRows
+
+                    Divider()
+
+                    // Color palette
+                    colorSection
+
+                    Divider()
+
+                    // Notes
+                    notesSection
                 }
-            
-            // Time
-            HStack(alignment: .top, spacing: 10) {
-                Image(systemName: "clock")
-                    .foregroundColor(appViewModel.accentColor)
-                    .font(.body)
-                    .frame(width: 20)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("\(timeFormatter.string(from: event.startTime)) - \(timeFormatter.string(from: event.endTime))")
-                        .font(.body)
-                    Text(durationText)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 14)
             }
-            
-            // Location
-            if !event.location.isEmpty {
-                HStack(alignment: .top, spacing: 10) {
-                    Image(systemName: "mappin.circle")
-                        .foregroundColor(appViewModel.accentColor)
-                        .font(.body)
-                        .frame(width: 20)
-                    Text(event.location)
-                        .font(.body)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
-            
-            // Description
-            if let description = event.description, !description.isEmpty {
-                Divider()
-                
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Details")
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.secondary)
-                        .textCase(.uppercase)
-                    Text(description)
-                        .font(.body)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
-            
-            Divider()
-            
-            // Important Reminder Status
-            if isImportant {
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Label("Important Reminder", systemImage: "star.fill")
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.yellow)
-                            .textCase(.uppercase)
-                    }
-                    
-                    HStack(spacing: 8) {
-                        Image(systemName: "bell.badge.fill")
-                            .foregroundColor(.orange)
-                            .font(.body)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("This event is marked as important")
-                                .font(.body)
-                            Text("You'll receive a reminder \(currentReminderTime) minutes before")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                    .padding(12)
-                    .background(Color.yellow.opacity(0.1))
-                    .cornerRadius(8)
-                    
-                    Text("Tip: Click the star icon on the event card to toggle")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .italic()
-                }
-            }
-            
-            Divider()
-            
-            // Personal Note
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Label("Personal Note", systemImage: "note.text")
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.secondary)
-                        .textCase(.uppercase)
-                    Spacer()
-                    Button(isEditingNote ? "Done" : "Edit") {
-                        if isEditingNote {
-                            appViewModel.saveNote(for: event, noteText: noteText)
-                        }
-                        isEditingNote.toggle()
-                    }
-                    .buttonStyle(.plain)
-                    .font(.caption)
-                }
-                
-                if isEditingNote {
-                    TextEditor(text: $noteText)
-                        .frame(height: 60)
-                        .font(.body)
-                        .scrollContentBackground(.hidden)
-                        .background(Color(nsColor: .controlBackgroundColor))
-                        .cornerRadius(6)
-                } else if !noteText.isEmpty {
-                    Text(noteText)
-                        .font(.body)
-                        .fixedSize(horizontal: false, vertical: true)
-                } else {
-                    Text("No notes")
-                        .font(.body)
-                        .foregroundColor(.secondary)
-                        .italic()
-                }
-            }
-            
+
             Divider()
 
-            // Color Customization
-            VStack(alignment: .leading, spacing: 8) {
-                Label("Course Color", systemImage: "paintpalette")
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.secondary)
-                    .textCase(.uppercase)
-                
-                HStack(spacing: 10) {
-                    // Current color preview
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(selectedColor)
-                        .frame(width: 40, height: 30)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.primary.opacity(0.2), lineWidth: 1)
-                        )
-                    
-                    Button("Choose from Palettes") {
-                        showingPalettePicker = true
-                    }
-                    .buttonStyle(.bordered)
-                    
-                    Spacer()
-                    
-                    Button("Reset") {
-                        selectedColor = event.color(from: event.title)
-                        appViewModel.setCustomColor(for: event.title, color: nil)
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
+            // Footer buttons
+            HStack(spacing: 10) {
+                Button(isImportant ? "★ Important" : "Mark important") {
+                    appViewModel.toggleImportant(event)
                 }
+                .buttonStyle(DetailCapsuleStyle(accent: eventColor, filled: isImportant))
+
+                Button("Add note") {
+                    isEditingNote = true
+                }
+                .buttonStyle(DetailCapsuleStyle(accent: eventColor, filled: false))
             }
-            }
-            .padding(16)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
         }
-        .frame(width: 360, height: 600)
-        .sheet(isPresented: $showingPalettePicker) {
-            ColorPalettePickerSheet(
-                selectedColor: $selectedColor,
-                isPresented: $showingPalettePicker,
-                event: event
-            )
-            .environmentObject(appViewModel)
-        }
+        .frame(width: 360, height: 560)
         .onAppear {
-            if let existingNote = appViewModel.getNote(for: event) {
-                noteText = existingNote.note
+            if let note = appViewModel.getNote(for: event) { noteText = note.note }
+            if let custom = appViewModel.getCustomColor(for: event.title) { selectedColor = custom }
+        }
+    }
+
+    // MARK: - Accent band
+
+    private var accentBand: some View {
+        ZStack(alignment: .bottomLeading) {
+            LinearGradient(
+                colors: [eventColor.opacity(0.6), eventColor.opacity(0.15)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .frame(height: 110)
+
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 8) {
+                    Circle()
+                        .fill(eventColor)
+                        .frame(width: 10, height: 10)
+                    Text("CLASS")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(.secondary)
+                        .tracking(1.2)
+                }
+                Text(event.title)
+                    .font(.system(size: 22, weight: .semibold))
+                    .lineLimit(2)
+                Text(timeRange)
+                    .font(.system(size: 12))
+                    .foregroundColor(.secondary)
             }
-            if let customColor = appViewModel.getCustomColor(for: event.title) {
-                selectedColor = customColor
+            .padding(.horizontal, 20)
+            .padding(.bottom, 14)
+        }
+    }
+
+    // MARK: - Detail rows
+
+    @ViewBuilder
+    private var detailRows: some View {
+        if !event.location.isEmpty {
+            iconDetailRow(icon: "mappin.circle.fill", label: "LOCATION", value: event.location)
+        }
+        iconDetailRow(icon: "clock.fill", label: "DURATION", value: durationText)
+        iconDetailRow(icon: "calendar", label: "DATE", value: dateString)
+
+        if let desc = event.description, !desc.isEmpty {
+            iconDetailRow(icon: "doc.text", label: "DETAILS", value: desc)
+        }
+    }
+
+    private func iconDetailRow(icon: String, label: String, value: String) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color.secondary.opacity(0.1))
+                    .frame(width: 26, height: 26)
+                Image(systemName: icon)
+                    .font(.system(size: 13))
+                    .foregroundColor(.secondary)
             }
-            // Load current reminder time if event is important
-            if let importantEvent = appViewModel.getImportantEvent(event) {
-                customReminderTime = importantEvent.reminderMinutes
+            VStack(alignment: .leading, spacing: 2) {
+                Text(label)
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundColor(.secondary)
+                    .tracking(0.8)
+                Text(value)
+                    .font(.body)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer()
+        }
+    }
+
+    // MARK: - Color section
+
+    private var colorSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("COLOR")
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundColor(.secondary)
+                .tracking(1.2)
+
+            HStack(spacing: 10) {
+                ForEach(Array(colorPalette.enumerated()), id: \.offset) { _, color in
+                    Button {
+                        selectedColor = color
+                        appViewModel.setCustomColor(for: event.title, color: color)
+                    } label: {
+                        Circle()
+                            .fill(color)
+                            .frame(width: 28, height: 28)
+                            .overlay(
+                                Circle()
+                                    .strokeBorder(Color.primary, lineWidth: 2)
+                                    .opacity(colorsMatch(color, selectedColor) ? 1 : 0)
+                            )
+                            .shadow(color: color.opacity(0.4), radius: 3, y: 1)
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                Spacer()
+
+                Button("Reset") {
+                    selectedColor = event.color(from: event.title)
+                    appViewModel.setCustomColor(for: event.title, color: nil)
+                }
+                .font(.caption)
+                .buttonStyle(.bordered)
+                .controlSize(.mini)
             }
         }
     }
-    
+
+    // MARK: - Notes section
+
+    private var notesSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Label("NOTES", systemImage: "note.text")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundColor(.secondary)
+                    .tracking(1.2)
+                Spacer()
+                Button(isEditingNote ? "Save" : "Edit") {
+                    if isEditingNote {
+                        appViewModel.saveNote(for: event, noteText: noteText)
+                    }
+                    isEditingNote.toggle()
+                }
+                .buttonStyle(.plain)
+                .font(.caption)
+                .foregroundColor(eventColor)
+            }
+
+            if isEditingNote {
+                TextEditor(text: $noteText)
+                    .frame(height: 70)
+                    .font(.body)
+                    .scrollContentBackground(.hidden)
+                    .background(Color(nsColor: .controlBackgroundColor))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.primary.opacity(0.1), lineWidth: 1)
+                    )
+            } else if !noteText.isEmpty {
+                Text(noteText)
+                    .font(.body)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .foregroundColor(.primary)
+            } else {
+                Text("No notes yet")
+                    .font(.body)
+                    .foregroundColor(.secondary)
+                    .italic()
+            }
+        }
+    }
+
+    // MARK: - Helpers
+
+    private var timeRange: String {
+        let fmt = DateFormatter(); fmt.timeStyle = .short
+        return "\(fmt.string(from: event.startTime)) – \(fmt.string(from: event.endTime))"
+    }
+
+    private var dateString: String {
+        let fmt = DateFormatter(); fmt.dateFormat = "EEEE, MMM d, yyyy"
+        return fmt.string(from: event.startTime)
+    }
+
     private var durationText: String {
-        let duration = event.endTime.timeIntervalSince(event.startTime)
-        let hours = Int(duration) / 3600
-        let minutes = (Int(duration) % 3600) / 60
-        
-        if hours > 0 && minutes > 0 {
-            return "\(hours)h \(minutes)m"
-        } else if hours > 0 {
-            return "\(hours)h"
-        } else {
-            return "\(minutes)m"
+        let d = Int(event.endTime.timeIntervalSince(event.startTime))
+        let h = d / 3600; let m = (d % 3600) / 60
+        if h > 0 && m > 0 { return "\(h)h \(m)m" }
+        return h > 0 ? "\(h)h" : "\(m)m"
+    }
+
+    private var colorPalette: [Color] {
+        let baseHue = Double(abs(event.title.hashValue) % 360) / 360.0
+        return (0..<9).map { i in
+            let hue = (baseHue + Double(i) * 0.11).truncatingRemainder(dividingBy: 1.0)
+            return Color(hue: hue, saturation: 0.55, brightness: 0.82)
         }
     }
-    
-    private func scheduleImportantReminder() {
-        guard event.startTime > Date() else { return }
-        
-        // Save to persistent storage
-        let importantEvent = ImportantEvent(
-            eventTitle: event.title,
-            eventDate: event.startTime,
-            reminderMinutes: customReminderTime
-        )
-        
-        // Remove existing if any and add new - using objectWillChange to ensure UI updates
-        DispatchQueue.main.async {
-            self.appViewModel.objectWillChange.send()
-            // Match by title and exact start time
-            self.appViewModel.importantEvents.removeAll { $0.eventTitle == self.event.title && abs($0.eventDate.timeIntervalSince(self.event.startTime)) < 60 }
-            self.appViewModel.importantEvents.append(importantEvent)
-            self.appViewModel.saveImportantEvents()
-            
-            // Trigger notification rescheduling to include this important event
-            NotificationCenter.default.post(name: .rescheduleNotifications, object: nil)
-            
-        }
-    }
-    
-    private func cancelImportantReminder() {
-        // Remove from persistent storage - using objectWillChange to ensure UI updates
-        DispatchQueue.main.async {
-            self.appViewModel.objectWillChange.send()
-            // Match by title and exact start time
-            self.appViewModel.importantEvents.removeAll { $0.eventTitle == self.event.title && abs($0.eventDate.timeIntervalSince(self.event.startTime)) < 60 }
-            self.appViewModel.saveImportantEvents()
-            
-            // Cancel scheduled notifications
-            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["important-\(self.event.id)"])
-        }
+
+    private func colorsMatch(_ a: Color, _ b: Color) -> Bool {
+        guard let n1 = NSColor(a).usingColorSpace(.deviceRGB),
+              let n2 = NSColor(b).usingColorSpace(.deviceRGB) else { return false }
+        let t: CGFloat = 0.03
+        return abs(n1.redComponent - n2.redComponent) < t
+            && abs(n1.greenComponent - n2.greenComponent) < t
+            && abs(n1.blueComponent - n2.blueComponent) < t
     }
 }
 
-// MARK: - Color Palette Picker Sheet
-struct ColorPalettePickerSheet: View {
-    @Binding var selectedColor: Color
-    @Binding var isPresented: Bool
-    let event: Event
-    @EnvironmentObject var appViewModel: AppViewModel
-    
-    var body: some View {
-        VStack(spacing: 16) {
-            HStack {
-                Text("Course Color")
-                    .font(.headline)
-                Spacer()
-                Button("Done") {
-                    isPresented = false
-                }
-                .buttonStyle(.bordered)
-            }
-            .padding(.horizontal)
-            .padding(.top)
-            
-            ScrollView {
-                VStack(spacing: 12) {
-                    // Color Palettes
-                    ForEach(ColorPalettes.palettes.indices, id: \.self) { index in
-                        HStack(spacing: 6) {
-                            ForEach(ColorPalettes.palettes[index], id: \.self) { colorHex in
-                                Button {
-                                    selectedColor = Color(hex: colorHex)
-                                    appViewModel.setCustomColor(for: event.title, color: Color(hex: colorHex))
-                                    isPresented = false
-                                } label: {
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color(hex: colorHex))
-                                        .frame(height: 44)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 8)
-                                                .stroke(Color.primary.opacity(0.2), lineWidth: 1)
-                                        )
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                    }
-                    
-                    Divider()
-                        .padding(.vertical, 8)
-                    
-                    // Custom Color Picker
-                    HStack {
-                        Text("Custom Color")
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-                        Spacer()
-                        ColorPicker("", selection: $selectedColor)
-                            .labelsHidden()
-                            .onChange(of: selectedColor) { _, newColor in
-                                appViewModel.setCustomColor(for: event.title, color: newColor)
-                            }
-                    }
-                    .padding(.horizontal, 8)
-                }
-                .padding()
-            }
-        }
-        .frame(width: 400, height: 500)
+// MARK: - Detail capsule button style
+
+struct DetailCapsuleStyle: ButtonStyle {
+    let accent: Color
+    let filled: Bool
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 12, weight: .medium))
+            .padding(.horizontal, 14)
+            .padding(.vertical, 7)
+            .background(filled ? accent : Color.primary.opacity(0.07), in: Capsule())
+            .foregroundColor(filled ? .white : .primary)
+            .opacity(configuration.isPressed ? 0.8 : 1)
     }
 }
