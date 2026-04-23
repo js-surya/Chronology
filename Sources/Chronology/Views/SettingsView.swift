@@ -4,29 +4,29 @@ import UserNotifications
 // MARK: - Sidebar panes
 
 enum SettingsPane: String, CaseIterable, Identifiable {
-    case profiles, appearance, events, grid, notifications, system, about
+    case profiles, appearance, hours, notifications, reminders, system, about
 
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .profiles: return "Profiles"
-        case .appearance: return "Appearance"
-        case .events: return "Events"
-        case .grid: return "Grid"
+        case .profiles:      return "Profiles"
+        case .appearance:    return "Appearance"
+        case .hours:         return "Hours"
         case .notifications: return "Notifications"
-        case .system: return "System"
-        case .about: return "About"
+        case .reminders:     return "Reminders"
+        case .system:        return "System"
+        case .about:         return "About"
         }
     }
     var systemImage: String {
         switch self {
-        case .profiles: return "person.crop.circle.badge.plus"
-        case .appearance: return "paintbrush.fill"
-        case .events: return "rectangle.on.rectangle"
-        case .grid: return "square.grid.3x3"
+        case .profiles:      return "person.crop.circle.badge.plus"
+        case .appearance:    return "paintbrush.fill"
+        case .hours:         return "clock.fill"
         case .notifications: return "bell.badge.fill"
-        case .system: return "gearshape.2.fill"
-        case .about: return "info.circle.fill"
+        case .reminders:     return "star.fill"
+        case .system:        return "gearshape.2.fill"
+        case .about:         return "info.circle.fill"
         }
     }
 }
@@ -87,13 +87,13 @@ struct SettingsView: View {
     @ViewBuilder
     private var paneContent: some View {
         switch selection {
-        case .profiles: ProfilesPane(appViewModel: appViewModel, solidBackground: solidBackground)
-        case .appearance: AppearancePane(appViewModel: appViewModel)
-        case .events: EventsPane(appViewModel: appViewModel)
-        case .grid: GridPane(appViewModel: appViewModel)
+        case .profiles:      ProfilesPane(appViewModel: appViewModel, solidBackground: solidBackground)
+        case .appearance:    AppearancePane(appViewModel: appViewModel)
+        case .hours:         HoursPane(appViewModel: appViewModel)
         case .notifications: NotificationsPane(appViewModel: appViewModel)
-        case .system: SystemPane(appViewModel: appViewModel)
-        case .about: AboutPane()
+        case .reminders:     RemindersPane(appViewModel: appViewModel)
+        case .system:        SystemPane(appViewModel: appViewModel)
+        case .about:         AboutPane()
         }
     }
 }
@@ -378,113 +378,40 @@ struct AppearancePane: View {
     }
 }
 
-// MARK: - Events pane (with live preview)
+// MARK: - Hours pane
 
-struct EventsPane: View {
+struct HoursPane: View {
     @ObservedObject var appViewModel: AppViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Events")
+            Text("Hours")
                 .font(.title2).fontWeight(.bold)
 
-            SettingsSection(title: "Live Preview", systemImage: "eye.fill") {
-                HStack(spacing: 10) {
-                    LiveEventPreview(appViewModel: appViewModel,
-                                     title: "Lecture", location: "Room A1.05",
-                                     tint: appViewModel.accentColor)
-                    LiveEventPreview(appViewModel: appViewModel,
-                                     title: "Lab", location: "Studio 3",
-                                     tint: .orange)
-                    LiveEventPreview(appViewModel: appViewModel,
-                                     title: "Seminar", location: "Online",
-                                     tint: .green)
+            SettingsSection(title: "Visible Range", systemImage: "clock.fill") {
+                SettingsRow(title: "Start", subtitle: "First hour shown in the grid") {
+                    HourStepperControl(
+                        value: $appViewModel.startHour,
+                        range: 0...(appViewModel.endHour - 1)
+                    )
                 }
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.vertical, 4)
-            }
-
-            SettingsSection(title: "Card Style", systemImage: "rectangle.on.rectangle") {
-                Picker("", selection: $appViewModel.eventCardStyle) {
-                    Label("Filled", systemImage: "square.fill").tag("filled")
-                    Label("Bordered", systemImage: "square").tag("bordered")
-                    Label("Minimal", systemImage: "square.dashed").tag("minimal")
-                }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-
-                SettingsRow(title: "Corner Radius", subtitle: "Roundness of event cards") {
-                    HStack(spacing: 8) {
-                        Slider(value: $appViewModel.eventCornerRadius, in: 0...16, step: 1)
-                            .frame(width: 160)
-                        Text("\(Int(appViewModel.eventCornerRadius)) pt")
-                            .font(.caption).foregroundColor(.secondary)
-                            .monospacedDigit().frame(width: 44)
-                    }
-                }
-                SettingsRow(title: "Border Width", subtitle: "Thickness of event borders") {
-                    HStack(spacing: 8) {
-                        Slider(value: $appViewModel.eventBorderWidth, in: 0...4, step: 0.5)
-                            .frame(width: 160)
-                        Text(String(format: "%.1f pt", appViewModel.eventBorderWidth))
-                            .font(.caption).foregroundColor(.secondary)
-                            .monospacedDigit().frame(width: 44)
-                    }
-                }
-                Toggle(isOn: $appViewModel.eventShadowEnabled) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Card Shadows").font(.body)
-                        Text("Add soft shadow beneath cards").font(.caption).foregroundColor(.secondary)
-                    }
-                }
-                Toggle(isOn: $appViewModel.showEventIcons) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Show Icons").font(.body)
-                        Text("Display icons on event cards").font(.caption).foregroundColor(.secondary)
-                    }
+                SettingsRow(title: "End", subtitle: "Last hour shown in the grid") {
+                    HourStepperControl(
+                        value: $appViewModel.endHour,
+                        range: (appViewModel.startHour + 1)...23
+                    )
                 }
             }
-        }
-    }
-}
 
-// MARK: - Grid pane
-
-struct GridPane: View {
-    @ObservedObject var appViewModel: AppViewModel
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("Grid Appearance")
-                .font(.title2).fontWeight(.bold)
-
-            SettingsSection(title: "Preview", systemImage: "eye.fill") {
-                GridPreviewSwatch(appViewModel: appViewModel)
-            }
-
-            SettingsSection(title: "Calendar Hours", systemImage: "clock.fill") {
-                SettingsRow(title: "Visible Hours", subtitle: "Range shown in Week view") {
-                    HStack(spacing: 8) {
-                        Picker("Start", selection: $appViewModel.startHour) {
-                            ForEach(0...22, id: \.self) { Text("\($0):00").tag($0) }
-                        }
-                        .labelsHidden().frame(width: 80)
-                        Text("to").foregroundColor(.secondary)
-                        Picker("End", selection: $appViewModel.endHour) {
-                            ForEach(1...23, id: \.self) { Text("\($0):00").tag($0) }
-                        }
-                        .labelsHidden().frame(width: 80)
+            SettingsSection(title: "Week", systemImage: "calendar") {
+                SettingsRow(title: "Week starts on", subtitle: "") {
+                    Picker("", selection: .constant("monday")) {
+                        Text("Monday").tag("monday")
+                        Text("Sunday").tag("sunday")
                     }
-                }
-                .onChange(of: appViewModel.startHour) { _, newStart in
-                    if appViewModel.endHour <= newStart {
-                        appViewModel.endHour = min(23, newStart + 1)
-                    }
-                }
-                .onChange(of: appViewModel.endHour) { _, newEnd in
-                    if newEnd <= appViewModel.startHour {
-                        appViewModel.startHour = max(0, newEnd - 1)
-                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .frame(width: 200)
                 }
                 Toggle(isOn: $appViewModel.use24HourFormat) {
                     VStack(alignment: .leading, spacing: 2) {
@@ -495,11 +422,11 @@ struct GridPane: View {
             }
 
             SettingsSection(title: "Grid Lines", systemImage: "square.grid.3x3") {
-                SettingsRow(title: "Background Opacity", subtitle: "Cell background tint") {
+                SettingsRow(title: "Line Opacity", subtitle: "Visibility of hour grid lines") {
                     HStack(spacing: 8) {
-                        Slider(value: $appViewModel.gridBackgroundOpacity, in: 0...0.3, step: 0.01)
+                        Slider(value: $appViewModel.gridLineOpacity, in: 0...0.5, step: 0.01)
                             .frame(width: 160)
-                        Text(String(format: "%.0f%%", appViewModel.gridBackgroundOpacity * 100))
+                        Text(String(format: "%.0f%%", appViewModel.gridLineOpacity * 100))
                             .font(.caption).foregroundColor(.secondary)
                             .monospacedDigit().frame(width: 44)
                     }
@@ -513,13 +440,102 @@ struct GridPane: View {
                             .monospacedDigit().frame(width: 44)
                     }
                 }
-                SettingsRow(title: "Line Opacity", subtitle: "Visibility of grid lines") {
-                    HStack(spacing: 8) {
-                        Slider(value: $appViewModel.gridLineOpacity, in: 0...0.5, step: 0.01)
-                            .frame(width: 160)
-                        Text(String(format: "%.0f%%", appViewModel.gridLineOpacity * 100))
-                            .font(.caption).foregroundColor(.secondary)
-                            .monospacedDigit().frame(width: 44)
+            }
+        }
+    }
+}
+
+struct HourStepperControl: View {
+    @Binding var value: Int
+    let range: ClosedRange<Int>
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Button {
+                if value > range.lowerBound { value -= 1 }
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 11, weight: .semibold))
+                    .frame(width: 26, height: 26)
+                    .background(.ultraThinMaterial, in: Circle())
+                    .overlay(Circle().strokeBorder(Color.white.opacity(0.18), lineWidth: 0.5))
+            }
+            .buttonStyle(.plain)
+            .disabled(value <= range.lowerBound)
+
+            Text(String(format: "%02d:00", value))
+                .font(.system(size: 13, weight: .medium, design: .monospaced))
+                .monospacedDigit()
+                .frame(minWidth: 52, alignment: .center)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(Color.primary.opacity(0.05), in: RoundedRectangle(cornerRadius: 8))
+
+            Button {
+                if value < range.upperBound { value += 1 }
+            } label: {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 11, weight: .semibold))
+                    .frame(width: 26, height: 26)
+                    .background(.ultraThinMaterial, in: Circle())
+                    .overlay(Circle().strokeBorder(Color.white.opacity(0.18), lineWidth: 0.5))
+            }
+            .buttonStyle(.plain)
+            .disabled(value >= range.upperBound)
+        }
+    }
+}
+
+// MARK: - Reminders pane
+
+struct RemindersPane: View {
+    @ObservedObject var appViewModel: AppViewModel
+
+    private var importantUpcoming: [ImportantEvent] {
+        appViewModel.importantEvents
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("Reminders")
+                .font(.title2).fontWeight(.bold)
+
+            if importantUpcoming.isEmpty {
+                VStack(spacing: 12) {
+                    Image(systemName: "star")
+                        .font(.system(size: 36, weight: .light))
+                        .foregroundColor(.secondary.opacity(0.5))
+                    Text("No starred events")
+                        .font(.headline)
+                        .foregroundColor(.secondary)
+                    Text("Star an event from its detail popover. Starred items appear here and trigger extra reminders.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: 340)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.top, 40)
+            } else {
+                SettingsSection(title: "Starred Events", systemImage: "star.fill") {
+                    ForEach(importantUpcoming, id: \.eventTitle) { item in
+                        HStack(spacing: 10) {
+                            Image(systemName: "star.fill")
+                                .font(.system(size: 11))
+                                .foregroundColor(.yellow)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(item.eventTitle)
+                                    .font(.body)
+                                    .lineLimit(1)
+                                if item.reminderMinutes > 0 {
+                                    Text("Remind \(item.reminderMinutes) min before")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            Spacer()
+                        }
+                        .padding(.vertical, 4)
                     }
                 }
             }
@@ -540,11 +556,9 @@ struct NotificationsPane: View {
                 .font(.title2).fontWeight(.bold)
 
             SettingsSection(title: "Reminders", systemImage: "bell.badge.fill") {
-                Toggle(isOn: $appViewModel.notificationsEnabled) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Enable Notifications").font(.body)
-                        Text("Get notified before events start").font(.caption).foregroundColor(.secondary)
-                    }
+                SettingsRow(title: "Enable Notifications", subtitle: "Get notified before events start") {
+                    GlassToggle(isOn: $appViewModel.notificationsEnabled,
+                                accent: appViewModel.accentColor)
                 }
                 .onChange(of: appViewModel.notificationsEnabled) { old, new in
                     if new && !old {
@@ -604,12 +618,10 @@ struct SystemPane: View {
                 .font(.title2).fontWeight(.bold)
 
             SettingsSection(title: "Startup", systemImage: "power") {
-                Toggle(isOn: $launchAtLoginManager.isEnabled) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Launch at Login").font(.body)
-                        Text("Start Chronology automatically when you log in")
-                            .font(.caption).foregroundColor(.secondary)
-                    }
+                SettingsRow(title: "Launch at Login",
+                            subtitle: "Start Chronology automatically when you log in") {
+                    GlassToggle(isOn: $launchAtLoginManager.isEnabled,
+                                accent: appViewModel.accentColor)
                 }
                 if !launchAtLoginManager.isEnabled {
                     Button("Open Login Items Settings…") {
@@ -621,19 +633,15 @@ struct SystemPane: View {
             }
 
             SettingsSection(title: "Menu Bar & Dock", systemImage: "macwindow") {
-                Toggle(isOn: $appViewModel.showMenuBarIcon) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Show Menu Bar Icon").font(.body)
-                        Text("Display schedule status in the menu bar")
-                            .font(.caption).foregroundColor(.secondary)
-                    }
+                SettingsRow(title: "Show Menu Bar Icon",
+                            subtitle: "Display schedule status in the menu bar") {
+                    GlassToggle(isOn: $appViewModel.showMenuBarIcon,
+                                accent: appViewModel.accentColor)
                 }
-                Toggle(isOn: $appViewModel.hideFromDock) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Hide from Dock").font(.body)
-                        Text("Run in menu bar only, hide dock icon and window")
-                            .font(.caption).foregroundColor(.secondary)
-                    }
+                SettingsRow(title: "Hide from Dock",
+                            subtitle: "Run in menu bar only, hide dock icon and window") {
+                    GlassToggle(isOn: $appViewModel.hideFromDock,
+                                accent: appViewModel.accentColor)
                 }
                 .disabled(!appViewModel.showMenuBarIcon)
 

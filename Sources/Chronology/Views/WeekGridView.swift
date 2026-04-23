@@ -138,9 +138,10 @@ struct WeekGridView: View {
 
     private func eventViews(dayWidth: CGFloat) -> some View {
         ForEach(layouts) { layout in
-            GlassEventCard(event: layout.event)
+            EventCardView(event: layout.event, theme: theme, compact: true)
                 .frame(width: layout.rect.width, height: layout.rect.height)
                 .position(x: layout.rect.origin.x, y: layout.rect.origin.y + 44)
+                .environmentObject(appViewModel)
         }
     }
 
