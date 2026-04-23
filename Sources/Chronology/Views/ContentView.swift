@@ -70,28 +70,14 @@ struct ContentView: View {
             }
 
             ToolbarItemGroup(placement: .primaryAction) {
-                Button {
-                    if let vm = scheduleViewModel {
-                        Task { await vm.loadSchedule() }
-                    }
-                } label: {
-                    Image(systemName: "arrow.clockwise")
-                        .frame(width: 28, height: 28)
-                        .background(Color.primary.opacity(0.06), in: Circle())
+                IconCircleButton(systemName: "arrow.clockwise", help: "Refresh Schedule") {
+                    if let vm = scheduleViewModel { Task { await vm.loadSchedule() } }
                 }
                 .disabled(scheduleViewModel == nil)
-                .help("Refresh Schedule")
-                .buttonStyle(.plain)
 
-                Button {
+                IconCircleButton(systemName: "gear", help: "Settings") {
                     showingSettings.toggle()
-                } label: {
-                    Image(systemName: "gear")
-                        .frame(width: 28, height: 28)
-                        .background(Color.primary.opacity(0.06), in: Circle())
                 }
-                .help("Settings")
-                .buttonStyle(.plain)
             }
         }
         .searchable(text: $searchText, prompt: "Search events...")
@@ -152,23 +138,13 @@ struct CapsuleSegmentedControl: View {
     @Binding var selection: String
 
     var body: some View {
-        HStack(spacing: 2) {
-            segmentButton("week", icon: "calendar", label: "Week")
-            segmentButton("day", icon: "rectangle.split.1x2", label: "Day")
-        }
-        .padding(3)
-        .background(Color.primary.opacity(0.06), in: Capsule())
-    }
-
-    private func segmentButton(_ tag: String, icon: String, label: String) -> some View {
-        Button { selection = tag } label: {
-            Label(label, systemImage: icon)
-                .font(.system(size: 12, weight: .medium))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
-                .background(selection == tag ? Color.primary.opacity(0.15) : Color.clear, in: Capsule())
-        }
-        .buttonStyle(.plain)
+        GlassSegmented(
+            selection: $selection,
+            options: [
+                ("week", "Week", "calendar"),
+                ("day",  "Day",  "doc.text")
+            ]
+        )
     }
 }
 
@@ -457,81 +433,74 @@ struct LeftRailView: View {
 struct NextUpCard: View {
     let event: Event
     @EnvironmentObject var appViewModel: AppViewModel
+    @Environment(\.colorScheme) var colorScheme
 
-    private var eventColor: Color {
-        appViewModel.getCustomColor(for: event.title) ?? event.color(from: event.title)
-    }
-
-    private static let timeFmt: DateFormatter = {
-        let f = DateFormatter(); f.timeStyle = .short; return f
-    }()
+    private var hue: Double { hueForCourse(event.title) }
+    private var theme: AppTheme { appViewModel.resolvedTheme(for: colorScheme) }
 
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 30)) { context in
-            VStack(alignment: .leading, spacing: 6) {
-                Text("NEXT UP")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(eventColor)
-                    .tracking(1.2)
-
-                Text(event.title)
-                    .font(.system(size: 11.5, weight: .semibold))
-                    .lineLimit(2)
-
-                Text(timeRange)
-                    .font(.system(size: 10))
-                    .foregroundColor(.secondary)
-
-                if !event.location.isEmpty {
-                    HStack(spacing: 3) {
-                        Image(systemName: "mappin.circle.fill")
-                            .font(.system(size: 9))
-                        Text(event.location)
-                            .font(.system(size: 10))
+        let isDark = theme != .light
+        ZStack {
+            RoundedRectangle(cornerRadius: ChronoTokens.panelRadius)
+                .fill(LinearGradient(
+                    colors: [
+                        Color(hue: hue/360, saturation: 0.45,
+                              brightness: isDark ? 0.55 : 0.90).opacity(0.7),
+                        Color(hue: hue/360, saturation: 0.50,
+                              brightness: isDark ? 0.45 : 0.80).opacity(0.25)
+                    ],
+                    startPoint: .topLeading, endPoint: .bottomTrailing))
+                .background(
+                    Group {
+                        if theme.isTranslucent {
+                            RoundedRectangle(cornerRadius: ChronoTokens.panelRadius)
+                                .fill(.ultraThinMaterial)
+                        }
                     }
-                    .foregroundColor(.secondary)
-                    .lineLimit(1)
-                }
+                )
+                .overlay(RoundedRectangle(cornerRadius: ChronoTokens.panelRadius)
+                    .strokeBorder(.white.opacity(theme.isTranslucent ? 0.5 : 0.1), lineWidth: 0.5))
 
-                Text(countdown(at: context.date))
-                    .font(.system(size: 24, weight: .semibold, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundColor(eventColor)
-                    .padding(.top, 2)
+            VStack(alignment: .leading, spacing: 6) {
+                SectionCaption(text: "Next Up")
+                    .foregroundStyle(Color.eventHeader(hue: hue))
+                Text(event.title)
+                    .font(.system(size: 16, weight: .semibold))
+                    .lineLimit(2)
+                HStack(spacing: 5) {
+                    Image(systemName: "clock").font(.system(size: 10))
+                    Text("\(fmt(event.startTime)) – \(fmt(event.endTime))")
+                        .monospacedDigit()
+                }
+                .font(.system(size: 11.5)).foregroundStyle(.secondary)
+                if !event.location.isEmpty {
+                    HStack(spacing: 5) {
+                        Image(systemName: "mappin").font(.system(size: 10))
+                        Text(event.location)
+                    }
+                    .font(.system(size: 11.5)).foregroundStyle(.secondary)
+                }
+                TimelineView(.periodic(from: .now, by: 30)) { ctx in
+                    Text(countdown(to: event.startTime, now: ctx.date))
+                        .font(.system(size: 24, weight: .semibold))
+                        .monospacedDigit()
+                        .foregroundStyle(Color.eventHeader(hue: hue))
+                        .padding(.top, 4)
+                }
             }
-            .padding(12)
+            .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                ZStack {
-                    eventColor.opacity(0.12)
-                    Color.clear.background(.regularMaterial)
-                }
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 14))
-            .overlay(
-                RoundedRectangle(cornerRadius: 14)
-                    .strokeBorder(eventColor.opacity(0.3), lineWidth: 0.5)
-            )
         }
+        .fixedSize(horizontal: false, vertical: true)
     }
 
-    private var timeRange: String {
-        "\(Self.timeFmt.string(from: event.startTime)) – \(Self.timeFmt.string(from: event.endTime))"
+    private func fmt(_ d: Date) -> String {
+        let f = DateFormatter(); f.dateFormat = "HH:mm"; return f.string(from: d)
     }
-
-    private func countdown(at now: Date) -> String {
-        if now >= event.startTime && now < event.endTime {
-            return fmt(event.endTime.timeIntervalSince(now)) + " left"
-        } else if now < event.startTime {
-            return fmt(event.startTime.timeIntervalSince(now))
-        }
-        return "Now"
-    }
-
-    private func fmt(_ t: TimeInterval) -> String {
-        let s = Int(t)
-        let h = s / 3600; let m = (s % 3600) / 60
-        return h > 0 ? "\(h)h \(m)m" : "\(m)m"
+    private func countdown(to d: Date, now: Date) -> String {
+        let s = max(0, Int(d.timeIntervalSince(now)))
+        if s < 3600 { return "In \(s / 60)m" }
+        return "In \(s / 3600)h \((s % 3600) / 60)m"
     }
 }
 

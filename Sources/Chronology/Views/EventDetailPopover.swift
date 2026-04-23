@@ -30,12 +30,12 @@ struct EventDetailPopover: View {
                     // Detail rows
                     detailRows
 
-                    Divider()
+                    softDivider
 
                     // Color palette
                     colorSection
 
-                    Divider()
+                    softDivider
 
                     // Notes
                     notesSection
@@ -53,10 +53,15 @@ struct EventDetailPopover: View {
                 }
                 .buttonStyle(DetailCapsuleStyle(accent: eventColor, filled: isImportant))
 
-                Button("Add note") {
-                    isEditingNote = true
+                Button {
+                    appViewModel.toggleImportant(event)
+                    if !appViewModel.notificationsEnabled {
+                        appViewModel.notificationsEnabled = true
+                    }
+                } label: {
+                    Label(isImportant ? "Reminder set" : "Remind me", systemImage: isImportant ? "bell.fill" : "bell")
                 }
-                .buttonStyle(DetailCapsuleStyle(accent: eventColor, filled: false))
+                .buttonStyle(DetailCapsuleStyle(accent: eventColor, filled: isImportant))
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
@@ -73,17 +78,30 @@ struct EventDetailPopover: View {
     private var accentBand: some View {
         ZStack(alignment: .bottomLeading) {
             LinearGradient(
-                colors: [eventColor.opacity(0.6), eventColor.opacity(0.15)],
+                colors: [eventColor.opacity(0.7), eventColor.opacity(0.2), .clear],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            .frame(height: 110)
+            .frame(height: 120)
+
+            // Blur fade at bottom edge
+            VStack(spacing: 0) {
+                Spacer()
+                Rectangle()
+                    .fill(.ultraThinMaterial)
+                    .frame(height: 32)
+                    .mask(
+                        LinearGradient(colors: [.clear, .black], startPoint: .top, endPoint: .bottom)
+                    )
+            }
+            .frame(height: 120)
 
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
                     Circle()
                         .fill(eventColor)
                         .frame(width: 10, height: 10)
+                        .shadow(color: eventColor.opacity(0.6), radius: 4)
                     Text("CLASS")
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundColor(.secondary)
@@ -119,9 +137,13 @@ struct EventDetailPopover: View {
     private func iconDetailRow(icon: String, label: String, value: String) -> some View {
         HStack(alignment: .top, spacing: 12) {
             ZStack {
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(Color.secondary.opacity(0.1))
-                    .frame(width: 26, height: 26)
+                RoundedRectangle(cornerRadius: 7)
+                    .fill(.ultraThinMaterial)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 7)
+                            .strokeBorder(.white.opacity(0.12), lineWidth: 0.5)
+                    )
+                    .frame(width: 28, height: 28)
                 Image(systemName: icon)
                     .font(.system(size: 13))
                     .foregroundColor(.secondary)
@@ -159,10 +181,11 @@ struct EventDetailPopover: View {
                             .frame(width: 28, height: 28)
                             .overlay(
                                 Circle()
-                                    .strokeBorder(Color.primary, lineWidth: 2)
-                                    .opacity(colorsMatch(color, selectedColor) ? 1 : 0)
+                                    .strokeBorder(.white.opacity(colorsMatch(color, selectedColor) ? 0.85 : 0), lineWidth: 1.5)
                             )
-                            .shadow(color: color.opacity(0.4), radius: 3, y: 1)
+                            .shadow(color: colorsMatch(color, selectedColor) ? color.opacity(0.8) : color.opacity(0.3), radius: colorsMatch(color, selectedColor) ? 6 : 3, y: 1)
+                            .scaleEffect(colorsMatch(color, selectedColor) ? 1.12 : 1)
+                            .animation(.spring(response: 0.2), value: colorsMatch(color, selectedColor))
                     }
                     .buttonStyle(.plain)
                 }
@@ -206,11 +229,10 @@ struct EventDetailPopover: View {
                     .frame(height: 70)
                     .font(.body)
                     .scrollContentBackground(.hidden)
-                    .background(Color(nsColor: .controlBackgroundColor))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.primary.opacity(0.1), lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 10)
+                            .strokeBorder(.white.opacity(0.12), lineWidth: 0.5)
                     )
             } else if !noteText.isEmpty {
                 Text(noteText)
@@ -227,6 +249,13 @@ struct EventDetailPopover: View {
     }
 
     // MARK: - Helpers
+
+    private var softDivider: some View {
+        Rectangle()
+            .fill(Color.primary.opacity(0.06))
+            .frame(height: 1)
+            .padding(.vertical, 2)
+    }
 
     private var timeRange: String {
         let fmt = DateFormatter(); fmt.timeStyle = .short
@@ -263,7 +292,7 @@ struct EventDetailPopover: View {
     }
 }
 
-// MARK: - Detail capsule button style
+// MARK: - Liquid glass button style
 
 struct DetailCapsuleStyle: ButtonStyle {
     let accent: Color
@@ -271,11 +300,26 @@ struct DetailCapsuleStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 12, weight: .medium))
-            .padding(.horizontal, 14)
-            .padding(.vertical, 7)
-            .background(filled ? accent : Color.primary.opacity(0.07), in: Capsule())
-            .foregroundColor(filled ? .white : .primary)
-            .opacity(configuration.isPressed ? 0.8 : 1)
+            .font(.system(size: 13, weight: .medium))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background {
+                if filled {
+                    Capsule().fill(accent.gradient)
+                } else {
+                    Capsule().fill(.ultraThinMaterial)
+                }
+            }
+            .overlay(
+                Capsule()
+                    .strokeBorder(
+                        filled ? accent.opacity(0.4) : Color.white.opacity(0.18),
+                        lineWidth: 0.5
+                    )
+            )
+            .foregroundStyle(filled ? .white : .primary)
+            .shadow(color: filled ? accent.opacity(0.35) : .black.opacity(0.12), radius: filled ? 8 : 4, y: 2)
+            .scaleEffect(configuration.isPressed ? 0.96 : 1)
+            .animation(.spring(response: 0.2), value: configuration.isPressed)
     }
 }

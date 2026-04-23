@@ -140,9 +140,10 @@ struct DayView: View {
 
     private var eventViews: some View {
         ForEach(layouts) { layout in
-            GlassDayEventCard(event: layout.event)
+            EventCardView(event: layout.event, theme: theme, compact: false)
                 .frame(width: layout.rect.width, height: layout.rect.height)
                 .position(x: layout.rect.origin.x, y: layout.rect.origin.y)
+                .environmentObject(appViewModel)
         }
     }
 

@@ -273,14 +273,21 @@ struct GlassMenuBarRow: View {
     }
 }
 
-// MARK: - Capsule button style for menu bar
+// MARK: - Liquid glass capsule button style for menu bar
 
 struct MenuBarCapsuleStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 12, weight: .medium))
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(Color.primary.opacity(configuration.isPressed ? 0.1 : 0.06), in: Capsule())
+            .font(.system(size: 12.5, weight: .medium))
+            .padding(.horizontal, 14)
+            .padding(.vertical, 7)
+            .background(Capsule().fill(.ultraThinMaterial))
+            .overlay(
+                Capsule().strokeBorder(Color.white.opacity(0.18), lineWidth: 0.5)
+            )
+            .foregroundStyle(.primary)
+            .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
+            .scaleEffect(configuration.isPressed ? 0.96 : 1)
+            .animation(.spring(response: 0.2), value: configuration.isPressed)
     }
 }
