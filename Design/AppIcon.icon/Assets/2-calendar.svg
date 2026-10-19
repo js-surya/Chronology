@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Calendar page; class pills are cut out so the background shows through -->
+  <path fill="#FFFFFF" fill-rule="evenodd" d="
+    M296 248 H624 A96 96 0 0 1 720 344 V680 A96 96 0 0 1 624 776 H296 A96 96 0 0 1 200 680 V344 A96 96 0 0 1 296 248 Z
+    M300 420 H540 A32 32 0 0 1 540 484 H300 A32 32 0 0 1 300 420 Z
+    M300 524 H476 A32 32 0 0 1 476 588 H300 A32 32 0 0 1 300 524 Z
+    M300 628 H420 A32 32 0 0 1 420 692 H300 A32 32 0 0 1 300 628 Z"/>
+  <!-- Binder rings -->
+  <rect x="296" y="196" width="48" height="104" rx="24" fill="#FFFFFF"/>
+  <rect x="576" y="196" width="48" height="104" rx="24" fill="#FFFFFF"/>
+</svg>

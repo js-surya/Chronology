@@ -54,16 +54,18 @@ struct OnboardingView: View {
     var body: some View {
         VStack(spacing: 28) {
             Spacer()
-            Image(systemName: "calendar.day.timeline.left")
-                .font(.system(size: 64, weight: .light))
-                .foregroundStyle(.tint)
-                .symbolEffect(.pulse, options: .nonRepeating)
+            Image("about-app-icon")
+                .resizable()
+                .frame(width: 96, height: 96)
+                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                .shadow(color: .black.opacity(0.15), radius: 8, y: 4)
+                .accessibilityHidden(true)
 
             VStack(spacing: 10) {
                 Text("Welcome to Chronology")
                     .font(.largeTitle.bold())
                     .multilineTextAlignment(.center)
-                Text("Your TimeEdit schedule, with a Next Up countdown, reminders and a Home Screen widget.")
+                Text("\(AboutText.purpose), with a Next Up countdown, reminders and a Home Screen widget.")
                     .font(.body)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)

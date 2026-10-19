@@ -690,47 +690,62 @@ struct AboutPane: View {
 
     var body: some View {
         ZStack {
-            VStack(spacing: 18) {
-                if let appIcon = NSImage(named: "AppIcon") ?? NSApp.applicationIconImage {
-                    Image(nsImage: appIcon)
-                        .resizable()
-                        .frame(width: 128, height: 128)
-                        .clipShape(RoundedRectangle(cornerRadius: 28))
-                        .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
+            VStack(spacing: 14) {
+                Image(nsImage: NSApp.applicationIconImage)
+                    .resizable()
+                    .frame(width: 112, height: 112)
+                    .accessibilityHidden(true)
+                VStack(spacing: 3) {
+                    Text(AboutText.appName)
+                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                    Text(AboutText.tagline)
+                        .font(.headline).foregroundStyle(.secondary)
+                    Text("Version \(AboutText.displayVersion)")
+                        .font(.subheadline).foregroundStyle(.secondary)
                 }
-                VStack(spacing: 4) {
-                    Text("Chronology")
-                        .font(.system(size: 32, weight: .bold, design: .rounded))
-                    Text("Version 4.0.0")
-                        .font(.subheadline).foregroundColor(.secondary)
-                }
-                Text("A beautiful schedule viewer for TimeEdit.")
+                Text("\(AboutText.purpose). \(AboutText.privacy)")
+                    .font(.callout)
                     .multilineTextAlignment(.center)
-                    .foregroundColor(.secondary)
-                    .padding(.horizontal)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: 420)
 
-                Spacer()
-
-                Button {
-                    heartBounce()
-                    handleHeartClick()
-                } label: {
-                    HStack(spacing: 4) {
-                        Text("Made with")
-                        Text("❤️")
-                            .foregroundColor(.red)
-                            .scaleEffect(heartScale)
-                        Text("by Surya & AI")
+                SettingsSection(title: "Acknowledgements", systemImage: "hands.sparkles") {
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(AboutText.acknowledgements, id: \.self) {
+                            Text($0).font(.footnote).foregroundStyle(.secondary)
+                        }
                     }
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .buttonStyle(.plain)
-                .help("Click rapidly for a surprise!")
-                .padding(.bottom)
+
+                VStack(spacing: 10) {
+                    // Credit line; clicking the heart rapidly still sets off the confetti
+                    Button {
+                        heartBounce()
+                        handleHeartClick()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text("Built with")
+                            Text("❤️").scaleEffect(heartScale)
+                            Text("by SyntaxError and Claude")
+                        }
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(AboutText.credit)
+
+                    Link(destination: AboutText.sourceCode) {
+                        Label("Source code", systemImage: "chevron.left.forwardslash.chevron.right")
+                            .font(.subheadline.weight(.medium))
+                    }
+                    .buttonStyle(.glass)
+                    .help("Source code on GitHub")
+                }
+                .padding(.top, 4)
             }
-            .padding(.top, 20)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.top, 8)
+            .frame(maxWidth: .infinity)
 
             if showConfetti {
                 ConfettiExplosionView()

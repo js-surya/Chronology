@@ -131,10 +131,15 @@ struct SettingsScreen: View {
                     Text(testResult ?? "If reminders won't turn on, allow notifications for Chronology in the Settings app.")
                 }
 
-                Section("About") {
-                    LabeledContent("Version", value: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "–")
-                    Link(destination: URL(string: "https://github.com/js-surya/Chronology")!) {
-                        Label("Source on GitHub", systemImage: "chevron.left.forwardslash.chevron.right")
+                Section {
+                    NavigationLink {
+                        AboutView()
+                    } label: {
+                        LabeledContent {
+                            Text(AboutText.displayVersion)
+                        } label: {
+                            Label("About", systemImage: "info.circle")
+                        }
                     }
                 }
             }
@@ -150,6 +155,68 @@ func hourLabel(_ hour: Int, use24Hour: Bool) -> String {
     if use24Hour { return String(format: "%02d:00", hour) }
     let h = hour % 12 == 0 ? 12 : hour % 12
     return "\(h) \(hour < 12 || hour == 24 ? "AM" : "PM")"
+}
+
+// MARK: - About
+
+struct AboutView: View {
+    var body: some View {
+        List {
+            Section {
+                LabeledContent("Version", value: AboutText.displayVersion)
+                Text(AboutText.purpose)
+                Text(AboutText.privacy).foregroundStyle(.secondary)
+            }
+            Section {
+                ForEach(AboutText.acknowledgements, id: \.self) { Text($0) }
+                    .font(.footnote)
+            } header: {
+                Text("Acknowledgements")
+            }
+            Section {
+                AboutFooter()
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(top: 24, leading: 0, bottom: 24, trailing: 0))
+            }
+        }
+        .navigationTitle("About")
+    }
+}
+
+/// The sign-off at the bottom of About: app icon, name, tagline, credit and a link to the source code.
+struct AboutFooter: View {
+    var body: some View {
+        VStack(spacing: 10) {
+            Image("about-app-icon")
+                .resizable()
+                .frame(width: 64, height: 64)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
+                .accessibilityHidden(true)
+            VStack(spacing: 2) {
+                Text(AboutText.appName).font(.headline)
+                Text(AboutText.tagline).font(.subheadline).foregroundStyle(.secondary)
+            }
+            Text(AboutText.credit)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.top, 4)
+            Link(destination: AboutText.sourceCode) {
+                Label("Source code", systemImage: "chevron.left.forwardslash.chevron.right")
+                    .font(.subheadline.weight(.medium))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 7)
+                    .background(.tint.opacity(0.12), in: Capsule())
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(.tint)
+            .padding(.top, 2)
+            .accessibilityLabel("Source code on GitHub")
+            .accessibilityHint("Opens in your browser")
+        }
+        .frame(maxWidth: .infinity)
+    }
 }
 
 // MARK: - Important events

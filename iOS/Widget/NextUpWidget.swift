@@ -32,6 +32,9 @@ struct NextUpEntry: TimelineEntry {
 }
 
 struct NextUpProvider: TimelineProvider {
+    /// Three hours of per-minute entries; the timeline is rebuilt hourly anyway.
+    static let minuteEntries = 180
+
     func placeholder(in context: Context) -> NextUpEntry { .placeholder }
 
     func getSnapshot(in context: Context, completion: @escaping (NextUpEntry) -> Void) {
@@ -52,19 +55,25 @@ struct NextUpProvider: TimelineProvider {
         }
     }
 
-    /// One entry now, then one at every start/end boundary so "Next Up" rolls over on time.
+    /// One entry per minute for the next few hours, plus every start/end boundary, so the
+    /// "In 1h 29m" text is exact and "Next Up" rolls over on time. Entries are prebuilt,
+    /// so this doesn't spend the widget's reload budget.
     private func entries(now: Date) async -> [NextUpEntry] {
         let snapshot = await loadSnapshot(now: now)
         guard let snapshot else {
             return [NextUpEntry(date: now, profileName: "", events: [], customColors: [:], use24Hour: true, hasProfile: false)]
         }
         let upcoming = snapshot.upcoming(after: now)
-        var boundaries: [Date] = [now]
+        var dates: Set<Date> = [now]
         for event in upcoming.prefix(6) {
-            if event.startTime > now { boundaries.append(event.startTime) }
-            boundaries.append(event.endTime)
+            if event.startTime > now { dates.insert(event.startTime) }
+            dates.insert(event.endTime)
         }
-        return Array(Set(boundaries)).sorted().map { date in
+        let firstMinute = Calendar.current.dateInterval(of: .minute, for: now)?.end ?? now
+        for minute in 0..<Self.minuteEntries {
+            dates.insert(firstMinute.addingTimeInterval(Double(minute) * 60))
+        }
+        return dates.sorted().map { date in
             NextUpEntry(
                 date: date,
                 profileName: snapshot.profileName,
@@ -224,14 +233,11 @@ struct NextUpWidgetView: View {
             .foregroundStyle(color(event))
     }
 
-    /// Ticks on its own between timeline entries.
+    /// Same wording as the app ("In 1h 29m", "Ends in 20m"); one timeline entry per minute keeps it current.
     private func countdown(_ event: Event) -> some View {
-        let inProgress = event.startTime <= entry.date
-        let target = inProgress ? event.endTime : event.startTime
-        // Minute precision ("in 29 min"); `.relative` adds seconds and truncates in small widgets
-        let remaining = Text(.currentDate, format: .reference(to: target, allowedFields: [.day, .hour, .minute], maxFieldCount: 2))
-        return Text(inProgress ? "ends \(remaining)" : "\(remaining)")
+        Text(Countdown.phrase(for: event, now: entry.date))
             .monospacedDigit()
+            .contentTransition(.numericText())
     }
 
     private func details(_ event: Event) -> String {

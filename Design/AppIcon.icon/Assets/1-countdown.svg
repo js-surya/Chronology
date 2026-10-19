@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Next Up countdown: 300° ring from 12 o'clock, with the hand pointing up -->
+  <path d="M690 530 A150 150 0 1 1 560.1 605" fill="none" stroke="#FFC23C" stroke-width="64" stroke-linecap="round"/>
+  <line x1="690" y1="680" x2="690" y2="606" stroke="#FFC23C" stroke-width="40" stroke-linecap="round"/>
+  <circle cx="690" cy="680" r="30" fill="#FFC23C"/>
+</svg>

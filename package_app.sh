@@ -19,11 +19,14 @@ echo "Copying binary..."
 # The build target is still named Chronology in Package.swift
 cp "$BUILD_DIR/Chronology" "$APP_BUNDLE/Contents/MacOS/$APP_NAME"
 
-echo "Copying icon..."
-if [ -f "Chronology.icns" ]; then
-    # Rename icon to match app name in resources
-    cp "Chronology.icns" "$APP_BUNDLE/Contents/Resources/$APP_NAME.icns"
-fi
+echo "Compiling app icon..."
+# Liquid Glass icon from Icon Composer, shared with the iOS app
+# actool resolves relative paths against $PWD, which can be stale, so pass absolute ones
+ROOT="$(cd "$(dirname "$0")" && pwd -P)"
+xcrun actool "$ROOT/Design/AppIcon.icon" --compile "$ROOT/$APP_BUNDLE/Contents/Resources" \
+    --platform macosx --minimum-deployment-target 26.0 --app-icon AppIcon \
+    --output-partial-info-plist "$ROOT/.build/icon-partial.plist" >/dev/null
+test -f "$ROOT/$APP_BUNDLE/Contents/Resources/AppIcon.icns"
 
 echo "Creating Info.plist..."
 cat > "$APP_BUNDLE/Contents/Info.plist" <<EOF
@@ -46,7 +49,9 @@ cat > "$APP_BUNDLE/Contents/Info.plist" <<EOF
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleIconFile</key>
-    <string>$APP_NAME</string>
+    <string>AppIcon</string>
+    <key>CFBundleIconName</key>
+    <string>AppIcon</string>
     <key>LSMinimumSystemVersion</key>
     <string>26.0</string>
     <key>NSHighResolutionCapable</key>

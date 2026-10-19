@@ -26,6 +26,10 @@ targets:
     sources:
       - App
       - Shared
+      # Icon Composer icon shared with the Mac app (Liquid Glass layers)
+      - path: ../Design/AppIcon.icon
+        type: file
+        buildPhase: resources
     dependencies:
       - package: Chronology
         product: ChronologyCore

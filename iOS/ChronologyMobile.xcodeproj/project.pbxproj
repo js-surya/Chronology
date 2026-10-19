@@ -24,6 +24,7 @@
 		A0D33CDDEEE5DB359BB12641 /* AppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2640438DB4F2F3A9CD1075CA /* AppGroup.swift */; };
 		A5AD0698D42786BD576F441C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7F57D141FD29D90591A5F62A /* Assets.xcassets */; };
 		AA794E55E0973682798EC772 /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CF66E1A02353803AE958CB /* AppStore.swift */; };
+		B21FF7A0A90162BE644F776A /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = AD9419659070FDB3F6D976F5 /* AppIcon.icon */; };
 		DCAC4624B2B954ED657847CE /* AgendaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A80AB711E907FD7B378A56 /* AgendaView.swift */; };
 		E48F15F9E415D91C96BE6ED7 /* CalendarScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C468E90F113A974CC86C58E /* CalendarScreen.swift */; };
 		F2B6B9E92B36EB6BDE09FEBA /* ChronologyWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 84F5BC8C3629A7C16D643FA0 /* ChronologyWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -76,6 +77,7 @@
 		8C468E90F113A974CC86C58E /* CalendarScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarScreen.swift; sourceTree = "<group>"; };
 		9C7BA8DD5FEEED89F413222E /* NextUpWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextUpWidget.swift; sourceTree = "<group>"; };
 		9DF64BA3C17CA0E6947CA53E /* ChronologyMobileUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ChronologyMobileUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AD9419659070FDB3F6D976F5 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		C3AF90DC926B0AC20C70E317 /* ScreenTourUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTourUITests.swift; sourceTree = "<group>"; };
 		D65F4F4B603C610F7C4BADAD /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		E4FD5E05722E708F687D93B7 /* EventStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStyle.swift; sourceTree = "<group>"; };
@@ -160,6 +162,15 @@
 			name = Packages;
 			sourceTree = "<group>";
 		};
+		7345C145DD36BA63D08A6AA3 /* Chronology */ = {
+			isa = PBXGroup;
+			children = (
+				80A6B74D63588949ADC1E9A5 /* Design */,
+			);
+			name = Chronology;
+			path = ..;
+			sourceTree = "<group>";
+		};
 		7CAD93FA80F1EA8AE9880676 /* Widget */ = {
 			isa = PBXGroup;
 			children = (
@@ -168,6 +179,14 @@
 				9C7BA8DD5FEEED89F413222E /* NextUpWidget.swift */,
 			);
 			path = Widget;
+			sourceTree = "<group>";
+		};
+		80A6B74D63588949ADC1E9A5 /* Design */ = {
+			isa = PBXGroup;
+			children = (
+				AD9419659070FDB3F6D976F5 /* AppIcon.icon */,
+			);
+			path = Design;
 			sourceTree = "<group>";
 		};
 		B1F79AD84C34B3BD4A83066D /* Products */ = {
@@ -184,6 +203,7 @@
 			isa = PBXGroup;
 			children = (
 				12BB57FF29C6EFFAC6699633 /* App */,
+				7345C145DD36BA63D08A6AA3 /* Chronology */,
 				5FE56E9B3A5CF6B7961A6005 /* Packages */,
 				3614673BC29B09E216B97703 /* Shared */,
 				2CAC429D64757D26860BC462 /* UITests */,
@@ -308,6 +328,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B21FF7A0A90162BE644F776A /* AppIcon.icon in Resources */,
 				A5AD0698D42786BD576F441C /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

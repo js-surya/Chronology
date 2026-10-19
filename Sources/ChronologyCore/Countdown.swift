@@ -29,7 +29,7 @@ public enum Countdown {
         if minutes >= 24 * 60 {
             span = "\(minutes / (24 * 60))d \((minutes % (24 * 60)) / 60)h"
         } else if minutes >= 60 {
-            span = "\(minutes / 60)h \(minutes % 60)m"
+            span = minutes % 60 == 0 ? "\(minutes / 60)h" : "\(minutes / 60)h \(minutes % 60)m"
         } else {
             span = "\(minutes)m"
         }
