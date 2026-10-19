@@ -1,6 +1,7 @@
 import Foundation
 import ServiceManagement
 import AppKit
+import ChronologyCore
 
 class LaunchAtLoginManager: ObservableObject {
     static let shared = LaunchAtLoginManager()

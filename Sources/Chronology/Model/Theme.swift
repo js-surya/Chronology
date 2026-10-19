@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import ChronologyCore
 
 enum AppTheme: String, CaseIterable, Identifiable {
     case light
@@ -77,11 +78,4 @@ extension AppViewModel {
     func timeRange(_ event: Event) -> String {
         "\(timeString(event.startTime)) – \(timeString(event.endTime))"
     }
-}
-
-// Stable hue from course title.
-func hueForCourse(_ title: String) -> Double {
-    var hash: UInt64 = 5381
-    for byte in title.utf8 { hash = (hash &* 33) &+ UInt64(byte) }
-    return Double(hash % 360)
 }

@@ -1,5 +1,5 @@
 import XCTest
-@testable import Chronology
+@testable import ChronologyCore
 
 final class ICalParserTests: XCTestCase {
     private func ics(_ body: String) -> String {

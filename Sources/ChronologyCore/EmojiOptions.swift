@@ -1,7 +1,7 @@
 import Foundation
 
-enum EmojiOptions {
-    static let all: [String] = [
+public enum EmojiOptions {
+    public static let all: [String] = [
         // General
         "calendar", "clock.fill", "person.fill", "house.fill", "building.2.fill",
 

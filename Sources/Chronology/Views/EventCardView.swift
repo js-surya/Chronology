@@ -1,4 +1,5 @@
 import SwiftUI
+import ChronologyCore
 
 // MARK: - Event card (week + day grids)
 

@@ -1,4 +1,5 @@
 import SwiftUI
+import ChronologyCore
 
 struct WeekGridView: View {
     let events: [Event]

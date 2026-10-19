@@ -1,5 +1,5 @@
 import XCTest
-@testable import Chronology
+@testable import ChronologyCore
 
 /// Opt-in check against a real feed: `CHRONOLOGY_LIVE_URL=https://... swift test --filter LiveFeedTests`
 final class LiveFeedTests: XCTestCase {

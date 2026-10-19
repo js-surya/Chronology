@@ -2,8 +2,8 @@ import Foundation
 
 /// Minimal RFC 5545 VEVENT parser. Handles line folding, TZID, all-day dates and text escapes.
 /// Recurrence rules are not expanded (TimeEdit feeds already list every occurrence).
-enum ICalParser {
-    static func parse(icsContent: String) -> [Event] {
+public enum ICalParser {
+    public static func parse(icsContent: String) -> [Event] {
         var events: [Event] = []
         var current: [String: (params: [String: String], value: String)]?
 
@@ -28,7 +28,7 @@ enum ICalParser {
     // MARK: - Lines
 
     /// Joins folded lines (CRLF followed by a space or tab) back into logical lines.
-    static func unfold(_ content: String) -> [String] {
+    public static func unfold(_ content: String) -> [String] {
         let normalized = content
             .replacingOccurrences(of: "\r\n", with: "\n")
             .replacingOccurrences(of: "\r", with: "\n")
@@ -44,7 +44,7 @@ enum ICalParser {
     }
 
     /// Splits `NAME;PARAM=VAL:value` into its parts. Quoted parameter values may contain ':' or ';'.
-    static func splitProperty(_ line: String) -> (String, [String: String], String)? {
+    public static func splitProperty(_ line: String) -> (String, [String: String], String)? {
         var inQuotes = false
         var colon: String.Index?
         for idx in line.indices {
@@ -69,7 +69,7 @@ enum ICalParser {
         return (name, params, value)
     }
 
-    static func unescape(_ text: String) -> String {
+    public static func unescape(_ text: String) -> String {
         var result = ""
         var iterator = text.makeIterator()
         while let ch = iterator.next() {
@@ -87,7 +87,7 @@ enum ICalParser {
 
     // MARK: - Dates
 
-    static func parseDate(_ value: String, params: [String: String]) -> (date: Date, isAllDay: Bool)? {
+    public static func parseDate(_ value: String, params: [String: String]) -> (date: Date, isAllDay: Bool)? {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.calendar = Calendar(identifier: .gregorian)

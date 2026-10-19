@@ -1,4 +1,5 @@
 import SwiftUI
+import ChronologyCore
 
 struct MenuBarView: View {
     @EnvironmentObject var appViewModel: AppViewModel

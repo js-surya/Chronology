@@ -1,4 +1,5 @@
 import SwiftUI
+import ChronologyCore
 
 struct DayView: View {
     let events: [Event]

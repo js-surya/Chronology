@@ -1,20 +1,25 @@
 import Foundation
 import SwiftUI
 
-struct EventLayout: Identifiable {
-    let id: String
-    let event: Event
-    let rect: CGRect
+public struct EventLayout: Identifiable {
+    public let id: String
+    public let event: Event
+    public let rect: CGRect
 }
 
-class WeekViewLayoutEngine {
+public enum WeekViewLayoutEngine {
     /// Column slot for an event inside its overlap cluster.
-    struct Slot: Equatable {
-        let column: Int
-        let columnCount: Int
+    public struct Slot: Equatable {
+        public let column: Int
+        public let columnCount: Int
+
+        public init(column: Int, columnCount: Int) {
+            self.column = column
+            self.columnCount = columnCount
+        }
     }
 
-    static func calculateLayout(for events: [Event], startHour: Int, endHour: Int, dayWidth: CGFloat, timeColumnWidth: CGFloat, hourHeight: CGFloat) -> [EventLayout] {
+    public static func calculateLayout(for events: [Event], startHour: Int, endHour: Int, dayWidth: CGFloat, timeColumnWidth: CGFloat, hourHeight: CGFloat) -> [EventLayout] {
         let calendar = Calendar.current
         var layouts: [EventLayout] = []
 
@@ -44,7 +49,7 @@ class WeekViewLayoutEngine {
         return layouts
     }
 
-    static func calculateDayLayout(for events: [Event], startHour: Int, endHour: Int, width: CGFloat, timeColumnWidth: CGFloat, hourHeight: CGFloat) -> [EventLayout] {
+    public static func calculateDayLayout(for events: [Event], startHour: Int, endHour: Int, width: CGFloat, timeColumnWidth: CGFloat, hourHeight: CGFloat) -> [EventLayout] {
         let timed = events.filter { !$0.isAllDay }
         let slots = assignColumns(timed)
 
@@ -63,7 +68,7 @@ class WeekViewLayoutEngine {
     /// Calendar-style packing: events are split into clusters of transitively overlapping events,
     /// each event takes the first free column in its cluster, and every event in a cluster shares
     /// the cluster's column count so cards line up.
-    static func assignColumns(_ events: [Event]) -> [String: Slot] {
+    public static func assignColumns(_ events: [Event]) -> [String: Slot] {
         let sorted = events.sorted { ($0.startTime, $0.endTime) < ($1.startTime, $1.endTime) }
         var result: [String: Slot] = [:]
 

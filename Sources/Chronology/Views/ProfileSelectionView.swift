@@ -1,4 +1,5 @@
 import SwiftUI
+import ChronologyCore
 
 struct ProfileSelectionView: View {
     @EnvironmentObject var appViewModel: AppViewModel

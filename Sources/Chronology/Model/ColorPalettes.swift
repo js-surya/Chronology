@@ -1,4 +1,5 @@
 import SwiftUI
+import ChronologyCore
 
 // Curated color palettes inspired by ColorHunt
 struct ColorPalettes {

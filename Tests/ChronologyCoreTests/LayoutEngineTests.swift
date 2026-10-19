@@ -1,5 +1,5 @@
 import XCTest
-@testable import Chronology
+@testable import ChronologyCore
 
 final class LayoutEngineTests: XCTestCase {
     /// Monday 2024-01-15 in the local time zone.

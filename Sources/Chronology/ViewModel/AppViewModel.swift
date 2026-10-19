@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import Combine
 import UserNotifications
+import ChronologyCore
 
 @MainActor
 class AppViewModel: ObservableObject {
@@ -149,27 +150,8 @@ class AppViewModel: ObservableObject {
         Task {
             // Served from ScheduleService's cache; the network is hit at most every defaultMaxAge
             let events = (try? await ScheduleService.shared.fetchSchedule(from: url)) ?? []
-            menuBarText = Self.menuBarLabel(for: events, now: Date())
+            menuBarText = Countdown.menuBarLabel(for: events, now: Date())
         }
-    }
-    
-    /// Countdown to the next timed event, or time remaining in the current one. "✓" when nothing is left.
-    nonisolated static func menuBarLabel(for events: [Event], now: Date) -> String {
-        let next = events
-            .filter { !$0.isAllDay && $0.endTime > now }
-            .min { $0.startTime < $1.startTime }
-        guard let next else { return "✓" }
-        
-        let timeUntil = next.startTime.timeIntervalSince(now)
-        return formatCountdown(timeUntil > 0 ? timeUntil : next.endTime.timeIntervalSince(now))
-    }
-    
-    /// "0:05", "2:30", or "3d" once the gap reaches a day.
-    nonisolated static func formatCountdown(_ timeInterval: TimeInterval) -> String {
-        let totalMinutes = max(0, Int(timeInterval / 60))
-        let days = totalMinutes / (24 * 60)
-        if days > 0 { return "\(days)d" }
-        return String(format: "%d:%02d", totalMinutes / 60, totalMinutes % 60)
     }
     
     func loadAccentColor() {

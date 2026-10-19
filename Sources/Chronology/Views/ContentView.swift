@@ -1,4 +1,5 @@
 import SwiftUI
+import ChronologyCore
 
 struct ContentView: View {
     @EnvironmentObject var appViewModel: AppViewModel

@@ -1,19 +1,19 @@
 import Foundation
 
-actor ScheduleService {
-    static let shared = ScheduleService()
+public actor ScheduleService {
+    public static let shared = ScheduleService()
 
     /// How long fetched events are reused before hitting the network again.
-    static let defaultMaxAge: TimeInterval = 15 * 60
+    public static let defaultMaxAge: TimeInterval = 15 * 60
 
-    enum FetchError: LocalizedError {
+    public enum FetchError: LocalizedError {
         case invalidURL
         case networkError(Error)
         case httpStatus(Int)
         case noData
         case parsingError
 
-        var errorDescription: String? {
+        public var errorDescription: String? {
             switch self {
             case .invalidURL:
                 return "The URL provided is invalid."
@@ -51,7 +51,7 @@ actor ScheduleService {
 
     /// Returns cached events when younger than `maxAge`; pass 0 to force a refresh.
     /// Concurrent callers for the same URL share one request.
-    func fetchSchedule(from urlString: String, maxAge: TimeInterval = ScheduleService.defaultMaxAge) async throws -> [Event] {
+    public func fetchSchedule(from urlString: String, maxAge: TimeInterval = ScheduleService.defaultMaxAge) async throws -> [Event] {
         let url = try Self.normalizedURL(urlString)
         let key = url.absoluteString
 
@@ -75,14 +75,14 @@ actor ScheduleService {
         return events
     }
 
-    func invalidate(_ urlString: String) {
+    public func invalidate(_ urlString: String) {
         guard let url = try? Self.normalizedURL(urlString) else { return }
         cache[url.absoluteString] = nil
     }
 
     // MARK: - Helpers
 
-    static func normalizedURL(_ urlString: String) throws -> URL {
+    public static func normalizedURL(_ urlString: String) throws -> URL {
         var processed = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
         if processed.lowercased().hasPrefix("webcal://") {
             processed = "https://" + processed.dropFirst(9)
@@ -93,7 +93,7 @@ actor ScheduleService {
         return url
     }
 
-    static func decode(data: Data, response: URLResponse?) throws -> [Event] {
+    public static func decode(data: Data, response: URLResponse?) throws -> [Event] {
         if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
             throw FetchError.httpStatus(http.statusCode)
         }

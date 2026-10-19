@@ -1,5 +1,6 @@
 import Foundation
 import UserNotifications
+import ChronologyCore
 
 class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
     static let shared = NotificationDelegate()

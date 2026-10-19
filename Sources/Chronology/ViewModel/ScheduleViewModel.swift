@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import ChronologyCore
 
 @MainActor
 class ScheduleViewModel: ObservableObject {

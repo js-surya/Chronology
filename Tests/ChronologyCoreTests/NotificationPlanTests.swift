@@ -1,5 +1,5 @@
 import XCTest
-@testable import Chronology
+@testable import ChronologyCore
 
 final class NotificationPlanTests: XCTestCase {
     private let now = Date(timeIntervalSince1970: 1_700_000_000)
@@ -11,7 +11,7 @@ final class NotificationPlanTests: XCTestCase {
 
     func testSchedulesReminderBeforeFutureEvents() {
         let e = event("Math", inMinutes: 60)
-        let plan = NotificationManager.plan(events: [e], minutesBefore: 15, importantEvents: [], now: now)
+        let plan = NotificationPlanner.plan(events: [e], minutesBefore: 15, importantEvents: [], now: now)
 
         XCTAssertEqual(plan.count, 1)
         XCTAssertEqual(plan[0].fireDate, e.startTime.addingTimeInterval(-15 * 60))
@@ -20,7 +20,7 @@ final class NotificationPlanTests: XCTestCase {
     }
 
     func testSkipsRemindersWhoseFireDateHasPassed() {
-        let plan = NotificationManager.plan(
+        let plan = NotificationPlanner.plan(
             events: [event("Soon", inMinutes: 10), event("Past", inMinutes: -30)],
             minutesBefore: 15, importantEvents: [], now: now
         )
@@ -28,14 +28,14 @@ final class NotificationPlanTests: XCTestCase {
     }
 
     func testSkipsAllDayEvents() {
-        let plan = NotificationManager.plan(events: [event("Holiday", inMinutes: 600, allDay: true)], minutesBefore: 15, importantEvents: [], now: now)
+        let plan = NotificationPlanner.plan(events: [event("Holiday", inMinutes: 600, allDay: true)], minutesBefore: 15, importantEvents: [], now: now)
         XCTAssertTrue(plan.isEmpty)
     }
 
     func testIdsAreStableSoReschedulingReplacesInsteadOfDuplicating() {
         let events = [event("A", inMinutes: 60), event("B", inMinutes: 120)]
-        let first = NotificationManager.plan(events: events, minutesBefore: 15, importantEvents: [], now: now)
-        let second = NotificationManager.plan(events: events, minutesBefore: 15, importantEvents: [], now: now)
+        let first = NotificationPlanner.plan(events: events, minutesBefore: 15, importantEvents: [], now: now)
+        let second = NotificationPlanner.plan(events: events, minutesBefore: 15, importantEvents: [], now: now)
         XCTAssertEqual(first.map(\.id), second.map(\.id))
         XCTAssertEqual(Set(first.map(\.id)).count, 2)
     }
@@ -43,7 +43,7 @@ final class NotificationPlanTests: XCTestCase {
     func testImportantEventGetsItsOwnReminder() {
         let e = event("Exam", inMinutes: 120)
         let important = ImportantEvent(eventTitle: "Exam", eventDate: e.startTime, reminderMinutes: 60)
-        let plan = NotificationManager.plan(events: [e], minutesBefore: 15, importantEvents: [important], now: now)
+        let plan = NotificationPlanner.plan(events: [e], minutesBefore: 15, importantEvents: [important], now: now)
 
         XCTAssertEqual(plan.count, 2)
         let reminder = plan.first { $0.id.hasPrefix("important.") }
@@ -55,7 +55,7 @@ final class NotificationPlanTests: XCTestCase {
         let monday = event("Lecture", inMinutes: 120)
         let nextWeek = event("Lecture", inMinutes: 120 + 7 * 24 * 60)
         let important = ImportantEvent(eventTitle: "Lecture", eventDate: nextWeek.startTime, reminderMinutes: 30)
-        let plan = NotificationManager.plan(events: [monday, nextWeek], minutesBefore: 15, importantEvents: [important], now: now)
+        let plan = NotificationPlanner.plan(events: [monday, nextWeek], minutesBefore: 15, importantEvents: [important], now: now)
 
         let reminders = plan.filter { $0.id.hasPrefix("important.") }
         XCTAssertEqual(reminders.map(\.id), ["important.\(nextWeek.id)"])
@@ -63,15 +63,15 @@ final class NotificationPlanTests: XCTestCase {
 
     func testResultIsSortedAndCappedToSystemLimit() {
         let events = (1...100).reversed().map { event("E\($0)", inMinutes: Double($0) * 60) }
-        let plan = NotificationManager.plan(events: events, minutesBefore: 15, importantEvents: [], now: now)
+        let plan = NotificationPlanner.plan(events: events, minutesBefore: 15, importantEvents: [], now: now)
 
-        XCTAssertEqual(plan.count, NotificationManager.maxPending)
+        XCTAssertEqual(plan.count, NotificationPlanner.maxPending)
         XCTAssertEqual(plan.map(\.fireDate), plan.map(\.fireDate).sorted())
         XCTAssertEqual(plan.first?.title, "E1 starting in 15 min")
     }
 
     func testBodyFallsBackToStartTimeWithoutLocation() {
-        let plan = NotificationManager.plan(events: [event("Call", inMinutes: 60, location: "")], minutesBefore: 15, importantEvents: [], now: now)
+        let plan = NotificationPlanner.plan(events: [event("Call", inMinutes: 60, location: "")], minutesBefore: 15, importantEvents: [], now: now)
         XCTAssertTrue(plan[0].body.hasPrefix("Starts at "))
     }
 }

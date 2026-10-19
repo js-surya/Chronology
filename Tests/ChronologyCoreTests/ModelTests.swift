@@ -1,5 +1,5 @@
 import XCTest
-@testable import Chronology
+@testable import ChronologyCore
 
 final class MenuBarCountdownTests: XCTestCase {
     private let now = Date(timeIntervalSince1970: 1_700_000_000)
@@ -10,24 +10,24 @@ final class MenuBarCountdownTests: XCTestCase {
     }
 
     func testFormatCountdown() {
-        XCTAssertEqual(AppViewModel.formatCountdown(5 * 60), "0:05")
-        XCTAssertEqual(AppViewModel.formatCountdown(150 * 60), "2:30")
-        XCTAssertEqual(AppViewModel.formatCountdown(23 * 3600 + 59 * 60), "23:59")
-        XCTAssertEqual(AppViewModel.formatCountdown(3 * 24 * 3600 + 3600), "3d")
-        XCTAssertEqual(AppViewModel.formatCountdown(-30), "0:00")
+        XCTAssertEqual(Countdown.format(5 * 60), "0:05")
+        XCTAssertEqual(Countdown.format(150 * 60), "2:30")
+        XCTAssertEqual(Countdown.format(23 * 3600 + 59 * 60), "23:59")
+        XCTAssertEqual(Countdown.format(3 * 24 * 3600 + 3600), "3d")
+        XCTAssertEqual(Countdown.format(-30), "0:00")
     }
 
     func testLabelCountsDownToNextEvent() {
-        let label = AppViewModel.menuBarLabel(for: [event(startIn: 300, endIn: 360), event(startIn: 45, endIn: 90)], now: now)
+        let label = Countdown.menuBarLabel(for: [event(startIn: 300, endIn: 360), event(startIn: 45, endIn: 90)], now: now)
         XCTAssertEqual(label, "0:45")
     }
 
     func testLabelShowsRemainingTimeDuringEvent() {
-        XCTAssertEqual(AppViewModel.menuBarLabel(for: [event(startIn: -10, endIn: 50)], now: now), "0:50")
+        XCTAssertEqual(Countdown.menuBarLabel(for: [event(startIn: -10, endIn: 50)], now: now), "0:50")
     }
 
     func testLabelIgnoresFinishedAndAllDayEvents() {
-        let label = AppViewModel.menuBarLabel(for: [event(startIn: -120, endIn: -60), event(startIn: -60, endIn: 1440, allDay: true)], now: now)
+        let label = Countdown.menuBarLabel(for: [event(startIn: -120, endIn: -60), event(startIn: -60, endIn: 1440, allDay: true)], now: now)
         XCTAssertEqual(label, "✓")
     }
 }

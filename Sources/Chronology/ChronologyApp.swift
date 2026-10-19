@@ -1,6 +1,7 @@
 import SwiftUI
 import AppKit
 import UserNotifications
+import ChronologyCore
 
 @main
 struct ChronologyApp: App {

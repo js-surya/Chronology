@@ -1,5 +1,5 @@
 import XCTest
-@testable import Chronology
+@testable import ChronologyCore
 
 final class ScheduleServiceTests: XCTestCase {
     private let validICS = """
