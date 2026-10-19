@@ -5,6 +5,7 @@ struct SettingsScreen: View {
     @Environment(AppStore.self) private var store
     @State private var editing: ScheduleProfile?
     @State private var addingProfile = false
+    @State private var testResult: String?
 
     var body: some View {
         @Bindable var store = store
@@ -51,8 +52,52 @@ struct SettingsScreen: View {
                     Text("Swipe right to switch, left to delete.")
                 }
 
-                Section("Display") {
+                Section("Appearance") {
+                    Picker("Theme", selection: $store.appearance) {
+                        ForEach(Appearance.allCases) { Text($0.title).tag($0) }
+                    }
+                    .pickerStyle(.segmented)
+
+                    HStack(spacing: 10) {
+                        ForEach(AccentPreset.all) { preset in
+                            Button { store.accentPreset = preset.id } label: {
+                                Circle()
+                                    .fill(preset.color)
+                                    .frame(width: 28, height: 28)
+                                    .overlay {
+                                        if store.accentPreset == preset.id {
+                                            Image(systemName: "checkmark")
+                                                .font(.caption.weight(.bold))
+                                                .foregroundStyle(.white)
+                                        }
+                                    }
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("\(preset.id.capitalized) accent")
+                            .accessibilityAddTraits(store.accentPreset == preset.id ? .isSelected : [])
+                        }
+                        Spacer(minLength: 0)
+                        ColorPicker("Custom accent", selection: Binding(
+                            get: { store.accentColor },
+                            set: { store.customAccent = CodableColor(color: $0); store.accentPreset = "custom" }
+                        ), supportsOpacity: false)
+                        .labelsHidden()
+                    }
+                    .padding(.vertical, 2)
+                }
+
+                Section {
                     Toggle("24-Hour Time", isOn: $store.use24HourFormat)
+                    Picker("Day Starts", selection: $store.dayStartHour) {
+                        ForEach(0..<store.dayEndHour, id: \.self) { Text(hourLabel($0, use24Hour: store.use24HourFormat)).tag($0) }
+                    }
+                    Picker("Day Ends", selection: $store.dayEndHour) {
+                        ForEach((store.dayStartHour + 1)...24, id: \.self) { Text(hourLabel($0, use24Hour: store.use24HourFormat)).tag($0) }
+                    }
+                } header: {
+                    Text("Calendar")
+                } footer: {
+                    Text("The timeline still stretches to show classes outside these hours.")
                 }
 
                 Section {
@@ -68,10 +113,22 @@ struct SettingsScreen: View {
                             Text("1 hour before").tag(60)
                         }
                     }
+                    NavigationLink {
+                        ImportantEventsView()
+                    } label: {
+                        LabeledContent {
+                            Text("\(store.importantUpcoming().count)")
+                        } label: {
+                            Label("Important Events", systemImage: "star.fill")
+                        }
+                    }
+                    Button("Send Test Notification", systemImage: "bell.badge") {
+                        Task { testResult = await store.sendTestNotification() }
+                    }
                 } header: {
                     Text("Notifications")
                 } footer: {
-                    Text("If reminders won't turn on, allow notifications for Chronology in the Settings app.")
+                    Text(testResult ?? "If reminders won't turn on, allow notifications for Chronology in the Settings app.")
                 }
 
                 Section("About") {
@@ -82,9 +139,57 @@ struct SettingsScreen: View {
                 }
             }
             .navigationTitle("Settings")
+            .tint(store.accentColor) // menu pickers in a Form don't inherit the root tint
             .sheet(item: $editing) { ProfileEditorView(profile: $0) }
             .sheet(isPresented: $addingProfile) { ProfileEditorView(profile: nil) }
         }
+    }
+}
+
+func hourLabel(_ hour: Int, use24Hour: Bool) -> String {
+    if use24Hour { return String(format: "%02d:00", hour) }
+    let h = hour % 12 == 0 ? 12 : hour % 12
+    return "\(h) \(hour < 12 || hour == 24 ? "AM" : "PM")"
+}
+
+// MARK: - Important events
+
+/// Starred upcoming events with their own reminder time (the Mac Reminders pane).
+struct ImportantEventsView: View {
+    @Environment(AppStore.self) private var store
+
+    var body: some View {
+        let events = store.importantUpcoming()
+        List {
+            ForEach(events) { event in
+                VStack(alignment: .leading, spacing: 8) {
+                    EventRow(event: event, showsDate: true)
+                    Picker("Remind me", selection: Binding(
+                        get: { store.reminderMinutes(for: event) },
+                        set: { store.setReminderMinutes($0, for: event) }
+                    )) {
+                        Text("5 min before").tag(5)
+                        Text("15 min before").tag(15)
+                        Text("30 min before").tag(30)
+                        Text("1 hour before").tag(60)
+                        Text("1 day before").tag(1440)
+                    }
+                    .font(.subheadline)
+                }
+                .swipeActions {
+                    Button("Unstar", systemImage: "star.slash", role: .destructive) {
+                        Task { await store.toggleImportant(event) }
+                    }
+                }
+            }
+        }
+        .overlay {
+            if events.isEmpty {
+                ContentUnavailableView("No Important Events", systemImage: "star",
+                                       description: Text("Open an event and turn on Important to get an extra reminder."))
+            }
+        }
+        .navigationTitle("Important Events")
     }
 }
 
@@ -98,9 +203,14 @@ struct ProfileEditorView: View {
     @State private var name = ""
     @State private var url = ""
     @State private var icon = "calendar"
+    @State private var iconColor: String?
     @State private var checking = false
     @State private var checkResult: String?
     @State private var checkFailed = false
+
+    private var selectedIconColor: Color {
+        AccentPreset.all.first { $0.id == iconColor }?.color ?? .accentColor
+    }
 
     private var canSave: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty && (try? ScheduleService.normalizedURL(url)) != nil
@@ -147,14 +257,31 @@ struct ProfileEditorView: View {
                 }
 
                 Section("Icon") {
+                    HStack(spacing: 10) {
+                        ForEach(AccentPreset.all) { preset in
+                            Button { iconColor = preset.id } label: {
+                                Circle()
+                                    .fill(preset.color)
+                                    .frame(width: 26, height: 26)
+                                    .overlay {
+                                        if iconColor == preset.id {
+                                            Image(systemName: "checkmark").font(.caption2.weight(.bold)).foregroundStyle(.white)
+                                        }
+                                    }
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("\(preset.id.capitalized) icon color")
+                        }
+                    }
+                    .padding(.vertical, 2)
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 6), spacing: 8) {
                         ForEach(EmojiOptions.all.prefix(36), id: \.self) { symbol in
                             Button { icon = symbol } label: {
                                 Image(systemName: symbol)
                                     .font(.title3)
                                     .frame(width: 42, height: 42)
-                                    .background(icon == symbol ? Color.accentColor.opacity(0.2) : Color.clear, in: .rect(cornerRadius: 10))
-                                    .foregroundStyle(icon == symbol ? Color.accentColor : .primary)
+                                    .background(icon == symbol ? selectedIconColor.opacity(0.2) : Color.clear, in: .rect(cornerRadius: 10))
+                                    .foregroundStyle(icon == symbol ? selectedIconColor : .primary)
                             }
                             .buttonStyle(.plain)
                             .accessibilityLabel(symbol)
@@ -180,6 +307,9 @@ struct ProfileEditorView: View {
                     name = profile.name
                     url = profile.icalUrl
                     icon = profile.emoji
+                    iconColor = profile.emojiColor.flatMap { stored in
+                        AccentPreset.all.first { CodableColor(color: $0.color) == stored }?.id
+                    }
                 }
             }
         }
@@ -205,9 +335,11 @@ struct ProfileEditorView: View {
             existing.name = cleanName
             existing.icalUrl = cleanURL
             existing.emoji = icon
+            existing.emojiColor = iconColor == nil ? existing.emojiColor : CodableColor(color: selectedIconColor)
             store.updateProfile(existing)
         } else {
-            store.addProfile(ScheduleProfile(name: cleanName, icalUrl: cleanURL, emoji: icon))
+            store.addProfile(ScheduleProfile(name: cleanName, icalUrl: cleanURL, emoji: icon,
+                                             emojiColor: iconColor == nil ? nil : CodableColor(color: selectedIconColor)))
         }
         dismiss()
     }

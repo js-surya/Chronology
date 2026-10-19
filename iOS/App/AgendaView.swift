@@ -38,6 +38,19 @@ struct AgendaView: View {
                         .padding(.bottom, 8)
                     }
                 }
+                let important = store.importantUpcoming(now: now).filter { $0.id != upcoming.first?.id }
+                if !important.isEmpty {
+                    Section {
+                        ForEach(important.prefix(5)) { event in
+                            Button { selectedEvent = event } label: {
+                                EventRow(event: event, now: now, showsDate: true)
+                            }
+                            .tint(.primary)
+                        }
+                    } header: {
+                        Label("Important", systemImage: "star.fill")
+                    }
+                }
                 ForEach(days(from: upcoming, now: now), id: \.day) { group in
                     Section(header: Text(dayTitle(group.day, now: now))) {
                         ForEach(group.events) { event in

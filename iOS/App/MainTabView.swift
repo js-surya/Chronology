@@ -54,6 +54,8 @@ struct ProfileSwitcher: ToolbarContent {
                 } label: {
                     Label(active.name, systemImage: active.emoji)
                 }
+                // The profile's own icon color, like the Mac profile badge
+                .tint(active.emojiColor?.color ?? store.accentColor)
             }
         }
     }

@@ -165,13 +165,13 @@ struct TimelineGrid: View {
     static let timeColumn: CGFloat = 52
     private let hourHeight: CGFloat = 60
 
-    /// 08:00–20:00 by default, widened to fit the visible events.
+    /// The Day Starts/Ends setting, widened to fit the visible events.
     private var hours: ClosedRange<Int> {
         let cal = Calendar.current
         let visible = visibleEvents
-        let first = visible.map { cal.component(.hour, from: $0.startTime) }.min() ?? 8
-        let last = visible.map { cal.component(.hour, from: $0.endTime.addingTimeInterval(-1)) + 1 }.max() ?? 20
-        return min(8, first)...max(20, min(24, last))
+        let first = visible.map { cal.component(.hour, from: $0.startTime) }.min() ?? store.dayStartHour
+        let last = visible.map { cal.component(.hour, from: $0.endTime.addingTimeInterval(-1)) + 1 }.max() ?? store.dayEndHour
+        return min(store.dayStartHour, first)...max(store.dayEndHour, min(24, last))
     }
 
     private var visibleEvents: [Event] {
@@ -278,9 +278,7 @@ struct TimelineGrid: View {
     }
 
     private func hourLabel(_ hour: Int) -> String {
-        if store.use24HourFormat { return String(format: "%02d:00", hour) }
-        let h = hour % 12 == 0 ? 12 : hour % 12
-        return "\(h) \(hour < 12 || hour == 24 ? "AM" : "PM")"
+        ChronologyMobile.hourLabel(hour, use24Hour: store.use24HourFormat)
     }
 }
 
@@ -291,6 +289,7 @@ struct EventBlock: View {
     let height: CGFloat
     var narrow = false
     @Environment(AppStore.self) private var store
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         let color = store.color(for: event)
@@ -318,9 +317,10 @@ struct EventBlock: View {
         .background {
             // Opaque base keeps hour lines from showing through the tint
             shape.fill(Color(.systemBackground))
-            shape.fill(color.opacity(0.22))
+            // A light tint disappears on black, so dark mode needs a stronger one
+            shape.fill(color.opacity(colorScheme == .dark ? 0.4 : 0.22))
         }
-        .overlay(shape.strokeBorder(color.opacity(0.4), lineWidth: 0.5))
+        .overlay(shape.strokeBorder(color.opacity(colorScheme == .dark ? 0.6 : 0.4), lineWidth: 0.5))
         .contentShape(shape)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(event.title), \(store.timeRange(event))\(event.location.isEmpty ? "" : ", \(event.location)")")

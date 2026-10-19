@@ -32,6 +32,23 @@ final class AppStore {
     var reminderMinutes = 15 {
         didSet { defaults.set(reminderMinutes, forKey: Keys.reminderMinutes); rescheduleReminders() }
     }
+    var appearance: Appearance = .system {
+        didSet { defaults.set(appearance.rawValue, forKey: Keys.appearance) }
+    }
+    /// Name of an `AccentPreset`, or "custom" for `customAccent`.
+    var accentPreset = "blue" {
+        didSet { defaults.set(accentPreset, forKey: Keys.accentPreset) }
+    }
+    var customAccent: CodableColor? {
+        didSet { persist(customAccent, key: Keys.customAccent) }
+    }
+    /// Calendar grid range (widened automatically to fit early/late classes), like the Mac Hours setting.
+    var dayStartHour = 8 {
+        didSet { defaults.set(dayStartHour, forKey: Keys.dayStart) }
+    }
+    var dayEndHour = 20 {
+        didSet { defaults.set(dayEndHour, forKey: Keys.dayEnd) }
+    }
     private(set) var customColors: [String: CodableColor] = [:] {
         didSet { persist(customColors, key: Keys.customColors); publishSnapshot() }
     }
@@ -60,6 +77,11 @@ final class AppStore {
         static let customColors = "customColors"
         static let notes = "eventNotes"
         static let important = "importantEvents"
+        static let appearance = "appearance"
+        static let accentPreset = "accentPreset"
+        static let customAccent = "customAccent"
+        static let dayStart = "dayStartHour"
+        static let dayEnd = "dayEndHour"
     }
 
     init() {
@@ -72,6 +94,11 @@ final class AppStore {
         customColors = load([String: CodableColor].self, key: Keys.customColors) ?? [:]
         notes = load([EventNote].self, key: Keys.notes) ?? []
         importantEvents = load([ImportantEvent].self, key: Keys.important) ?? []
+        appearance = defaults.string(forKey: Keys.appearance).flatMap(Appearance.init(rawValue:)) ?? .system
+        accentPreset = defaults.string(forKey: Keys.accentPreset) ?? "blue"
+        customAccent = load(CodableColor.self, key: Keys.customAccent)
+        dayStartHour = defaults.object(forKey: Keys.dayStart) as? Int ?? 8
+        dayEndHour = defaults.object(forKey: Keys.dayEnd) as? Int ?? 20
         // Show the last snapshot immediately; a refresh replaces it
         if let snapshot = ScheduleSnapshot.load(from: defaults), snapshot.profileURL == activeProfile?.icalUrl {
             events = snapshot.events
@@ -138,6 +165,13 @@ final class AppStore {
         await refresh()
     }
 
+    // MARK: - Appearance
+
+    var accentColor: Color {
+        if accentPreset == "custom", let customAccent { return customAccent.color }
+        return AccentPreset.all.first { $0.id == accentPreset }?.color ?? .blue
+    }
+
     // MARK: - Presentation
 
     func color(for event: Event) -> Color {
@@ -202,7 +236,45 @@ final class AppStore {
         }
     }
 
+    /// Starred events still ahead, soonest first (the Mac "Important" list).
+    func importantUpcoming(now: Date = Date()) -> [Event] {
+        upcoming(now: now).filter(isImportant)
+    }
+
+    func reminderMinutes(for event: Event) -> Int {
+        importantEvents.first { $0.matches(event) }?.reminderMinutes ?? reminderMinutes
+    }
+
+    func setReminderMinutes(_ minutes: Int, for event: Event) {
+        guard let index = importantEvents.firstIndex(where: { $0.matches(event) }) else { return }
+        importantEvents[index].reminderMinutes = minutes
+    }
+
     // MARK: - Reminders
+
+    /// Delivers a notification in a few seconds so the user can confirm alerts work.
+    func sendTestNotification() async -> String {
+        let center = UNUserNotificationCenter.current()
+        var status = await center.notificationSettings().authorizationStatus
+        if status == .notDetermined {
+            _ = try? await center.requestAuthorization(options: [.alert, .sound])
+            status = await center.notificationSettings().authorizationStatus
+        }
+        guard status == .authorized || status == .provisional else {
+            return "Notifications are off. Allow them for Chronology in the Settings app."
+        }
+        let content = UNMutableNotificationContent()
+        content.title = "Chronology Test"
+        content.body = "Reminders are working."
+        content.sound = .default
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 3, repeats: false)
+        do {
+            try await center.add(UNNotificationRequest(identifier: "chronology.test", content: content, trigger: trigger))
+            return "Test sent — it arrives in 3 seconds."
+        } catch {
+            return error.localizedDescription
+        }
+    }
 
     /// Asks for permission when turning on; stays off if the user declines.
     func setNotificationsEnabled(_ enabled: Bool) async {
@@ -248,4 +320,36 @@ final class AppStore {
     private func load<T: Decodable>(_ type: T.Type, key: String) -> T? {
         defaults.data(forKey: key).flatMap { try? JSONDecoder().decode(T.self, from: $0) }
     }
+}
+
+// MARK: - Appearance options
+
+enum Appearance: String, CaseIterable, Identifiable {
+    case system, light, dark
+
+    var id: String { rawValue }
+    var title: String { rawValue.capitalized }
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .system: nil
+        case .light: .light
+        case .dark: .dark
+        }
+    }
+}
+
+/// Same accent presets as the Mac app.
+struct AccentPreset: Identifiable {
+    let id: String
+    let color: Color
+
+    static let all: [AccentPreset] = [
+        .init(id: "blue", color: .blue),
+        .init(id: "purple", color: .purple),
+        .init(id: "pink", color: .pink),
+        .init(id: "red", color: .red),
+        .init(id: "orange", color: .orange),
+        .init(id: "green", color: .green),
+        .init(id: "teal", color: .teal)
+    ]
 }
