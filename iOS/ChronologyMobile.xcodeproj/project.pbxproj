@@ -1,0 +1,660 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		065E0A8D176CDC74FCA7CAA2 /* ChronologyCore in Frameworks */ = {isa = PBXBuildFile; productRef = DB77A92598C98C0155BE859D /* ChronologyCore */; };
+		092D692FA2D882D2E772A3EE /* SearchScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C9BC8B60EAAED1073009A0 /* SearchScreen.swift */; };
+		0E87907D5E70435CEBF69873 /* SettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1380757F4470449A583E7E14 /* SettingsScreen.swift */; };
+		0EFB938E56A31445A7F7C1B2 /* AppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2640438DB4F2F3A9CD1075CA /* AppGroup.swift */; };
+		0F8934ADC9B14AC5BBF2F24D /* ChronologyMobileApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CA66A6E7256B63056820B7B /* ChronologyMobileApp.swift */; };
+		18361A4CA9BEF33EAF2BCB23 /* ChronologyCore in Frameworks */ = {isa = PBXBuildFile; productRef = AE0B19C85FD959E6B7CB67A0 /* ChronologyCore */; };
+		197723BBC4F157140E12C552 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA2BEAAFAC7AB1399B15BD8 /* MainTabView.swift */; };
+		3089A107732DA6454044E41E /* ScreenTourUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AF90DC926B0AC20C70E317 /* ScreenTourUITests.swift */; };
+		33BAFA8AEE4FA57B42EBDDFB /* EventDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F96A4E4CD2B2E5BCE53A76CA /* EventDetailView.swift */; };
+		413970917D275827CA78A335 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D65F4F4B603C610F7C4BADAD /* WidgetKit.framework */; };
+		43BB3FBAD9032055C638C8CB /* EventStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4FD5E05722E708F687D93B7 /* EventStyle.swift */; };
+		545D4C4AEDDD133C9C97F4D7 /* NextUpWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C7BA8DD5FEEED89F413222E /* NextUpWidget.swift */; };
+		8565B3A29104570CE0946266 /* EventStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4FD5E05722E708F687D93B7 /* EventStyle.swift */; };
+		8EF8E54D54FD87FAE427DAE6 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 019829833001DB0B00058B7E /* SwiftUI.framework */; };
+		A0D33CDDEEE5DB359BB12641 /* AppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2640438DB4F2F3A9CD1075CA /* AppGroup.swift */; };
+		A5AD0698D42786BD576F441C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7F57D141FD29D90591A5F62A /* Assets.xcassets */; };
+		AA794E55E0973682798EC772 /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CF66E1A02353803AE958CB /* AppStore.swift */; };
+		DCAC4624B2B954ED657847CE /* AgendaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A80AB711E907FD7B378A56 /* AgendaView.swift */; };
+		E48F15F9E415D91C96BE6ED7 /* CalendarScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C468E90F113A974CC86C58E /* CalendarScreen.swift */; };
+		F2B6B9E92B36EB6BDE09FEBA /* ChronologyWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 84F5BC8C3629A7C16D643FA0 /* ChronologyWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		EC387D82B3E26727535E901E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EC0287A9A31139B7AB091FD4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 922D2943F7A5C16D90810F37;
+			remoteInfo = ChronologyMobile;
+		};
+		F1A922F34A4BBAD4E777A346 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EC0287A9A31139B7AB091FD4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 52986D67B7CDD97A3C72AE80;
+			remoteInfo = ChronologyWidgets;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		6CA969CDA1B3B93502765055 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				F2B6B9E92B36EB6BDE09FEBA /* ChronologyWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		019829833001DB0B00058B7E /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		1380757F4470449A583E7E14 /* SettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
+		17CF66E1A02353803AE958CB /* AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStore.swift; sourceTree = "<group>"; };
+		2640438DB4F2F3A9CD1075CA /* AppGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppGroup.swift; sourceTree = "<group>"; };
+		44C9BC8B60EAAED1073009A0 /* SearchScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchScreen.swift; sourceTree = "<group>"; };
+		50A80AB711E907FD7B378A56 /* AgendaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgendaView.swift; sourceTree = "<group>"; };
+		66F97442FA219090E9F8AB8A /* Chronology */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Chronology; path = ..; sourceTree = SOURCE_ROOT; };
+		6CA66A6E7256B63056820B7B /* ChronologyMobileApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChronologyMobileApp.swift; sourceTree = "<group>"; };
+		7587EBF0C4C523C33FA109BA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		77B5FAD304B1C0C62F0B1287 /* ChronologyWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ChronologyWidgets.entitlements; sourceTree = "<group>"; };
+		7F57D141FD29D90591A5F62A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		84F5BC8C3629A7C16D643FA0 /* ChronologyWidgets.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = ChronologyWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		8C468E90F113A974CC86C58E /* CalendarScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarScreen.swift; sourceTree = "<group>"; };
+		9C7BA8DD5FEEED89F413222E /* NextUpWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextUpWidget.swift; sourceTree = "<group>"; };
+		9DF64BA3C17CA0E6947CA53E /* ChronologyMobileUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ChronologyMobileUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C3AF90DC926B0AC20C70E317 /* ScreenTourUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTourUITests.swift; sourceTree = "<group>"; };
+		D65F4F4B603C610F7C4BADAD /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		E4FD5E05722E708F687D93B7 /* EventStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStyle.swift; sourceTree = "<group>"; };
+		EC5C2076B8E35BAD80FA54C7 /* ChronologyMobile.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ChronologyMobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEA2BEAAFAC7AB1399B15BD8 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		EEBBC1C685E419C672343915 /* Chronology.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Chronology.entitlements; sourceTree = "<group>"; };
+		F0E1F5EC2DA279D3B7842079 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		F96A4E4CD2B2E5BCE53A76CA /* EventDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		162D4114844EB6F19E970E86 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				18361A4CA9BEF33EAF2BCB23 /* ChronologyCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D412A0F3CFB367D98130DDE1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				065E0A8D176CDC74FCA7CAA2 /* ChronologyCore in Frameworks */,
+				413970917D275827CA78A335 /* WidgetKit.framework in Frameworks */,
+				8EF8E54D54FD87FAE427DAE6 /* SwiftUI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		12BB57FF29C6EFFAC6699633 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				50A80AB711E907FD7B378A56 /* AgendaView.swift */,
+				17CF66E1A02353803AE958CB /* AppStore.swift */,
+				7F57D141FD29D90591A5F62A /* Assets.xcassets */,
+				8C468E90F113A974CC86C58E /* CalendarScreen.swift */,
+				EEBBC1C685E419C672343915 /* Chronology.entitlements */,
+				6CA66A6E7256B63056820B7B /* ChronologyMobileApp.swift */,
+				F96A4E4CD2B2E5BCE53A76CA /* EventDetailView.swift */,
+				7587EBF0C4C523C33FA109BA /* Info.plist */,
+				EEA2BEAAFAC7AB1399B15BD8 /* MainTabView.swift */,
+				44C9BC8B60EAAED1073009A0 /* SearchScreen.swift */,
+				1380757F4470449A583E7E14 /* SettingsScreen.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		2CAC429D64757D26860BC462 /* UITests */ = {
+			isa = PBXGroup;
+			children = (
+				C3AF90DC926B0AC20C70E317 /* ScreenTourUITests.swift */,
+			);
+			path = UITests;
+			sourceTree = "<group>";
+		};
+		2CF82795943255D5A01C44A2 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				019829833001DB0B00058B7E /* SwiftUI.framework */,
+				D65F4F4B603C610F7C4BADAD /* WidgetKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		3614673BC29B09E216B97703 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				2640438DB4F2F3A9CD1075CA /* AppGroup.swift */,
+				E4FD5E05722E708F687D93B7 /* EventStyle.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		5FE56E9B3A5CF6B7961A6005 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				66F97442FA219090E9F8AB8A /* Chronology */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		7CAD93FA80F1EA8AE9880676 /* Widget */ = {
+			isa = PBXGroup;
+			children = (
+				77B5FAD304B1C0C62F0B1287 /* ChronologyWidgets.entitlements */,
+				F0E1F5EC2DA279D3B7842079 /* Info.plist */,
+				9C7BA8DD5FEEED89F413222E /* NextUpWidget.swift */,
+			);
+			path = Widget;
+			sourceTree = "<group>";
+		};
+		B1F79AD84C34B3BD4A83066D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				EC5C2076B8E35BAD80FA54C7 /* ChronologyMobile.app */,
+				9DF64BA3C17CA0E6947CA53E /* ChronologyMobileUITests.xctest */,
+				84F5BC8C3629A7C16D643FA0 /* ChronologyWidgets.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E30E34264B4E144AFEF5E338 = {
+			isa = PBXGroup;
+			children = (
+				12BB57FF29C6EFFAC6699633 /* App */,
+				5FE56E9B3A5CF6B7961A6005 /* Packages */,
+				3614673BC29B09E216B97703 /* Shared */,
+				2CAC429D64757D26860BC462 /* UITests */,
+				7CAD93FA80F1EA8AE9880676 /* Widget */,
+				2CF82795943255D5A01C44A2 /* Frameworks */,
+				B1F79AD84C34B3BD4A83066D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1E66093B1CF8DF99760FB625 /* ChronologyMobileUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5752EBC67FDA38AAE8874532 /* Build configuration list for PBXNativeTarget "ChronologyMobileUITests" */;
+			buildPhases = (
+				F179572C8E12F7A25ACF1559 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A07573528603EC5690E3B8A9 /* PBXTargetDependency */,
+			);
+			name = ChronologyMobileUITests;
+			packageProductDependencies = (
+			);
+			productName = ChronologyMobileUITests;
+			productReference = 9DF64BA3C17CA0E6947CA53E /* ChronologyMobileUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		52986D67B7CDD97A3C72AE80 /* ChronologyWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 88BCC7B6E3E52422FEAE3A16 /* Build configuration list for PBXNativeTarget "ChronologyWidgets" */;
+			buildPhases = (
+				3D9E79CF48B0CC99D5467889 /* Sources */,
+				D412A0F3CFB367D98130DDE1 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ChronologyWidgets;
+			packageProductDependencies = (
+				DB77A92598C98C0155BE859D /* ChronologyCore */,
+			);
+			productName = ChronologyWidgets;
+			productReference = 84F5BC8C3629A7C16D643FA0 /* ChronologyWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		922D2943F7A5C16D90810F37 /* ChronologyMobile */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5FF324A6A32EB6E3A30DC2EB /* Build configuration list for PBXNativeTarget "ChronologyMobile" */;
+			buildPhases = (
+				C1BEEA827E8826BC136DF7BC /* Sources */,
+				0A7F9BB5C7C125516CB387CF /* Resources */,
+				162D4114844EB6F19E970E86 /* Frameworks */,
+				6CA969CDA1B3B93502765055 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				120A40955BDDBDB441D55688 /* PBXTargetDependency */,
+			);
+			name = ChronologyMobile;
+			packageProductDependencies = (
+				AE0B19C85FD959E6B7CB67A0 /* ChronologyCore */,
+			);
+			productName = ChronologyMobile;
+			productReference = EC5C2076B8E35BAD80FA54C7 /* ChronologyMobile.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		EC0287A9A31139B7AB091FD4 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					1E66093B1CF8DF99760FB625 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+						TestTargetID = 922D2943F7A5C16D90810F37;
+					};
+					52986D67B7CDD97A3C72AE80 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					922D2943F7A5C16D90810F37 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 7893239D04D2655ED2C609CD /* Build configuration list for PBXProject "ChronologyMobile" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = E30E34264B4E144AFEF5E338;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				C3B54FFE8CDBD7A7FDDCB39C /* XCLocalSwiftPackageReference ".." */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = B1F79AD84C34B3BD4A83066D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				922D2943F7A5C16D90810F37 /* ChronologyMobile */,
+				52986D67B7CDD97A3C72AE80 /* ChronologyWidgets */,
+				1E66093B1CF8DF99760FB625 /* ChronologyMobileUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0A7F9BB5C7C125516CB387CF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A5AD0698D42786BD576F441C /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3D9E79CF48B0CC99D5467889 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0EFB938E56A31445A7F7C1B2 /* AppGroup.swift in Sources */,
+				8565B3A29104570CE0946266 /* EventStyle.swift in Sources */,
+				545D4C4AEDDD133C9C97F4D7 /* NextUpWidget.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C1BEEA827E8826BC136DF7BC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DCAC4624B2B954ED657847CE /* AgendaView.swift in Sources */,
+				A0D33CDDEEE5DB359BB12641 /* AppGroup.swift in Sources */,
+				AA794E55E0973682798EC772 /* AppStore.swift in Sources */,
+				E48F15F9E415D91C96BE6ED7 /* CalendarScreen.swift in Sources */,
+				0F8934ADC9B14AC5BBF2F24D /* ChronologyMobileApp.swift in Sources */,
+				33BAFA8AEE4FA57B42EBDDFB /* EventDetailView.swift in Sources */,
+				43BB3FBAD9032055C638C8CB /* EventStyle.swift in Sources */,
+				197723BBC4F157140E12C552 /* MainTabView.swift in Sources */,
+				092D692FA2D882D2E772A3EE /* SearchScreen.swift in Sources */,
+				0E87907D5E70435CEBF69873 /* SettingsScreen.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F179572C8E12F7A25ACF1559 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3089A107732DA6454044E41E /* ScreenTourUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		120A40955BDDBDB441D55688 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 52986D67B7CDD97A3C72AE80 /* ChronologyWidgets */;
+			targetProxy = F1A922F34A4BBAD4E777A346 /* PBXContainerItemProxy */;
+		};
+		A07573528603EC5690E3B8A9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 922D2943F7A5C16D90810F37 /* ChronologyMobile */;
+			targetProxy = EC387D82B3E26727535E901E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0B6BE92625C88B7A511D5D0E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		2F1B08DE9696919775E499BE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = App/Chronology.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.codingpasanga.Chronology.mobile;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		3B326C28503A99C27BDCE8DE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Widget/ChronologyWidgets.entitlements;
+				INFOPLIST_FILE = Widget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.codingpasanga.Chronology.mobile.widgets;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		53B3F94F561FD6E651AD9849 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.codingpasanga.Chronology.mobile.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = ChronologyMobile;
+			};
+			name = Release;
+		};
+		893EBF0B4380A913A2CA7EAE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = App/Chronology.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.codingpasanga.Chronology.mobile;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		96A39630314605A8B8778DBC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.codingpasanga.Chronology.mobile.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = ChronologyMobile;
+			};
+			name = Debug;
+		};
+		97AF61402C6852957BB7C5DA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		EEB83DB141526AFDBF65AC98 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Widget/ChronologyWidgets.entitlements;
+				INFOPLIST_FILE = Widget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.codingpasanga.Chronology.mobile.widgets;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		5752EBC67FDA38AAE8874532 /* Build configuration list for PBXNativeTarget "ChronologyMobileUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				96A39630314605A8B8778DBC /* Debug */,
+				53B3F94F561FD6E651AD9849 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		5FF324A6A32EB6E3A30DC2EB /* Build configuration list for PBXNativeTarget "ChronologyMobile" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2F1B08DE9696919775E499BE /* Debug */,
+				893EBF0B4380A913A2CA7EAE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		7893239D04D2655ED2C609CD /* Build configuration list for PBXProject "ChronologyMobile" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				97AF61402C6852957BB7C5DA /* Debug */,
+				0B6BE92625C88B7A511D5D0E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		88BCC7B6E3E52422FEAE3A16 /* Build configuration list for PBXNativeTarget "ChronologyWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EEB83DB141526AFDBF65AC98 /* Debug */,
+				3B326C28503A99C27BDCE8DE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		C3B54FFE8CDBD7A7FDDCB39C /* XCLocalSwiftPackageReference ".." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ..;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AE0B19C85FD959E6B7CB67A0 /* ChronologyCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ChronologyCore;
+		};
+		DB77A92598C98C0155BE859D /* ChronologyCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ChronologyCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = EC0287A9A31139B7AB091FD4 /* Project object */;
+}

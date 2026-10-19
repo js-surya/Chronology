@@ -18,8 +18,9 @@ Menu bar schedule viewer for macOS. Subscribe to a TimeEdit iCal URL, see your n
 
 ## Requirements
 
-- macOS 26.0 (Tahoe)+
-- Xcode 15 / Swift 5.9 (only if building from source)
+- macOS 26.0 (Tahoe)+ for the Mac app
+- iOS / iPadOS 26.0+ for the iPhone & iPad app
+- Xcode 26+ (only if building from source)
 
 ## Install
 
@@ -34,6 +35,18 @@ sh package_app.sh
 ```
 
 Output: `Chronology.dmg` in project root.
+
+Tests (shared core): `swift test`
+
+### iPhone & iPad
+
+```bash
+open iOS/ChronologyMobile.xcodeproj
+```
+
+Pick the **ChronologyMobile** scheme and a simulator or device. To run on a device, set your team under *Signing & Capabilities* for both the app and the **ChronologyWidgets** extension (they share the App Group `group.com.codingpasanga.chronology`). The project is generated from `iOS/project.yml` with [XcodeGen](https://github.com/yonaskolb/XcodeGen) — run `xcodegen generate` in `iOS/` after adding files.
+
+The iOS app has Up Next (countdown + agenda), a day timeline (iPhone) / week grid (iPad), search, event notes, colors and important reminders, plus a **Next Up** widget for the Home and Lock Screen.
 
 ## Usage
 
@@ -50,7 +63,7 @@ Find your iCal URL on your TimeEdit schedule page → **Subscribe / Export** →
 
 ## Stack
 
-Swift 5.9 · SwiftUI · MVVM · UserNotifications · AppKit (menu bar). No third-party dependencies.
+Swift · SwiftUI · Liquid Glass · UserNotifications · WidgetKit · AppKit (menu bar). Shared logic lives in the `ChronologyCore` Swift package used by both apps. No third-party dependencies.
 
 ## License
 

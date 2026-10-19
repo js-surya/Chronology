@@ -21,3 +21,6 @@ DerivedData/
 # Claude Code local context
 CLAUDE.md
 .claude/
+# Xcode per-user state (iOS project)
+xcuserdata/
+*.xcuserstate
