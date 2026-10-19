@@ -38,7 +38,6 @@ class LaunchAtLoginManager: ObservableObject {
                 }
             }
         } catch {
-            print("Failed to update login item: \(error)")
             // Revert state if failed
             DispatchQueue.main.async {
                 self.isEnabled = SMAppService.mainApp.status == .enabled

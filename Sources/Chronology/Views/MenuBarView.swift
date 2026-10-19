@@ -5,6 +5,11 @@ struct MenuBarView: View {
     @State private var events: [Event] = []
     @State private var tomorrowEvents: [Event] = []
     @State private var isLoading = false
+    @State private var listHeight: CGFloat = 0
+
+    // The header already shows the next event, so the lists start after it
+    private var laterToday: [Event] { Array(events.dropFirst()) }
+    private var tomorrowList: [Event] { events.isEmpty ? Array(tomorrowEvents.dropFirst()) : tomorrowEvents }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -17,7 +22,7 @@ struct MenuBarView: View {
                     .frame(maxWidth: .infinity)
             } else if events.isEmpty && tomorrowEvents.isEmpty {
                 emptyState
-            } else {
+            } else if !laterToday.isEmpty || !tomorrowList.isEmpty {
                 eventsList
                 Divider().opacity(0.25)
             }
@@ -25,8 +30,6 @@ struct MenuBarView: View {
             footerSection
         }
         .frame(width: 320)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 18))
         .onAppear { loadTodayEvents() }
     }
 
@@ -35,7 +38,7 @@ struct MenuBarView: View {
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 6) {
             if let next = events.first ?? tomorrowEvents.first {
-                let eventColor = appViewModel.getCustomColor(for: next.title) ?? next.color(from: next.title)
+                let eventColor = appViewModel.eventColor(for: next)
 
                 TimelineView(.periodic(from: .now, by: 30)) { ctx in
                     VStack(alignment: .leading, spacing: 4) {
@@ -45,7 +48,7 @@ struct MenuBarView: View {
                             .tracking(1.2)
 
                         Text(next.title)
-                            .font(.system(size: 19, weight: .semibold))
+                            .font(.title3.weight(.semibold))
                             .lineLimit(2)
 
                         Text(headerSubtitle(event: next, at: ctx.date))
@@ -64,16 +67,14 @@ struct MenuBarView: View {
     }
 
     private func headerSubtitle(event: Event, at now: Date) -> String {
-        let fmt = DateFormatter()
-        fmt.timeStyle = .short
-        let timeStr = fmt.string(from: event.startTime)
+        let timeStr = appViewModel.timeString(event.startTime)
         let countdown: String
         if now < event.startTime {
-            let interval = event.startTime.timeIntervalSince(now)
-            let m = Int(interval / 60)
+            let m = Int(event.startTime.timeIntervalSince(now) / 60)
             countdown = m < 60 ? "In \(m)m" : "In \(m / 60)h \(m % 60)m"
         } else {
-            countdown = "Now"
+            let m = max(0, Int(event.endTime.timeIntervalSince(now) / 60))
+            countdown = "Now · ends in \(m)m"
         }
         let parts = [countdown, timeStr, event.location.isEmpty ? nil : event.location]
             .compactMap { $0 }
@@ -86,25 +87,25 @@ struct MenuBarView: View {
     private var eventsList: some View {
         ScrollView {
             VStack(spacing: 0) {
-                if !events.isEmpty {
+                if !laterToday.isEmpty {
                     sectionLabel("Later Today")
-                    ForEach(events) { event in
+                    ForEach(laterToday) { event in
                         GlassMenuBarRow(event: event)
                             .environmentObject(appViewModel)
                         Divider().opacity(0.15).padding(.leading, 14)
                     }
                 }
 
-                if !tomorrowEvents.isEmpty {
+                if !tomorrowList.isEmpty {
                     sectionLabel(events.isEmpty ? "Tomorrow's Classes" : "Tomorrow")
-                    ForEach(tomorrowEvents.prefix(5)) { event in
+                    ForEach(tomorrowList.prefix(5)) { event in
                         GlassMenuBarRow(event: event)
                             .environmentObject(appViewModel)
                         Divider().opacity(0.15).padding(.leading, 14)
                     }
-                    if tomorrowEvents.count > 5 {
+                    if tomorrowList.count > 5 {
                         HStack {
-                            Text("+\(tomorrowEvents.count - 5) more")
+                            Text("+\(tomorrowList.count - 5) more")
                                 .font(.caption2)
                                 .foregroundColor(.secondary)
                             Spacer()
@@ -114,8 +115,15 @@ struct MenuBarView: View {
                     }
                 }
             }
+            .background(GeometryReader { geo in
+                Color.clear
+                    .onAppear { listHeight = geo.size.height }
+                    .onChange(of: geo.size.height) { _, h in listHeight = h }
+            })
         }
-        .frame(maxHeight: 360)
+        // A ScrollView in the auto-sized menu bar window collapses to its minimum,
+        // so size it to the measured content, capped at 360
+        .frame(height: min(max(listHeight, 1), 360))
     }
 
     private func sectionLabel(_ text: String) -> some View {
@@ -135,68 +143,58 @@ struct MenuBarView: View {
     // MARK: - Empty state
 
     private var emptyState: some View {
-        VStack(spacing: 10) {
-            Image(systemName: "moon.stars")
-                .font(.largeTitle)
-                .foregroundColor(.secondary)
-            Text("No more classes today")
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
-        .frame(height: 120)
-        .frame(maxWidth: .infinity)
+        ContentUnavailableView("All Done", systemImage: "moon.stars",
+                               description: Text("No more classes today or tomorrow."))
+            .frame(height: 150)
     }
 
     // MARK: - Footer
 
     private var footerSection: some View {
-        HStack(spacing: 10) {
-            Button("Open Chronology") {
-                NSApp.setActivationPolicy(.regular)
-                NSApp.activate(ignoringOtherApps: true)
-                NotificationCenter.default.post(name: Notification.Name("openMainWindow"), object: nil)
-                if let window = NSApp.windows.first {
-                    window.makeKeyAndOrderFront(nil)
+        GlassEffectContainer {
+            HStack(spacing: 8) {
+                Button("Open Chronology") {
+                    // AppDelegate restores the dock icon and focuses the window; MenuBarLabel recreates it if closed
+                    NotificationCenter.default.post(name: .openMainWindow, object: nil)
                 }
-            }
-            .buttonStyle(MenuBarCapsuleStyle())
+                .buttonStyle(.glass)
 
-            Button("Settings") {
-                NotificationCenter.default.post(name: .openSettings, object: nil)
-                NSApp.setActivationPolicy(.regular)
-                NSApp.activate(ignoringOtherApps: true)
-                if let window = NSApp.windows.first {
-                    window.makeKeyAndOrderFront(nil)
+                Button("Settings") {
+                    appViewModel.showingSettings = true
+                    NotificationCenter.default.post(name: .openMainWindow, object: nil)
                 }
-            }
-            .buttonStyle(MenuBarCapsuleStyle())
+                .buttonStyle(.glass)
 
-            Spacer()
+                Spacer()
 
-            Button {
-                loadTodayEvents()
-                appViewModel.updateMenuBarText()
-            } label: {
-                Image(systemName: "arrow.clockwise")
-                    .font(.system(size: 11))
-                    .frame(width: 28, height: 28)
-                    .background(Color.primary.opacity(0.06), in: Circle())
+                Button {
+                    loadTodayEvents(force: true)
+                } label: {
+                    Label("Refresh", systemImage: "arrow.clockwise")
+                        .labelStyle(.iconOnly)
+                }
+                .buttonStyle(.glass)
+                .buttonBorderShape(.circle)
+                .help("Refresh")
             }
-            .buttonStyle(.plain)
-            .help("Refresh")
         }
-        .padding(.horizontal, 14)
+        .controlSize(.regular)
+        .padding(.horizontal, 12)
         .padding(.vertical, 10)
     }
 
     // MARK: - Data loading
 
-    private func loadTodayEvents() {
+    private func loadTodayEvents(force: Bool = false) {
         guard let url = appViewModel.activeProfile?.icalUrl, !url.isEmpty else { return }
         isLoading = true
         Task {
             do {
-                let allEvents = try await ScheduleService.shared.fetchSchedule(from: url)
+                let allEvents = try await ScheduleService.shared.fetchSchedule(
+                    from: url,
+                    maxAge: force ? 0 : ScheduleService.defaultMaxAge
+                )
+                if force { appViewModel.updateMenuBarText() }
                 let cal = Calendar.current
                 let now = Date()
                 let today = cal.startOfDay(for: now)
@@ -230,9 +228,7 @@ struct GlassMenuBarRow: View {
     @EnvironmentObject var appViewModel: AppViewModel
     @State private var isHovering = false
 
-    private var eventColor: Color {
-        appViewModel.getCustomColor(for: event.title) ?? event.color(from: event.title)
-    }
+    private var eventColor: Color { appViewModel.eventColor(for: event) }
 
     var body: some View {
         HStack(spacing: 10) {
@@ -246,7 +242,7 @@ struct GlassMenuBarRow: View {
                     .font(.system(size: 12, weight: .medium))
                     .lineLimit(1)
                 HStack(spacing: 4) {
-                    Text(event.startTime.formatted(date: .omitted, time: .shortened))
+                    Text(appViewModel.timeString(event.startTime))
                         .font(.system(size: 11))
                         .foregroundColor(.secondary)
                         .monospacedDigit()
@@ -265,29 +261,11 @@ struct GlassMenuBarRow: View {
             Spacer()
         }
         .padding(.vertical, 8)
-        .background(isHovering ? Color.primary.opacity(0.04) : Color.clear)
+        .background(isHovering ? Color.primary.opacity(0.06) : Color.clear, in: .rect(cornerRadius: 8))
+        .padding(.horizontal, 4)
         .contentShape(Rectangle())
         .onHover { h in
             withAnimation(.easeInOut(duration: 0.12)) { isHovering = h }
         }
-    }
-}
-
-// MARK: - Liquid glass capsule button style for menu bar
-
-struct MenuBarCapsuleStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.system(size: 12.5, weight: .medium))
-            .padding(.horizontal, 14)
-            .padding(.vertical, 7)
-            .background(Capsule().fill(.ultraThinMaterial))
-            .overlay(
-                Capsule().strokeBorder(Color.white.opacity(0.18), lineWidth: 0.5)
-            )
-            .foregroundStyle(.primary)
-            .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
-            .scaleEffect(configuration.isPressed ? 0.96 : 1)
-            .animation(.spring(response: 0.2), value: configuration.isPressed)
     }
 }

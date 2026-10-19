@@ -5,9 +5,7 @@ struct ContentView: View {
     @Environment(\.colorScheme) var systemColorScheme
     @State private var scheduleViewModel: ScheduleViewModel?
     @State private var searchText = ""
-    @State private var showingSettings = false
     @State private var isReady = false
-    @State private var currentDayIcon = "\(Calendar.current.component(.day, from: Date())).square"
 
     @State private var currentWeekStart: Date = Self.mondayOfCurrentWeek()
     @State private var selectedDay: Date = Date()
@@ -28,7 +26,7 @@ struct ContentView: View {
     var body: some View {
         Group {
             if !isReady {
-                ProgressView("Starting Chronology...")
+                ProgressView("Starting Chronology…")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if appViewModel.profiles.isEmpty || appViewModel.activeProfileId.isEmpty {
                 ProfileSelectionView()
@@ -41,58 +39,19 @@ struct ContentView: View {
                     selectedDay: $selectedDay
                 )
             } else {
-                EmptyStateView(showingSettings: $showingSettings)
+                EmptyStateView()
             }
         }
-        .toolbar {
-            ToolbarItemGroup(placement: .navigation) {
-                if isReady {
-                    CapsuleSegmentedControl(selection: $appViewModel.viewMode)
-                }
-                if isReady && !appViewModel.activeProfileId.isEmpty {
-                    ProfileMenuPill(onClearProfile: {
-                        scheduleViewModel = nil
-                        appViewModel.activeProfileId = ""
-                    })
-                    .environmentObject(appViewModel)
-                }
-            }
-
-            ToolbarItem(placement: .principal) {
-                if isReady && scheduleViewModel != nil {
-                    NavigationCluster(
-                        viewMode: appViewModel.viewMode,
-                        currentWeekStart: $currentWeekStart,
-                        selectedDay: $selectedDay,
-                        accentColor: appViewModel.accentColor
-                    )
-                }
-            }
-
-            ToolbarItemGroup(placement: .primaryAction) {
-                IconCircleButton(systemName: "arrow.clockwise", help: "Refresh Schedule") {
-                    if let vm = scheduleViewModel { Task { await vm.loadSchedule() } }
-                }
-                .disabled(scheduleViewModel == nil)
-
-                IconCircleButton(systemName: "gear", help: "Settings") {
-                    showingSettings.toggle()
-                }
-            }
-        }
-        .searchable(text: $searchText, prompt: "Search events...")
+        .navigationTitle("Chronology")
+        .toolbar { toolbarContent }
+        .searchable(text: $searchText, placement: .toolbar, prompt: "Search Events")
         .preferredColorScheme(theme.preferredColorScheme)
         .background(backgroundForTheme)
         .toolbarBackground(toolbarBackground, for: .windowToolbar)
-        .sheet(isPresented: $showingSettings) {
-            SettingsView(isPresented: $showingSettings)
+        .toolbarBackgroundVisibility(theme.isSolid ? .visible : .automatic, for: .windowToolbar)
+        .sheet(isPresented: $appViewModel.showingSettings) {
+            SettingsView(isPresented: $appViewModel.showingSettings)
                 .environmentObject(appViewModel)
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .openSettings)) { _ in
-            showingSettings = true
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .NSCalendarDayChanged)) { _ in
-            currentDayIcon = "\(Calendar.current.component(.day, from: Date())).square"
         }
         .task {
             appViewModel.ensureInitialized()
@@ -114,6 +73,43 @@ struct ContentView: View {
         }
     }
 
+    // MARK: - Toolbar
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        if isReady && !appViewModel.activeProfileId.isEmpty {
+            ToolbarItem(placement: .navigation) {
+                ProfileMenu(onManageProfiles: {
+                    scheduleViewModel = nil
+                    appViewModel.activeProfileId = ""
+                })
+                .environmentObject(appViewModel)
+            }
+        }
+
+        ToolbarItem(placement: .primaryAction) {
+            Button {
+                if let vm = scheduleViewModel { Task { await vm.loadSchedule(force: true) } }
+            } label: {
+                Label("Refresh", systemImage: "arrow.clockwise")
+            }
+            .help("Refresh Schedule (⌘R)")
+            .keyboardShortcut("r", modifiers: .command)
+            .disabled(scheduleViewModel == nil)
+        }
+
+        ToolbarItem(placement: .primaryAction) {
+            Button {
+                appViewModel.showingSettings = true
+            } label: {
+                Label("Settings", systemImage: "gearshape")
+            }
+            .help("Settings (⌘,)")
+        }
+    }
+
+    // MARK: - Theme surfaces
+
     @ViewBuilder
     private var backgroundForTheme: some View {
         switch theme {
@@ -127,156 +123,55 @@ struct ContentView: View {
         switch theme {
         case .amoled:    AnyShapeStyle(Color.black)
         case .darkSolid: AnyShapeStyle(Color(nsColor: NSColor(red: 0.11, green: 0.11, blue: 0.13, alpha: 1)))
-        default:         AnyShapeStyle(.regularMaterial)
+        default:         AnyShapeStyle(.clear) // system Liquid Glass toolbar
         }
     }
 }
 
-// MARK: - Toolbar controls
+// MARK: - Profile menu
 
-struct CapsuleSegmentedControl: View {
-    @Binding var selection: String
-
-    var body: some View {
-        GlassSegmented(
-            selection: $selection,
-            options: [
-                ("week", "Week", "calendar"),
-                ("day",  "Day",  "doc.text")
-            ]
-        )
-    }
-}
-
-struct ProfileMenuPill: View {
+struct ProfileMenu: View {
     @EnvironmentObject var appViewModel: AppViewModel
-    let onClearProfile: () -> Void
+    let onManageProfiles: () -> Void
 
     var body: some View {
         if let profile = appViewModel.activeProfile {
             Menu {
-                Section {
-                    ForEach(appViewModel.profiles) { p in
-                        Button {
+                Picker("Profile", selection: Binding(
+                    get: { appViewModel.activeProfileId },
+                    set: { id in
+                        if let p = appViewModel.profiles.first(where: { $0.id.uuidString == id }) {
                             appViewModel.switchToProfile(p)
-                        } label: {
-                            if appViewModel.activeProfileId == p.id.uuidString {
-                                Label(p.name, systemImage: "checkmark")
-                            } else {
-                                Text(p.name)
-                            }
                         }
                     }
+                )) {
+                    ForEach(appViewModel.profiles) { p in
+                        Text(p.name).tag(p.id.uuidString)
+                    }
                 }
+                .pickerStyle(.inline)
+                .labelsHidden()
                 Divider()
-                Button("Manage Profiles", action: onClearProfile)
+                Button("Manage Profiles…", action: onManageProfiles)
             } label: {
-                HStack(spacing: 6) {
-                    profileBadge(profile)
+                Label {
                     Text(profile.name)
-                        .font(.system(size: 12, weight: .medium))
-                        .lineLimit(1)
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: 9, weight: .semibold))
-                        .foregroundColor(.secondary)
+                } icon: {
+                    profileIcon(profile)
                 }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
-                .background(Color.primary.opacity(0.06), in: Capsule())
+                .labelStyle(.titleAndIcon)
             }
-            .menuStyle(.borderlessButton)
-            .fixedSize()
             .help("Switch Profile")
         }
     }
 
     @ViewBuilder
-    private func profileBadge(_ profile: ScheduleProfile) -> some View {
-        let color = profile.emojiColor?.color ?? appViewModel.accentColor
-        ZStack {
-            Circle()
-                .fill(color.opacity(0.2))
-                .frame(width: 20, height: 20)
-            if profile.emoji.allSatisfy({ $0.isASCII }) {
-                Image(systemName: profile.emoji)
-                    .font(.system(size: 10))
-                    .foregroundColor(color)
-            } else {
-                Text(profile.emoji).font(.system(size: 11))
-            }
-        }
-    }
-}
-
-struct NavigationCluster: View {
-    let viewMode: String
-    @Binding var currentWeekStart: Date
-    @Binding var selectedDay: Date
-    let accentColor: Color
-
-    var body: some View {
-        HStack(spacing: 8) {
-            Button("Today") { goToToday() }
-                .font(.system(size: 12, weight: .medium))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
-                .overlay(Capsule().stroke(Color.primary.opacity(0.2), lineWidth: 1))
-                .buttonStyle(.plain)
-
-            HStack(spacing: 4) {
-                Button { navigate(by: -1) } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 11, weight: .semibold))
-                }
-                .buttonStyle(.plain)
-
-                Text(navigationTitle)
-                    .font(.system(size: 12, weight: .medium, design: .monospaced))
-                    .lineLimit(1)
-                    .fixedSize()
-
-                Button { navigate(by: 1) } label: {
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 11, weight: .semibold))
-                }
-                .buttonStyle(.plain)
-            }
-        }
-    }
-
-    private func goToToday() {
-        if viewMode == "week" {
-            currentWeekStart = ContentView.mondayOfCurrentWeek()
+    private func profileIcon(_ profile: ScheduleProfile) -> some View {
+        if profile.emoji.allSatisfy({ $0.isASCII }) {
+            Image(systemName: profile.emoji)
+                .foregroundStyle(profile.emojiColor?.color ?? appViewModel.accentColor)
         } else {
-            selectedDay = Date()
-        }
-    }
-
-    private func navigate(by n: Int) {
-        let cal = Calendar.current
-        if viewMode == "week" {
-            if let d = cal.date(byAdding: .weekOfYear, value: n, to: currentWeekStart) {
-                currentWeekStart = d
-            }
-        } else {
-            if let d = cal.date(byAdding: .day, value: n, to: selectedDay) {
-                selectedDay = d
-            }
-        }
-    }
-
-    private var navigationTitle: String {
-        let cal = Calendar.current
-        let fmt = DateFormatter()
-        if viewMode == "week" {
-            let end = cal.date(byAdding: .day, value: 6, to: currentWeekStart) ?? currentWeekStart
-            fmt.dateFormat = "d MMM"
-            let wk = cal.component(.weekOfYear, from: currentWeekStart)
-            let yr = cal.component(.year, from: currentWeekStart)
-            return "\(fmt.string(from: currentWeekStart))–\(fmt.string(from: end)) \(yr) · wk \(wk)"
-        } else {
-            fmt.dateFormat = "EEE, d MMM yyyy"
-            return fmt.string(from: selectedDay)
+            Text(profile.emoji)
         }
     }
 }
@@ -291,51 +186,31 @@ struct ScheduleContainerView: View {
     @Binding var selectedDay: Date
 
     var body: some View {
-        if vm.isLoading {
-            ProgressView("Loading schedule…")
-                .controlSize(.regular)
+        if vm.isLoading && vm.events.isEmpty {
+            ProgressView("Loading Schedule…")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if let error = vm.errorMessage {
-            VStack(spacing: 12) {
-                Image(systemName: "exclamationmark.triangle")
-                    .font(.system(size: 44, weight: .light))
-                    .foregroundColor(.orange)
-                Text("Couldn't load schedule")
-                    .font(.title3).fontWeight(.semibold)
+            ContentUnavailableView {
+                Label("Couldn't Load Schedule", systemImage: "exclamationmark.triangle")
+            } description: {
                 Text(error)
-                    .font(.callout)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-                Button { Task { await vm.loadSchedule() } } label: {
-                    Label("Retry", systemImage: "arrow.clockwise")
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.regular)
-                .padding(.top, 4)
+            } actions: {
+                Button("Try Again") { Task { await vm.loadSchedule(force: true) } }
+                    .buttonStyle(.glassProminent)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .navigationSubtitle(appViewModel.activeProfile?.name ?? "")
         } else if vm.events.isEmpty {
-            if appViewModel.activeProfileUrl.isEmpty {
-                Text("No URL configured").foregroundColor(.secondary)
-            } else {
-                VStack(spacing: 12) {
-                    Image(systemName: "tray")
-                        .font(.system(size: 44, weight: .light))
-                        .foregroundColor(.secondary.opacity(0.8))
-                    Text("No Events")
-                        .font(.title3).fontWeight(.semibold)
-                    Text("Your schedule is empty or still syncing.")
-                        .font(.callout).foregroundColor(.secondary)
-                    Button { Task { await vm.loadSchedule() } } label: {
-                        Label("Refresh", systemImage: "arrow.clockwise")
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.regular)
-                    .padding(.top, 4)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            ContentUnavailableView {
+                Label("No Events", systemImage: "calendar")
+            } description: {
+                Text(appViewModel.activeProfileUrl.isEmpty
+                     ? "This profile has no calendar link."
+                     : "This calendar is empty. If the term ended, copy a new iCal link from TimeEdit.")
+            } actions: {
+                Button("Refresh") { Task { await vm.loadSchedule(force: true) } }
+                    .buttonStyle(.glass)
             }
+            .navigationSubtitle(appViewModel.activeProfile?.name ?? "")
         } else {
             HStack(spacing: 0) {
                 LeftRailView(events: vm.events)
@@ -343,21 +218,113 @@ struct ScheduleContainerView: View {
 
                 Divider()
 
-                if appViewModel.viewMode == "day" {
-                    DayView(
-                        events: vm.filteredEvents(searchText: searchText),
-                        selectedDate: $selectedDay
-                    )
-                    .environmentObject(appViewModel)
-                } else {
-                    WeekGridView(
-                        events: vm.filteredEvents(searchText: searchText),
-                        currentWeekStart: $currentWeekStart
-                    )
-                    .environmentObject(appViewModel)
+                Group {
+                    if appViewModel.viewMode == "day" {
+                        DayView(
+                            events: vm.filteredEvents(searchText: searchText),
+                            selectedDate: $selectedDay
+                        )
+                    } else {
+                        WeekGridView(
+                            events: vm.filteredEvents(searchText: searchText),
+                            currentWeekStart: $currentWeekStart
+                        )
+                    }
+                }
+                .environmentObject(appViewModel)
+                .overlay {
+                    if !searchText.isEmpty && vm.filteredEvents(searchText: searchText).isEmpty {
+                        ContentUnavailableView.search(text: searchText)
+                    }
                 }
             }
+            // Only a loaded schedule gets period controls; loading/error/empty states don't
+            .modifier(PeriodNavigation(currentWeekStart: $currentWeekStart, selectedDay: $selectedDay))
         }
+    }
+}
+
+// MARK: - Period navigation
+
+/// Day/Week switch, ‹ Today › and the date-range window title.
+struct PeriodNavigation: ViewModifier {
+    @EnvironmentObject var appViewModel: AppViewModel
+    @Binding var currentWeekStart: Date
+    @Binding var selectedDay: Date
+
+    func body(content: Content) -> some View {
+        content
+            // Window title carries the date range, like Calendar; the profile goes in the subtitle
+            .navigationTitle(periodTitle)
+            .navigationSubtitle(periodSubtitle)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Picker("View", selection: $appViewModel.viewMode) {
+                        Text("Day").tag("day")
+                        Text("Week").tag("week")
+                    }
+                    .pickerStyle(.segmented)
+                    .fixedSize()
+                    .help("Switch between Day and Week (⌘1 / ⌘2)")
+                }
+
+                // Centre cluster beside the Day/Week switch, so the window's own actions stay at the trailing edge
+                ToolbarItem(placement: .principal) {
+                    ControlGroup {
+                        Button { navigate(by: -1) } label: {
+                            Label(isWeek ? "Previous Week" : "Previous Day", systemImage: "chevron.left")
+                        }
+                        .keyboardShortcut(.leftArrow, modifiers: .command)
+                        Button("Today", action: goToToday)
+                            .keyboardShortcut("t", modifiers: .command)
+                        Button { navigate(by: 1) } label: {
+                            Label(isWeek ? "Next Week" : "Next Day", systemImage: "chevron.right")
+                        }
+                        .keyboardShortcut(.rightArrow, modifiers: .command)
+                    }
+                    .controlGroupStyle(.navigation)
+                }
+            }
+    }
+
+    private var isWeek: Bool { appViewModel.viewMode == "week" }
+
+    private func goToToday() {
+        if isWeek {
+            currentWeekStart = ContentView.mondayOfCurrentWeek()
+        } else {
+            selectedDay = Date()
+        }
+    }
+
+    private func navigate(by n: Int) {
+        let cal = Calendar.current
+        if isWeek {
+            if let d = cal.date(byAdding: .weekOfYear, value: n, to: currentWeekStart) {
+                currentWeekStart = d
+            }
+        } else if let d = cal.date(byAdding: .day, value: n, to: selectedDay) {
+            selectedDay = d
+        }
+    }
+
+    private var periodTitle: String {
+        if isWeek {
+            let end = Calendar.current.date(byAdding: .day, value: 6, to: currentWeekStart) ?? currentWeekStart
+            let sameMonth = Calendar.current.isDate(currentWeekStart, equalTo: end, toGranularity: .month)
+            let start = currentWeekStart.formatted(sameMonth ? .dateTime.day() : .dateTime.day().month(.abbreviated))
+            return "\(start) – \(end.formatted(.dateTime.day().month(.abbreviated).year()))"
+        }
+        return selectedDay.formatted(.dateTime.weekday(.wide).day().month(.wide))
+    }
+
+    private var periodSubtitle: String {
+        let profile = appViewModel.activeProfile?.name ?? ""
+        if isWeek {
+            let week = Calendar(identifier: .iso8601).component(.weekOfYear, from: currentWeekStart)
+            return profile.isEmpty ? "Week \(week)" : "Week \(week) · \(profile)"
+        }
+        return profile
     }
 }
 
@@ -367,226 +334,176 @@ struct LeftRailView: View {
     let events: [Event]
     @EnvironmentObject var appViewModel: AppViewModel
 
-    private var now: Date { Date() }
-
-    private var nextEvent: Event? {
-        events.filter { $0.endTime > now }
-            .sorted { $0.startTime < $1.startTime }
-            .first
-    }
-
-    private var todayRemainingEvents: [Event] {
-        let cal = Calendar.current
-        return events
-            .filter { cal.isDateInToday($0.startTime) && $0.endTime > now }
-            .sorted { $0.startTime < $1.startTime }
-    }
-
-    private var importantUpcoming: [Event] {
-        events
-            .filter { appViewModel.isEventImportant($0) && $0.endTime > now }
-            .sorted { $0.startTime < $1.startTime }
-    }
-
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                if let next = nextEvent {
-                    NextUpCard(event: next)
-                }
+        // Re-evaluated every minute so "Next Up" and "Today" roll over without a reload
+        TimelineView(.everyMinute) { ctx in
+            let now = ctx.date
+            let upcoming = events.filter { !$0.isAllDay && $0.endTime > now }.sorted { $0.startTime < $1.startTime }
+            let today = upcoming.filter { Calendar.current.isDateInToday($0.startTime) }
+            let important = upcoming.filter { appViewModel.isEventImportant($0) }
 
-                if !todayRemainingEvents.isEmpty {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("TODAY")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(.secondary)
-                            .tracking(1.2)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    if let next = upcoming.first {
+                        NextUpCard(event: next, now: now)
+                    }
 
-                        ForEach(todayRemainingEvents.prefix(8)) { event in
-                            TodayMiniRow(event: event)
+                    if !today.isEmpty {
+                        railSection("Today") {
+                            ForEach(today.prefix(8)) { RailEventRow(event: $0) }
+                        }
+                    }
+
+                    if !important.isEmpty {
+                        railSection("Important") {
+                            ForEach(important.prefix(8)) { RailEventRow(event: $0, showsDate: true) }
                         }
                     }
                 }
-
-                if !importantUpcoming.isEmpty {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Label("IMPORTANT", systemImage: "star.fill")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(.secondary)
-                            .tracking(1.2)
-
-                        ForEach(importantUpcoming) { event in
-                            ImportantMiniRow(event: event)
-                        }
-                    }
-                }
-
-                Spacer(minLength: 20)
+                .padding(12)
             }
-            .padding(12)
         }
         .frame(width: 240)
-        .background(Color.primary.opacity(0.025))
+        .scrollContentBackground(.hidden)
+    }
+
+    private func railSection<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            SectionCaption(text: title)
+                .padding(.horizontal, 6)
+            content()
+        }
     }
 }
 
 struct NextUpCard: View {
     let event: Event
-    @EnvironmentObject var appViewModel: AppViewModel
-    @Environment(\.colorScheme) var colorScheme
-
-    private var hue: Double { hueForCourse(event.title) }
-    private var theme: AppTheme { appViewModel.resolvedTheme(for: colorScheme) }
-
-    var body: some View {
-        let isDark = theme != .light
-        ZStack {
-            RoundedRectangle(cornerRadius: ChronoTokens.panelRadius)
-                .fill(LinearGradient(
-                    colors: [
-                        Color(hue: hue/360, saturation: 0.45,
-                              brightness: isDark ? 0.55 : 0.90).opacity(0.7),
-                        Color(hue: hue/360, saturation: 0.50,
-                              brightness: isDark ? 0.45 : 0.80).opacity(0.25)
-                    ],
-                    startPoint: .topLeading, endPoint: .bottomTrailing))
-                .background(
-                    Group {
-                        if theme.isTranslucent {
-                            RoundedRectangle(cornerRadius: ChronoTokens.panelRadius)
-                                .fill(.ultraThinMaterial)
-                        }
-                    }
-                )
-                .overlay(RoundedRectangle(cornerRadius: ChronoTokens.panelRadius)
-                    .strokeBorder(.white.opacity(theme.isTranslucent ? 0.5 : 0.1), lineWidth: 0.5))
-
-            VStack(alignment: .leading, spacing: 6) {
-                SectionCaption(text: "Next Up")
-                    .foregroundStyle(Color.eventHeader(hue: hue))
-                Text(event.title)
-                    .font(.system(size: 16, weight: .semibold))
-                    .lineLimit(2)
-                HStack(spacing: 5) {
-                    Image(systemName: "clock").font(.system(size: 10))
-                    Text("\(fmt(event.startTime)) – \(fmt(event.endTime))")
-                        .monospacedDigit()
-                }
-                .font(.system(size: 11.5)).foregroundStyle(.secondary)
-                if !event.location.isEmpty {
-                    HStack(spacing: 5) {
-                        Image(systemName: "mappin").font(.system(size: 10))
-                        Text(event.location)
-                    }
-                    .font(.system(size: 11.5)).foregroundStyle(.secondary)
-                }
-                TimelineView(.periodic(from: .now, by: 30)) { ctx in
-                    Text(countdown(to: event.startTime, now: ctx.date))
-                        .font(.system(size: 24, weight: .semibold))
-                        .monospacedDigit()
-                        .foregroundStyle(Color.eventHeader(hue: hue))
-                        .padding(.top, 4)
-                }
-            }
-            .padding(14)
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .fixedSize(horizontal: false, vertical: true)
-    }
-
-    private func fmt(_ d: Date) -> String {
-        let f = DateFormatter(); f.dateFormat = "HH:mm"; return f.string(from: d)
-    }
-    private func countdown(to d: Date, now: Date) -> String {
-        let s = max(0, Int(d.timeIntervalSince(now)))
-        if s < 3600 { return "In \(s / 60)m" }
-        return "In \(s / 3600)h \((s % 3600) / 60)m"
-    }
-}
-
-struct TodayMiniRow: View {
-    let event: Event
+    let now: Date
     @EnvironmentObject var appViewModel: AppViewModel
 
-    private var eventColor: Color {
-        appViewModel.getCustomColor(for: event.title) ?? event.color(from: event.title)
-    }
+    private var color: Color { appViewModel.eventColor(for: event) }
+    private var inProgress: Bool { event.startTime <= now }
 
     var body: some View {
-        HStack(spacing: 8) {
-            Capsule()
-                .fill(eventColor)
-                .frame(width: 3, height: 34)
+        VStack(alignment: .leading, spacing: 6) {
+            Text(inProgress ? "NOW" : "NEXT UP")
+                .font(.system(size: 10, weight: .bold))
+                .tracking(0.8)
+                .foregroundStyle(color)
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text(event.title)
-                    .font(.system(size: 11, weight: .medium))
-                    .lineLimit(1)
-                HStack(spacing: 4) {
-                    Text(event.startTime.formatted(date: .omitted, time: .shortened))
-                        .font(.system(size: 10))
-                        .foregroundColor(.secondary)
-                    if !event.location.isEmpty {
-                        Text("·")
-                            .font(.system(size: 10))
-                            .foregroundColor(.secondary)
-                        Text(event.location)
-                            .font(.system(size: 10))
-                            .foregroundColor(.secondary)
-                            .lineLimit(1)
-                    }
-                }
-            }
-            Spacer()
-        }
-    }
-}
-
-struct ImportantMiniRow: View {
-    let event: Event
-
-    var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "star.fill")
-                .font(.system(size: 10))
-                .foregroundColor(.yellow)
             Text(event.title)
-                .font(.system(size: 11, weight: .medium))
-                .lineLimit(1)
-            Spacer()
+                .font(.headline)
+                .lineLimit(2)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Label(appViewModel.timeRange(event), systemImage: "clock")
+                    .monospacedDigit()
+                if !event.location.isEmpty {
+                    Label(event.location, systemImage: "mappin.and.ellipse")
+                        .lineLimit(1)
+                }
+            }
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+            .labelStyle(RailLabelStyle())
+
+            Text(countdown)
+                .font(.system(size: 22, weight: .semibold, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(.primary)
+                .contentTransition(.numericText())
+                .padding(.top, 2)
         }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .glassEffect(.regular.tint(color.opacity(0.25)), in: .rect(cornerRadius: ChronoTokens.panelRadius))
+        .accessibilityElement(children: .combine)
+    }
+
+    private var countdown: String {
+        let target = inProgress ? event.endTime : event.startTime
+        let minutes = max(0, Int(target.timeIntervalSince(now) / 60))
+        let span = minutes < 60 ? "\(minutes)m" : "\(minutes / 60)h \(minutes % 60)m"
+        return inProgress ? "Ends in \(span)" : "In \(span)"
+    }
+}
+
+/// Compact icon + text for the rail, with icons aligned in a fixed column.
+private struct RailLabelStyle: LabelStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 5) {
+            configuration.icon.frame(width: 12)
+            configuration.title
+        }
+    }
+}
+
+struct RailEventRow: View {
+    let event: Event
+    var showsDate: Bool = false
+    @EnvironmentObject var appViewModel: AppViewModel
+    @State private var isHovering = false
+    @State private var showingDetail = false
+
+    var body: some View {
+        Button { showingDetail = true } label: {
+            HStack(spacing: 8) {
+                Capsule()
+                    .fill(appViewModel.eventColor(for: event))
+                    .frame(width: 3, height: 30)
+
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(event.title)
+                        .font(.system(size: 12, weight: .medium))
+                        .lineLimit(1)
+                    Text(detail)
+                        .font(.system(size: 11))
+                        .monospacedDigit()
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                Spacer(minLength: 0)
+                if appViewModel.isEventImportant(event) {
+                    Image(systemName: "star.fill")
+                        .font(.system(size: 9))
+                        .foregroundStyle(.yellow)
+                }
+            }
+            .padding(.horizontal, 6)
+            .padding(.vertical, 4)
+            .background(Color.primary.opacity(isHovering ? 0.06 : 0), in: .rect(cornerRadius: 8))
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .onHover { isHovering = $0 }
+        .popover(isPresented: $showingDetail, arrowEdge: .trailing) {
+            EventDetailPopover(event: event)
+                .environmentObject(appViewModel)
+        }
+    }
+
+    private var detail: String {
+        var parts: [String] = []
+        if showsDate { parts.append(event.startTime.formatted(.dateTime.weekday(.abbreviated).day())) }
+        parts.append(appViewModel.timeString(event.startTime))
+        if !event.location.isEmpty { parts.append(event.location) }
+        return parts.joined(separator: " · ")
     }
 }
 
 // MARK: - Empty state
 
 struct EmptyStateView: View {
-    @Binding var showingSettings: Bool
+    @EnvironmentObject var appViewModel: AppViewModel
 
     var body: some View {
-        VStack(spacing: 14) {
-            Image(systemName: "calendar.badge.exclamationmark")
-                .font(.system(size: 56, weight: .light))
-                .foregroundColor(.secondary.opacity(0.8))
-
-            Text("No Schedule Configured")
-                .font(.title3).fontWeight(.semibold)
-
-            Text("Add your TimeEdit iCal URL in settings to get started.")
-                .font(.callout)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 40)
-
-            Button {
-                showingSettings = true
-            } label: {
-                Label("Open Settings", systemImage: "gearshape")
-            }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.regular)
-            .padding(.top, 4)
+        ContentUnavailableView {
+            Label("No Schedule", systemImage: "calendar.badge.plus")
+        } description: {
+            Text("Add your TimeEdit iCal link in Settings to get started.")
+        } actions: {
+            Button("Open Settings") { appViewModel.showingSettings = true }
+                .buttonStyle(.glassProminent)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

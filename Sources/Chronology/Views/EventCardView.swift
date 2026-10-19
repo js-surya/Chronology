@@ -1,80 +1,79 @@
 import SwiftUI
 
-// MARK: - Glass event card (week + day grids)
+// MARK: - Event card (week + day grids)
 
 struct EventCardView: View {
     let event: Event
     let theme: AppTheme
     var compact: Bool = false
+    /// Split overlap columns: one truncated line instead of breaking words mid-letter
+    var narrow: Bool = false
     var onTap: (() -> Void)? = nil
 
     @EnvironmentObject var appViewModel: AppViewModel
     @State private var showingDetail = false
     @State private var isHovering = false
 
-    private var hue: Double { hueForCourse(event.title) }
+    private var color: Color { appViewModel.eventColor(for: event) }
     private var isDark: Bool { theme != .light }
-    private var duration: TimeInterval { event.endTime.timeIntervalSince(event.startTime) }
     private var isImportant: Bool { appViewModel.isEventImportant(event) }
+    private var shape: RoundedRectangle { RoundedRectangle(cornerRadius: ChronoTokens.cardRadius, style: .continuous) }
 
     var body: some View {
         Button {
             if let onTap { onTap() } else { showingDetail = true }
         } label: {
-            ZStack(alignment: .topLeading) {
-                cardBackground
-                accentBar
+            HStack(alignment: .top, spacing: 0) {
+                // Color bar, inset to follow the card's corner
+                Capsule()
+                    .fill(color)
+                    .frame(width: 3)
+                    .padding(.vertical, 4)
+                    .padding(.leading, 4)
                 contentStack
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .background {
+                // Opaque base so grid lines don't show through the tint
+                shape.fill(baseFill)
+                shape.fill(color.opacity(fillOpacity))
+            }
+            .overlay(shape.strokeBorder(color.opacity(isDark ? 0.45 : 0.35), lineWidth: 0.5))
+            .contentShape(shape)
         }
         .buttonStyle(.plain)
-        .scaleEffect(isHovering ? 1.02 : 1.0)
-        .animation(.easeInOut(duration: 0.15), value: isHovering)
-        .onHover { h in withAnimation(.easeInOut(duration: 0.15)) { isHovering = h } }
-        .popover(isPresented: $showingDetail) {
+        .onHover { h in withAnimation(.easeOut(duration: 0.12)) { isHovering = h } }
+        .popover(isPresented: $showingDetail, arrowEdge: .trailing) {
             EventDetailPopover(event: event)
                 .environmentObject(appViewModel)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityText)
+        .accessibilityAddTraits(.isButton)
     }
 
-    private var cardBackground: some View {
-        RoundedRectangle(cornerRadius: ChronoTokens.cardRadius)
-            .fill(Color.eventTint(hue: hue, isDark: isDark))
-            .background(
-                Group {
-                    if theme.isTranslucent {
-                        RoundedRectangle(cornerRadius: ChronoTokens.cardRadius)
-                            .fill(.ultraThinMaterial)
-                    }
-                }
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: ChronoTokens.cardRadius)
-                    .strokeBorder(
-                        theme.isTranslucent ? Color.white.opacity(0.55) : Color.white.opacity(0.10),
-                        lineWidth: 0.5)
-            )
-            .shadow(color: .black.opacity(isDark ? 0.35 : 0.08), radius: 4, y: 2)
+    private var baseFill: Color {
+        switch theme {
+        case .amoled:    return .black
+        case .darkSolid: return Color(red: 0.11, green: 0.11, blue: 0.13)
+        default:         return Color(nsColor: .windowBackgroundColor)
+        }
     }
 
-    private var accentBar: some View {
-        Capsule()
-            .fill(Color.eventBar(hue: hue))
-            .frame(width: 2.5)
-            .padding(.vertical, 5)
-            .padding(.leading, 3)
-            .shadow(color: Color.eventBar(hue: hue).opacity(0.7), radius: 3)
+    private var fillOpacity: Double {
+        let base = isDark ? 0.30 : 0.18
+        return isHovering ? base + 0.12 : base
     }
 
     private var contentStack: some View {
-        HStack(alignment: .top, spacing: 0) {
+        HStack(alignment: .top, spacing: 2) {
             VStack(alignment: .leading, spacing: 1) {
                 Text(event.title)
-                    .font(.system(size: compact ? 11.5 : 13.5, weight: .semibold))
-                    .foregroundStyle(Color.primary)
-                    .lineLimit(compact ? 2 : 3)
-                if duration > 30 * 60 || !compact {
-                    Text("\(timeString(event.startTime)) – \(timeString(event.endTime)) · \(event.location)")
+                    .font(.system(size: compact ? 11.5 : 13, weight: .semibold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(narrow ? 1 : (compact ? 2 : 3))
+                if event.duration > 30 * 60 || !compact {
+                    Text(subtitle)
                         .font(.system(size: compact ? 10 : 11.5))
                         .monospacedDigit()
                         .foregroundStyle(.secondary)
@@ -82,57 +81,32 @@ struct EventCardView: View {
                 }
             }
             Spacer(minLength: 0)
-            if isHovering || isImportant {
+            if (isHovering || isImportant) && !narrow {
                 Button {
                     appViewModel.toggleImportant(event)
                 } label: {
                     Image(systemName: isImportant ? "star.fill" : "star")
                         .font(.system(size: compact ? 9 : 11))
-                        .foregroundStyle(isImportant
-                            ? Color(red: 1.0, green: 0.69, blue: 0.12)
-                            : Color.secondary)
-                        .shadow(color: isImportant
-                            ? Color(red: 1.0, green: 0.69, blue: 0.12).opacity(0.6) : .clear,
-                                radius: 4)
+                        .foregroundStyle(isImportant ? AnyShapeStyle(.yellow) : AnyShapeStyle(.secondary))
                 }
                 .buttonStyle(.plain)
-                .padding(.trailing, 4)
+                .help(isImportant ? "Remove from Important" : "Mark as Important")
             }
         }
-        .padding(.leading, compact ? 13 : 18)
-        .padding(.vertical, compact ? 6 : 10)
-        .padding(.trailing, 8)
+        .padding(.leading, compact ? 6 : 10)
+        .padding(.vertical, compact ? 5 : 8)
+        .padding(.trailing, 6)
     }
 
-    private func timeString(_ d: Date) -> String {
-        let f = DateFormatter(); f.dateFormat = "HH:mm"; return f.string(from: d)
+    private var subtitle: String {
+        let time = appViewModel.timeRange(event)
+        return event.location.isEmpty ? time : "\(time) · \(event.location)"
     }
-}
 
-// MARK: - Day header date cell
-
-struct DayHeaderCell: View {
-    let date: Date
-    let weekday: String
-    let isToday: Bool
-    let accent: Color
-
-    var body: some View {
-        VStack(spacing: 4) {
-            Text(weekday.uppercased())
-                .font(.system(size: 10.5, weight: .semibold))
-                .tracking(0.6)
-                .foregroundStyle(isToday ? accent : Color.secondary)
-            Text("\(Calendar.current.component(.day, from: date))")
-                .font(.system(size: 15, weight: isToday ? .semibold : .medium))
-                .monospacedDigit()
-                .foregroundStyle(isToday ? Color.white : Color.primary)
-                .frame(width: 30, height: 30)
-                .background(
-                    Circle()
-                        .fill(isToday ? AnyShapeStyle(accent) : AnyShapeStyle(Color.clear))
-                        .shadow(color: isToday ? accent.opacity(0.4) : .clear, radius: 6, y: 2)
-                )
-        }
+    private var accessibilityText: String {
+        var parts = [event.title, appViewModel.timeRange(event)]
+        if !event.location.isEmpty { parts.append(event.location) }
+        if isImportant { parts.append("Important") }
+        return parts.joined(separator: ", ")
     }
 }

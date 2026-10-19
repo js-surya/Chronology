@@ -4,21 +4,31 @@ import SwiftUI
 // MARK: - Models
 
 struct Event: Identifiable, Equatable, Hashable {
-    let id = UUID()
+    let id: String
     let title: String
     let location: String
     let startTime: Date
     let endTime: Date
     let description: String?
-    
+    var isAllDay: Bool = false
+
+    init(id: String? = nil, title: String, location: String, startTime: Date, endTime: Date, description: String?, isAllDay: Bool = false) {
+        self.id = id ?? "\(title)@\(Int(startTime.timeIntervalSince1970))"
+        self.title = title
+        self.location = location
+        self.startTime = startTime
+        self.endTime = endTime
+        self.description = description
+        self.isAllDay = isAllDay
+    }
+
     var duration: TimeInterval {
         endTime.timeIntervalSince(startTime)
     }
-    
+
     func color(from seed: String) -> Color {
-        let hash = abs(seed.hashValue)
-        let hue = Double(hash % 360) / 360.0
-        return Color(hue: hue, saturation: 0.7, brightness: 0.9)
+        // hueForCourse is deterministic; String.hashValue is reseeded every launch
+        Color(hue: hueForCourse(seed) / 360.0, saturation: 0.7, brightness: 0.9)
     }
 }
 

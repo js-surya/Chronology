@@ -10,8 +10,10 @@ class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        // Handle notification tap
-        print("Notification tapped: \(response.notification.request.content.title)")
+        // Tapping a reminder brings the schedule window forward
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: .openMainWindow, object: nil)
+        }
         completionHandler()
     }
 }

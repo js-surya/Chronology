@@ -9,9 +9,7 @@ struct EventDetailPopover: View {
     @State private var isEditingNote = false
     @State private var selectedColor: Color
 
-    private var eventColor: Color {
-        appViewModel.getCustomColor(for: event.title) ?? event.color(from: event.title)
-    }
+    private var eventColor: Color { appViewModel.eventColor(for: event) }
 
     private var isImportant: Bool { appViewModel.isEventImportant(event) }
 
@@ -25,8 +23,8 @@ struct EventDetailPopover: View {
             // Accent band header
             accentBand
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
+            // Sized to content: popovers on macOS hug their content, so no ScrollView padding gap
+            VStack(alignment: .leading, spacing: 14) {
                     // Detail rows
                     detailRows
 
@@ -39,34 +37,40 @@ struct EventDetailPopover: View {
 
                     // Notes
                     notesSection
-                }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 14)
             }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 14)
 
             Divider()
 
-            // Footer buttons
+            // Footer: marking important also schedules its own reminder
             HStack(spacing: 10) {
-                Button(isImportant ? "★ Important" : "Mark important") {
-                    appViewModel.toggleImportant(event)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(isImportant ? "Important" : "Not marked")
+                        .font(.subheadline.weight(.medium))
+                    Text(reminderCaption)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
-                .buttonStyle(DetailCapsuleStyle(accent: eventColor, filled: isImportant))
-
-                Button {
-                    appViewModel.toggleImportant(event)
-                    if !appViewModel.notificationsEnabled {
-                        appViewModel.notificationsEnabled = true
+                Spacer()
+                if isImportant {
+                    Button(action: toggleImportant) {
+                        Label("Important", systemImage: "star.fill")
                     }
-                } label: {
-                    Label(isImportant ? "Reminder set" : "Remind me", systemImage: isImportant ? "bell.fill" : "bell")
+                    .buttonStyle(.glassProminent)
+                    .tint(eventColor)
+                } else {
+                    Button(action: toggleImportant) {
+                        Label("Mark Important", systemImage: "star")
+                    }
+                    .buttonStyle(.glass)
+                    .tint(eventColor)
                 }
-                .buttonStyle(DetailCapsuleStyle(accent: eventColor, filled: isImportant))
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
         }
-        .frame(width: 360, height: 560)
+        .frame(width: 360)
         .onAppear {
             if let note = appViewModel.getNote(for: event) { noteText = note.note }
             if let custom = appViewModel.getCustomColor(for: event.title) { selectedColor = custom }
@@ -84,35 +88,23 @@ struct EventDetailPopover: View {
             )
             .frame(height: 120)
 
-            // Blur fade at bottom edge
-            VStack(spacing: 0) {
-                Spacer()
-                Rectangle()
-                    .fill(.ultraThinMaterial)
-                    .frame(height: 32)
-                    .mask(
-                        LinearGradient(colors: [.clear, .black], startPoint: .top, endPoint: .bottom)
-                    )
-            }
-            .frame(height: 120)
-
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
                     Circle()
                         .fill(eventColor)
                         .frame(width: 10, height: 10)
-                        .shadow(color: eventColor.opacity(0.6), radius: 4)
                     Text("CLASS")
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundColor(.secondary)
                         .tracking(1.2)
                 }
                 Text(event.title)
-                    .font(.system(size: 22, weight: .semibold))
+                    .font(.title2.weight(.semibold))
                     .lineLimit(2)
-                Text(timeRange)
-                    .font(.system(size: 12))
-                    .foregroundColor(.secondary)
+                Text(appViewModel.timeRange(event))
+                    .font(.subheadline)
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 14)
@@ -130,24 +122,17 @@ struct EventDetailPopover: View {
         iconDetailRow(icon: "calendar", label: "DATE", value: dateString)
 
         if let desc = event.description, !desc.isEmpty {
-            iconDetailRow(icon: "doc.text", label: "DETAILS", value: desc)
+            iconDetailRow(icon: "doc.text", label: "DETAILS", value: desc, lineLimit: 6)
         }
     }
 
-    private func iconDetailRow(icon: String, label: String, value: String) -> some View {
+    private func iconDetailRow(icon: String, label: String, value: String, lineLimit: Int? = nil) -> some View {
         HStack(alignment: .top, spacing: 12) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 7)
-                    .fill(.ultraThinMaterial)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 7)
-                            .strokeBorder(.white.opacity(0.12), lineWidth: 0.5)
-                    )
-                    .frame(width: 28, height: 28)
-                Image(systemName: icon)
-                    .font(.system(size: 13))
-                    .foregroundColor(.secondary)
-            }
+            Image(systemName: icon)
+                .font(.system(size: 13))
+                .foregroundStyle(eventColor)
+                .frame(width: 28, height: 28)
+                .background(eventColor.opacity(0.14), in: .rect(cornerRadius: 7))
             VStack(alignment: .leading, spacing: 2) {
                 Text(label)
                     .font(.system(size: 9, weight: .semibold))
@@ -155,6 +140,8 @@ struct EventDetailPopover: View {
                     .tracking(0.8)
                 Text(value)
                     .font(.body)
+                    .lineLimit(lineLimit)
+                    .textSelection(.enabled)
                     .fixedSize(horizontal: false, vertical: true)
             }
             Spacer()
@@ -165,40 +152,47 @@ struct EventDetailPopover: View {
 
     private var colorSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("COLOR")
-                .font(.system(size: 10, weight: .semibold))
-                .foregroundColor(.secondary)
-                .tracking(1.2)
+            HStack {
+                Text("COLOR")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundColor(.secondary)
+                    .tracking(1.2)
+                Spacer()
+                Button("Reset") {
+                    selectedColor = event.color(from: event.title)
+                    appViewModel.setCustomColor(for: event.title, color: nil)
+                }
+                .buttonStyle(.plain)
+                .font(.caption)
+                .foregroundStyle(eventColor)
+                .disabled(appViewModel.getCustomColor(for: event.title) == nil)
+            }
 
-            HStack(spacing: 10) {
+            // 9 × 28pt + 8 × 6pt = 300pt, fits the 320pt content width
+            HStack(spacing: 6) {
                 ForEach(Array(colorPalette.enumerated()), id: \.offset) { _, color in
                     Button {
                         selectedColor = color
                         appViewModel.setCustomColor(for: event.title, color: color)
                     } label: {
+                        let selected = colorsMatch(color, selectedColor)
                         Circle()
                             .fill(color)
-                            .frame(width: 28, height: 28)
-                            .overlay(
-                                Circle()
-                                    .strokeBorder(.white.opacity(colorsMatch(color, selectedColor) ? 0.85 : 0), lineWidth: 1.5)
-                            )
-                            .shadow(color: colorsMatch(color, selectedColor) ? color.opacity(0.8) : color.opacity(0.3), radius: colorsMatch(color, selectedColor) ? 6 : 3, y: 1)
-                            .scaleEffect(colorsMatch(color, selectedColor) ? 1.12 : 1)
-                            .animation(.spring(response: 0.2), value: colorsMatch(color, selectedColor))
+                            .frame(width: 24, height: 24)
+                            .overlay {
+                                if selected {
+                                    Image(systemName: "checkmark")
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundStyle(.white)
+                                }
+                            }
+                            .padding(2)
+                            .overlay(Circle().strokeBorder(selected ? color : .clear, lineWidth: 2))
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(colorsMatch(color, selectedColor) ? "Selected color" : "Color option")
                 }
 
-                Spacer()
-
-                Button("Reset") {
-                    selectedColor = event.color(from: event.title)
-                    appViewModel.setCustomColor(for: event.title, color: nil)
-                }
-                .font(.caption)
-                .buttonStyle(.bordered)
-                .controlSize(.mini)
             }
         }
     }
@@ -229,11 +223,8 @@ struct EventDetailPopover: View {
                     .frame(height: 70)
                     .font(.body)
                     .scrollContentBackground(.hidden)
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .strokeBorder(.white.opacity(0.12), lineWidth: 0.5)
-                    )
+                    .padding(6)
+                    .background(Color.primary.opacity(0.05), in: .rect(cornerRadius: 10))
             } else if !noteText.isEmpty {
                 Text(noteText)
                     .font(.body)
@@ -257,14 +248,23 @@ struct EventDetailPopover: View {
             .padding(.vertical, 2)
     }
 
-    private var timeRange: String {
-        let fmt = DateFormatter(); fmt.timeStyle = .short
-        return "\(fmt.string(from: event.startTime)) – \(fmt.string(from: event.endTime))"
+    private var dateString: String {
+        event.startTime.formatted(date: .complete, time: .omitted)
     }
 
-    private var dateString: String {
-        let fmt = DateFormatter(); fmt.dateFormat = "EEEE, MMM d, yyyy"
-        return fmt.string(from: event.startTime)
+    private var reminderCaption: String {
+        guard isImportant else { return "Important events get an extra reminder" }
+        let minutes = appViewModel.getImportantEvent(event)?.reminderMinutes ?? 15
+        return "Reminder \(minutes) min before"
+    }
+
+    private func toggleImportant() {
+        let becomingImportant = !isImportant
+        appViewModel.toggleImportant(event)
+        // A reminder needs notifications on
+        if becomingImportant && !appViewModel.notificationsEnabled {
+            appViewModel.notificationsEnabled = true
+        }
     }
 
     private var durationText: String {
@@ -275,7 +275,7 @@ struct EventDetailPopover: View {
     }
 
     private var colorPalette: [Color] {
-        let baseHue = Double(abs(event.title.hashValue) % 360) / 360.0
+        let baseHue = hueForCourse(event.title) / 360.0
         return (0..<9).map { i in
             let hue = (baseHue + Double(i) * 0.11).truncatingRemainder(dividingBy: 1.0)
             return Color(hue: hue, saturation: 0.55, brightness: 0.82)
@@ -289,37 +289,5 @@ struct EventDetailPopover: View {
         return abs(n1.redComponent - n2.redComponent) < t
             && abs(n1.greenComponent - n2.greenComponent) < t
             && abs(n1.blueComponent - n2.blueComponent) < t
-    }
-}
-
-// MARK: - Liquid glass button style
-
-struct DetailCapsuleStyle: ButtonStyle {
-    let accent: Color
-    let filled: Bool
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.system(size: 13, weight: .medium))
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .background {
-                if filled {
-                    Capsule().fill(accent.gradient)
-                } else {
-                    Capsule().fill(.ultraThinMaterial)
-                }
-            }
-            .overlay(
-                Capsule()
-                    .strokeBorder(
-                        filled ? accent.opacity(0.4) : Color.white.opacity(0.18),
-                        lineWidth: 0.5
-                    )
-            )
-            .foregroundStyle(filled ? .white : .primary)
-            .shadow(color: filled ? accent.opacity(0.35) : .black.opacity(0.12), radius: filled ? 8 : 4, y: 2)
-            .scaleEffect(configuration.isPressed ? 0.96 : 1)
-            .animation(.spring(response: 0.2), value: configuration.isPressed)
     }
 }

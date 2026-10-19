@@ -16,7 +16,7 @@ class AppViewModel: ObservableObject {
                 NotificationManager.shared.requestAuthorization()
                 NotificationCenter.default.post(name: .rescheduleNotifications, object: nil)
             } else {
-                UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+                NotificationManager.shared.cancelAll()
             }
         }
     }
@@ -29,7 +29,7 @@ class AppViewModel: ObservableObject {
     }
     
     @AppStorage("themeMode") var themeMode: String = "auto" // "light", "dark", "amoled", "auto"
-    @AppStorage("preferredDarkMode") var preferredDarkMode: String = "dark" // "dark" or "amoled" - used when in auto mode
+    @AppStorage("preferredDarkMode") var preferredDarkMode: String = "dark" // "dark", "darkSolid" or "amoled" - used when in auto mode
     
     @Published var accentColor: Color = .blue
     @AppStorage("accentColorData") private var accentColorData: Data = Data()
@@ -49,7 +49,12 @@ class AppViewModel: ObservableObject {
     // MARK: - Profile Management
     @Published var profiles: [ScheduleProfile] = []
     @AppStorage("profilesData") private var profilesData: Data = Data()
-    @AppStorage("activeProfileId") var activeProfileId: String = ""
+    @AppStorage("activeProfileId") var activeProfileId: String = "" {
+        didSet {
+            // Refresh the countdown immediately instead of waiting for the next timer tick
+            if hasInitialized { updateMenuBarText() }
+        }
+    }
     
     // MARK: - Customizations
     @Published var courseCustomizations: [CourseCustomization] = []
@@ -72,6 +77,8 @@ class AppViewModel: ObservableObject {
         }
     }
     @Published var menuBarText: String = "✓"
+    /// Settings sheet on the main window; set from the menu bar too, so it survives the window being recreated
+    @Published var showingSettings = false
     private var menuBarTimer: Timer?
     
     // MARK: - Initialization
@@ -140,46 +147,29 @@ class AppViewModel: ObservableObject {
         }
         
         Task {
-            do {
-                // Note: Ideally we should cache this data instead of fetching every time
-                // For now, we'll fetch to get the latest
-                let events = try await ScheduleService.shared.fetchSchedule(from: url)
-                let now = Date()
-                
-                // Find next event
-                let upcomingEvents = events.filter { $0.endTime > now }.sorted { $0.startTime < $1.startTime }
-                
-                if let nextEvent = upcomingEvents.first {
-                    let timeUntil = nextEvent.startTime.timeIntervalSince(now)
-                    
-                    if timeUntil <= 0 {
-                        // Event is happening now - show remaining time
-                        let timeRemaining = nextEvent.endTime.timeIntervalSince(now)
-                        menuBarText = formatCountdown(timeRemaining, prefix: "")
-                    } else {
-                        // Event is in future - show countdown
-                        menuBarText = formatCountdown(timeUntil, prefix: "")
-                    }
-                } else {
-                    menuBarText = "✓"
-                }
-            } catch {
-                print("Failed to update menu bar: \(error)")
-                menuBarText = "✓"
-            }
+            // Served from ScheduleService's cache; the network is hit at most every defaultMaxAge
+            let events = (try? await ScheduleService.shared.fetchSchedule(from: url)) ?? []
+            menuBarText = Self.menuBarLabel(for: events, now: Date())
         }
     }
     
-    private func formatCountdown(_ timeInterval: TimeInterval, prefix: String) -> String {
-        let totalMinutes = Int(timeInterval / 60)
-        let hours = totalMinutes / 60
-        let minutes = totalMinutes % 60
+    /// Countdown to the next timed event, or time remaining in the current one. "✓" when nothing is left.
+    nonisolated static func menuBarLabel(for events: [Event], now: Date) -> String {
+        let next = events
+            .filter { !$0.isAllDay && $0.endTime > now }
+            .min { $0.startTime < $1.startTime }
+        guard let next else { return "✓" }
         
-        if hours > 0 {
-            return String(format: "%d:%02d", hours, minutes)
-        } else {
-            return String(format: "0:%02d", minutes)
-        }
+        let timeUntil = next.startTime.timeIntervalSince(now)
+        return formatCountdown(timeUntil > 0 ? timeUntil : next.endTime.timeIntervalSince(now))
+    }
+    
+    /// "0:05", "2:30", or "3d" once the gap reaches a day.
+    nonisolated static func formatCountdown(_ timeInterval: TimeInterval) -> String {
+        let totalMinutes = max(0, Int(timeInterval / 60))
+        let days = totalMinutes / (24 * 60)
+        if days > 0 { return "\(days)d" }
+        return String(format: "%d:%02d", totalMinutes / 60, totalMinutes % 60)
     }
     
     func loadAccentColor() {
@@ -192,7 +182,6 @@ class AppViewModel: ObservableObject {
         accentColor = color
         if let encoded = try? JSONEncoder().encode(CodableColor(color: color)) {
             accentColorData = encoded
-        } else {
         }
         objectWillChange.send() // Force UI update
     }
@@ -215,7 +204,7 @@ class AppViewModel: ObservableObject {
         case "amoled":    return .amoled
         case "auto":
             return systemScheme == .dark
-                ? (preferredDarkMode == "amoled" ? .amoled : .dark)
+                ? (preferredDarkMode == "amoled" ? .amoled : preferredDarkMode == "darkSolid" ? .darkSolid : .dark)
                 : .light
         default:          return .light
         }
@@ -225,6 +214,7 @@ class AppViewModel: ObservableObject {
         if isEventImportant(event) {
             importantEvents.removeAll { $0.eventTitle == event.title && abs($0.eventDate.timeIntervalSince(event.startTime)) < 60 }
             saveImportantEvents()
+            NotificationCenter.default.post(name: .rescheduleNotifications, object: nil)
         } else {
             let ie = ImportantEvent(eventTitle: event.title, eventDate: event.startTime, reminderMinutes: 15)
             importantEvents.append(ie)

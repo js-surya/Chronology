@@ -32,7 +32,7 @@ struct WeekGridView: View {
                 calculateLayout()
             }
             .onChange(of: currentWeekStart) { _, _ in calculateLayout() }
-            .onChange(of: events.count) { _, _ in calculateLayout() }
+            .onChange(of: events) { _, _ in calculateLayout() }
         }
     }
 
@@ -85,15 +85,17 @@ struct WeekGridView: View {
                             )
                     }
                     .frame(width: dayWidth)
-                    .padding(.vertical, 4)
                 }
             }
         }
+        // Events, guides and the now-line are offset by exactly this height
+        .frame(height: 44)
     }
 
     private var timeGrid: some View {
         ForEach(startHour...endHour, id: \.self) { hour in
-            HStack(spacing: 0) {
+            // .top keeps the line exactly on the hour; the label is nudged up to centre on it
+            HStack(alignment: .top, spacing: 0) {
                 Text(formatHour(hour))
                     .font(.caption)
                     .foregroundColor(.secondary)
@@ -124,21 +126,24 @@ struct WeekGridView: View {
     }
 
     private func daySeparators(dayWidth: CGFloat) -> some View {
-        HStack(spacing: 0) {
-            Color.clear.frame(width: timeColumnWidth)
-            ForEach(0..<7) { _ in
-                Rectangle()
-                    .fill(Color.primary.opacity(appViewModel.gridLineOpacity))
-                    .frame(width: appViewModel.gridLineThickness)
-                    .frame(width: dayWidth, alignment: .leading)
+        let color = Color.primary.opacity(appViewModel.gridLineOpacity)
+        let thickness = appViewModel.gridLineThickness
+        return Canvas { ctx, size in
+            for day in 0..<7 {
+                // Snap to the half-point grid: thin lines at fractional x antialias away
+                let x = ((timeColumnWidth + CGFloat(day) * dayWidth) * 2).rounded() / 2
+                var path = Path()
+                path.move(to: CGPoint(x: x, y: 44))
+                path.addLine(to: CGPoint(x: x, y: size.height))
+                ctx.stroke(path, with: .color(color), lineWidth: thickness)
             }
         }
-        .offset(y: 44)
+        .allowsHitTesting(false)
     }
 
     private func eventViews(dayWidth: CGFloat) -> some View {
         ForEach(layouts) { layout in
-            EventCardView(event: layout.event, theme: theme, compact: true)
+            EventCardView(event: layout.event, theme: theme, compact: true, narrow: layout.rect.width < 90)
                 .frame(width: layout.rect.width, height: layout.rect.height)
                 .position(x: layout.rect.origin.x, y: layout.rect.origin.y + 44)
                 .environmentObject(appViewModel)
@@ -217,115 +222,5 @@ struct WeekGridView: View {
         let period = hour < 12 ? "AM" : "PM"
         let h = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour)
         return "\(h) \(period)"
-    }
-}
-
-// MARK: - Glass event card
-
-struct GlassEventCard: View {
-    let event: Event
-    @EnvironmentObject var appViewModel: AppViewModel
-    @Environment(\.colorScheme) var systemColorScheme
-    @State private var showingDetail = false
-    @State private var isHovering = false
-
-    private var eventColor: Color {
-        appViewModel.getCustomColor(for: event.title) ?? event.color(from: event.title)
-    }
-
-    private var theme: AppTheme { appViewModel.resolvedTheme(for: systemColorScheme) }
-    private var isImportant: Bool { appViewModel.isEventImportant(event) }
-
-    var body: some View {
-        Button { showingDetail = true } label: {
-            cardContent
-        }
-        .buttonStyle(.plain)
-        .onHover { h in
-            withAnimation(.easeInOut(duration: 0.15)) { isHovering = h }
-        }
-        .popover(isPresented: $showingDetail) {
-            EventDetailPopover(event: event)
-                .environmentObject(appViewModel)
-        }
-    }
-
-    private var cardContent: some View {
-        ZStack(alignment: .topLeading) {
-            // Background
-            cardBackground
-
-            // Left accent bar
-            Capsule()
-                .fill(eventColor)
-                .frame(width: 2.5)
-                .padding(.vertical, 5)
-                .padding(.leading, 3)
-                .shadow(color: eventColor.opacity(0.8), radius: 4)
-
-            // Content
-            VStack(alignment: .leading, spacing: 1) {
-                HStack(spacing: 4) {
-                    Text(event.title)
-                        .font(.system(size: 11.5, weight: .semibold))
-                        .lineLimit(2)
-                    Spacer(minLength: 0)
-                    if isHovering || isImportant {
-                        Button {
-                            appViewModel.toggleImportant(event)
-                        } label: {
-                            Image(systemName: isImportant ? "star.fill" : "star")
-                                .font(.caption)
-                                .foregroundColor(isImportant ? .yellow : .secondary)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                if !event.location.isEmpty {
-                    Text(event.location)
-                        .font(.system(size: 10))
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
-                }
-            }
-            .padding(.leading, 13)
-            .padding(.vertical, 6)
-            .padding(.trailing, 8)
-
-            // Important badge
-            if isImportant && !isHovering {
-                Image(systemName: "star.fill")
-                    .font(.system(size: 7))
-                    .foregroundColor(.yellow)
-                    .padding(3)
-                    .background(Circle().fill(Color.black.opacity(0.25)))
-                    .padding(4)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-            }
-        }
-        .scaleEffect(isHovering ? 1.02 : 1.0)
-        .animation(.easeInOut(duration: 0.15), value: isHovering)
-    }
-
-    @ViewBuilder
-    private var cardBackground: some View {
-        if theme.isSolid {
-            RoundedRectangle(cornerRadius: 10)
-                .fill(eventColor.opacity(0.35))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .strokeBorder(Color.white.opacity(0.15), lineWidth: 0.5)
-                )
-                .shadow(color: .black.opacity(0.12), radius: 4, y: 2)
-        } else {
-            RoundedRectangle(cornerRadius: 10)
-                .fill(eventColor.opacity(0.22))
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .strokeBorder(Color.white.opacity(0.55), lineWidth: 0.5)
-                )
-                .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
-        }
     }
 }

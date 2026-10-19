@@ -45,7 +45,7 @@ struct DayView: View {
                     calculateLayout()
                 }
                 .onChange(of: selectedDate) { _, _ in calculateLayout() }
-                .onChange(of: events.count) { _, _ in calculateLayout() }
+                .onChange(of: events) { _, _ in calculateLayout() }
             }
         }
     }
@@ -107,7 +107,8 @@ struct DayView: View {
 
     private var timeGrid: some View {
         ForEach(startHour...endHour, id: \.self) { hour in
-            HStack(spacing: 0) {
+            // .top keeps the line exactly on the hour; the label is nudged up to centre on it
+            HStack(alignment: .top, spacing: 0) {
                 Text(formatHour(hour))
                     .font(.caption)
                     .foregroundColor(.secondary)
@@ -181,7 +182,7 @@ struct DayView: View {
 
     private func calculateLayout() {
         guard viewWidth > 0 else { return }
-        let available = viewWidth - timeColumnWidth - 14
+        let available = viewWidth - timeColumnWidth - 14 - 16 // 16pt right margin keeps cards clear of the scroller
         layouts = WeekViewLayoutEngine.calculateDayLayout(
             for: eventsForSelectedDay,
             startHour: startHour,
@@ -208,110 +209,5 @@ struct DayView: View {
         let period = hour < 12 ? "AM" : "PM"
         let h = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour)
         return "\(h) \(period)"
-    }
-}
-
-// MARK: - Glass day event card
-
-struct GlassDayEventCard: View {
-    let event: Event
-    @EnvironmentObject var appViewModel: AppViewModel
-    @Environment(\.colorScheme) var systemColorScheme
-    @State private var showingDetail = false
-    @State private var isHovering = false
-
-    private var eventColor: Color {
-        appViewModel.getCustomColor(for: event.title) ?? event.color(from: event.title)
-    }
-
-    private var theme: AppTheme { appViewModel.resolvedTheme(for: systemColorScheme) }
-    private var isImportant: Bool { appViewModel.isEventImportant(event) }
-
-    var body: some View {
-        Button { showingDetail = true } label: {
-            ZStack(alignment: .leading) {
-                // Glass background
-                cardBackground
-
-                // Accent bar
-                Capsule()
-                    .fill(eventColor)
-                    .frame(width: 3)
-                    .padding(.vertical, 8)
-                    .padding(.leading, 14)
-                    .shadow(color: eventColor.opacity(0.8), radius: 4)
-
-                // Content
-                HStack(spacing: 0) {
-                    Spacer().frame(width: 26)
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(event.title)
-                            .font(.system(size: 13, weight: .semibold))
-                            .lineLimit(2)
-                        if !event.location.isEmpty {
-                            Label(event.location, systemImage: "mappin.circle")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                                .lineLimit(1)
-                        }
-                    }
-                    Spacer()
-                    VStack(alignment: .trailing, spacing: 2) {
-                        Text(event.startTime.formatted(date: .omitted, time: .shortened))
-                            .font(.caption.bold())
-                            .monospacedDigit()
-                        Text(event.endTime.formatted(date: .omitted, time: .shortened))
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-                            .monospacedDigit()
-                        if isHovering || isImportant {
-                            Button {
-                                appViewModel.toggleImportant(event)
-                            } label: {
-                                Image(systemName: isImportant ? "star.fill" : "star")
-                                    .font(.caption)
-                                    .foregroundColor(isImportant ? .yellow : .secondary)
-                            }
-                            .buttonStyle(.plain)
-                            .padding(.top, 2)
-                        }
-                    }
-                    .padding(.trailing, 14)
-                }
-                .padding(.vertical, 12)
-            }
-            .scaleEffect(isHovering ? 1.01 : 1.0)
-            .animation(.easeInOut(duration: 0.15), value: isHovering)
-        }
-        .buttonStyle(.plain)
-        .onHover { h in
-            withAnimation(.easeInOut(duration: 0.15)) { isHovering = h }
-        }
-        .popover(isPresented: $showingDetail) {
-            EventDetailPopover(event: event)
-                .environmentObject(appViewModel)
-        }
-    }
-
-    @ViewBuilder
-    private var cardBackground: some View {
-        if theme.isSolid {
-            RoundedRectangle(cornerRadius: 10)
-                .fill(eventColor.opacity(0.35))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .strokeBorder(Color.white.opacity(0.12), lineWidth: 0.5)
-                )
-                .shadow(color: .black.opacity(0.12), radius: 4, y: 2)
-        } else {
-            RoundedRectangle(cornerRadius: 10)
-                .fill(eventColor.opacity(0.18))
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .strokeBorder(Color.white.opacity(0.55), lineWidth: 0.5)
-                )
-                .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
-        }
     }
 }

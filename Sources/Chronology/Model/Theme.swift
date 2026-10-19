@@ -38,94 +38,44 @@ enum AppTheme: String, CaseIterable, Identifiable {
     }
 }
 
-// MARK: - Theme resolution
-
-func resolveTheme(mode: String, systemDark: Bool, preferredDark: String) -> AppTheme {
-    switch mode {
-    case "light":     return .light
-    case "dark":      return .dark
-    case "darkSolid": return .darkSolid
-    case "amoled":    return .amoled
-    default:
-        guard systemDark else { return .light }
-        switch preferredDark {
-        case "amoled":    return .amoled
-        case "darkSolid": return .darkSolid
-        default:          return .dark
-        }
-    }
-}
-
 // MARK: - Layout tokens
 
 enum ChronoTokens {
     static let hourHeight: CGFloat  = 58
     static let timeColW: CGFloat    = 64
     static let cardRadius: CGFloat  = 10
-    static let panelRadius: CGFloat = 14
-    static let windowRadius: CGFloat = 20
+    static let panelRadius: CGFloat = 16
 }
 
-// MARK: - Surface helpers
+// MARK: - Event presentation
 
-extension View {
-    /// Primary window/panel background.
-    @ViewBuilder
-    func glassSurface(_ theme: AppTheme, corner: CGFloat = 0) -> some View {
-        switch theme {
-        case .light, .dark:
-            self.background(.regularMaterial, in: RoundedRectangle(cornerRadius: corner))
-        case .darkSolid:
-            self.background(Color(red: 0.113, green: 0.113, blue: 0.133),
-                            in: RoundedRectangle(cornerRadius: corner))
-        case .amoled:
-            self.background(Color.black, in: RoundedRectangle(cornerRadius: corner))
-        }
+extension AppViewModel {
+    /// Single source for an event's color: user override first, then the stable course hue.
+    func eventColor(for event: Event) -> Color {
+        getCustomColor(for: event.title) ?? event.color(from: event.title)
     }
 
-    /// Floating panel (Next Up card, menu bar dropdown, settings sheet).
-    @ViewBuilder
-    func glassPanel(_ theme: AppTheme, corner: CGFloat = 14) -> some View {
-        switch theme {
-        case .light:
-            self.background(.regularMaterial, in: RoundedRectangle(cornerRadius: corner))
-                .overlay(RoundedRectangle(cornerRadius: corner)
-                    .strokeBorder(.white.opacity(0.55), lineWidth: 0.5))
-                .shadow(color: .black.opacity(0.10), radius: 18, y: 8)
-        case .dark:
-            self.background(.regularMaterial, in: RoundedRectangle(cornerRadius: corner))
-                .overlay(RoundedRectangle(cornerRadius: corner)
-                    .strokeBorder(.white.opacity(0.10), lineWidth: 0.5))
-                .shadow(color: .black.opacity(0.45), radius: 20, y: 10)
-        case .darkSolid:
-            self.background(Color(red: 0.14, green: 0.14, blue: 0.16),
-                            in: RoundedRectangle(cornerRadius: corner))
-                .overlay(RoundedRectangle(cornerRadius: corner)
-                    .strokeBorder(.white.opacity(0.08), lineWidth: 0.5))
-                .shadow(color: .black.opacity(0.5), radius: 18, y: 8)
-        case .amoled:
-            self.background(Color.black, in: RoundedRectangle(cornerRadius: corner))
-                .overlay(RoundedRectangle(cornerRadius: corner)
-                    .strokeBorder(.white.opacity(0.10), lineWidth: 0.5))
-                .shadow(color: .black.opacity(0.7), radius: 18, y: 8)
-        }
-    }
-}
+    private static let clock24: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.dateFormat = "HH:mm"
+        return f
+    }()
 
-// MARK: - Event color helpers (HSB approximation of oklch palette)
+    private static let clock12: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.dateFormat = "h:mm a"
+        return f
+    }()
 
-extension Color {
-    static func eventTint(hue: Double, isDark: Bool) -> Color {
-        Color(hue: hue / 360,
-              saturation: isDark ? 0.55 : 0.45,
-              brightness: isDark ? 0.55 : 0.85,
-              opacity: isDark ? 0.55 : 0.45)
+    /// Clock time honoring the 12/24-hour setting (locale hour cycles would override it).
+    func timeString(_ date: Date) -> String {
+        (use24HourFormat ? Self.clock24 : Self.clock12).string(from: date)
     }
-    static func eventBar(hue: Double) -> Color {
-        Color(hue: hue / 360, saturation: 0.75, brightness: 0.62)
-    }
-    static func eventHeader(hue: Double) -> Color {
-        Color(hue: hue / 360, saturation: 0.75, brightness: 0.45)
+
+    func timeRange(_ event: Event) -> String {
+        "\(timeString(event.startTime)) – \(timeString(event.endTime))"
     }
 }
 

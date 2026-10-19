@@ -18,7 +18,7 @@ Menu bar schedule viewer for macOS. Subscribe to a TimeEdit iCal URL, see your n
 
 ## Requirements
 
-- macOS 14.0 (Sonoma)+
+- macOS 26.0 (Tahoe)+
 - Xcode 15 / Swift 5.9 (only if building from source)
 
 ## Install

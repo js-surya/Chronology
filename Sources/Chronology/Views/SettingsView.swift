@@ -72,6 +72,7 @@ struct SettingsView: View {
                 HStack {
                     Spacer()
                     Button("Done") { isPresented = false }
+                        .buttonStyle(.glassProminent)
                         .keyboardShortcut(.defaultAction)
                 }
                 .padding(.horizontal, 20)
@@ -303,6 +304,12 @@ struct AppearancePane: View {
             && abs(n1.blueComponent - n2.blueComponent) < t
     }
 
+    /// "Auto" follows macOS Light/Dark; the others pin a theme.
+    private var themeOptions: [(mode: String, name: String, icon: String)] {
+        [("auto", "Auto", "circle.lefthalf.filled")]
+            + AppTheme.allCases.map { ($0.rawValue, $0.displayName, $0.systemImage) }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text("Appearance")
@@ -326,35 +333,49 @@ struct AppearancePane: View {
 
             SettingsSection(title: "Theme", systemImage: "circle.lefthalf.filled") {
                 HStack(spacing: 8) {
-                    ForEach(AppTheme.allCases, id: \.self) { t in
+                    ForEach(themeOptions, id: \.mode) { t in
                         Button {
-                            appViewModel.themeMode = t.rawValue
+                            appViewModel.themeMode = t.mode
                         } label: {
                             VStack(spacing: 6) {
-                                Image(systemName: t.systemImage)
+                                Image(systemName: t.icon)
                                     .font(.system(size: 18))
                                     .frame(width: 40, height: 40)
                                     .background(
                                         RoundedRectangle(cornerRadius: 10)
-                                            .fill(appViewModel.themeMode == t.rawValue
+                                            .fill(appViewModel.themeMode == t.mode
                                                   ? appViewModel.accentColor.opacity(0.15)
                                                   : Color.primary.opacity(0.05))
                                     )
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 10)
-                                            .stroke(appViewModel.themeMode == t.rawValue
+                                            .stroke(appViewModel.themeMode == t.mode
                                                     ? appViewModel.accentColor
                                                     : Color.clear, lineWidth: 1.5)
                                     )
-                                Text(t.displayName)
+                                Text(t.name)
                                     .font(.caption2)
-                                    .foregroundColor(appViewModel.themeMode == t.rawValue
+                                    .foregroundColor(appViewModel.themeMode == t.mode
                                                      ? appViewModel.accentColor : .secondary)
                             }
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel("\(t.name) theme")
                     }
                     Spacer()
+                }
+
+                if appViewModel.themeMode == "auto" {
+                    SettingsRow(title: "Dark Appearance", subtitle: "Used when macOS is in Dark Mode") {
+                        Picker("", selection: $appViewModel.preferredDarkMode) {
+                            Text("Glass").tag("dark")
+                            Text("Solid").tag("darkSolid")
+                            Text("AMOLED").tag("amoled")
+                        }
+                        .pickerStyle(.segmented)
+                        .labelsHidden()
+                        .frame(width: 220)
+                    }
                 }
 
                 if appViewModel.themeMode == "amoled" {
@@ -557,8 +578,9 @@ struct NotificationsPane: View {
 
             SettingsSection(title: "Reminders", systemImage: "bell.badge.fill") {
                 SettingsRow(title: "Enable Notifications", subtitle: "Get notified before events start") {
-                    GlassToggle(isOn: $appViewModel.notificationsEnabled,
-                                accent: appViewModel.accentColor)
+                    Toggle("", isOn: $appViewModel.notificationsEnabled)
+                        .toggleStyle(.switch)
+                        .labelsHidden()
                 }
                 .onChange(of: appViewModel.notificationsEnabled) { old, new in
                     if new && !old {
@@ -620,8 +642,9 @@ struct SystemPane: View {
             SettingsSection(title: "Startup", systemImage: "power") {
                 SettingsRow(title: "Launch at Login",
                             subtitle: "Start Chronology automatically when you log in") {
-                    GlassToggle(isOn: $launchAtLoginManager.isEnabled,
-                                accent: appViewModel.accentColor)
+                    Toggle("", isOn: $launchAtLoginManager.isEnabled)
+                        .toggleStyle(.switch)
+                        .labelsHidden()
                 }
                 if !launchAtLoginManager.isEnabled {
                     Button("Open Login Items Settings…") {
@@ -635,13 +658,15 @@ struct SystemPane: View {
             SettingsSection(title: "Menu Bar & Dock", systemImage: "macwindow") {
                 SettingsRow(title: "Show Menu Bar Icon",
                             subtitle: "Display schedule status in the menu bar") {
-                    GlassToggle(isOn: $appViewModel.showMenuBarIcon,
-                                accent: appViewModel.accentColor)
+                    Toggle("", isOn: $appViewModel.showMenuBarIcon)
+                        .toggleStyle(.switch)
+                        .labelsHidden()
                 }
                 SettingsRow(title: "Hide from Dock",
                             subtitle: "Run in menu bar only, hide dock icon and window") {
-                    GlassToggle(isOn: $appViewModel.hideFromDock,
-                                accent: appViewModel.accentColor)
+                    Toggle("", isOn: $appViewModel.hideFromDock)
+                        .toggleStyle(.switch)
+                        .labelsHidden()
                 }
                 .disabled(!appViewModel.showMenuBarIcon)
 

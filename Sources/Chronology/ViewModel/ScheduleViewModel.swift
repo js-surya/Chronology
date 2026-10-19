@@ -26,48 +26,35 @@ class ScheduleViewModel: ObservableObject {
     
     func rescheduleNotifications() {
         guard appViewModel.notificationsEnabled else { return }
-        NotificationManager.shared.scheduleNotifications(
-            for: events,
-            minutesBefore: appViewModel.notificationMinutesBefore
-        )
-        
-        // Also reschedule important event reminders
-        NotificationManager.shared.scheduleImportantReminders(
-            for: events,
+        NotificationManager.shared.reschedule(
+            events: events,
+            minutesBefore: appViewModel.notificationMinutesBefore,
             importantEvents: appViewModel.importantEvents
         )
     }
     
-    func loadSchedule() async {
+    /// `force` bypasses the shared cache (manual refresh button).
+    func loadSchedule(force: Bool = false) async {
         let urlString = appViewModel.activeProfileUrl
-        
+
         guard !urlString.isEmpty else {
             self.events = []
             self.isLoading = false
             return
         }
-        
+
         self.isLoading = true
         self.errorMessage = nil
-        
+
         do {
-            let fetchedEvents = try await ScheduleService.shared.fetchSchedule(from: urlString)
+            let fetchedEvents = try await ScheduleService.shared.fetchSchedule(
+                from: urlString,
+                maxAge: force ? 0 : ScheduleService.defaultMaxAge
+            )
             self.events = fetchedEvents
             self.isLoading = false
-            
-            // Schedule notifications if enabled
-            if appViewModel.notificationsEnabled {
-                NotificationManager.shared.scheduleNotifications(
-                    for: fetchedEvents,
-                    minutesBefore: appViewModel.notificationMinutesBefore
-                )
-                
-                // Also schedule important event reminders
-                NotificationManager.shared.scheduleImportantReminders(
-                    for: fetchedEvents,
-                    importantEvents: appViewModel.importantEvents
-                )
-            }
+            rescheduleNotifications()
+            if force { appViewModel.updateMenuBarText() }
         } catch {
             self.isLoading = false
             self.errorMessage = error.localizedDescription

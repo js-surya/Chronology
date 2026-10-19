@@ -19,11 +19,6 @@ echo "Copying binary..."
 # The build target is still named Chronology in Package.swift
 cp "$BUILD_DIR/Chronology" "$APP_BUNDLE/Contents/MacOS/$APP_NAME"
 
-echo "Code signing..."
-# Ad-hoc sign the binary to enable notifications
-# Using entitlements helps the system validate the app capabilities
-codesign --force --deep --sign - --entitlements "Chronology.entitlements" "$APP_BUNDLE"
-
 echo "Copying icon..."
 if [ -f "Chronology.icns" ]; then
     # Rename icon to match app name in resources
@@ -53,7 +48,7 @@ cat > "$APP_BUNDLE/Contents/Info.plist" <<EOF
     <key>CFBundleIconFile</key>
     <string>$APP_NAME</string>
     <key>LSMinimumSystemVersion</key>
-    <string>14.0</string>
+    <string>26.0</string>
     <key>NSHighResolutionCapable</key>
     <true/>
     <key>LSUIElement</key>
@@ -67,6 +62,12 @@ cat > "$APP_BUNDLE/Contents/Info.plist" <<EOF
 </dict>
 </plist>
 EOF
+
+echo "Code signing..."
+# Sign last: any change to the bundle after signing (Info.plist, icon) invalidates the seal.
+# Ad-hoc signing binds Info.plist so the bundle identifier is used for notifications
+codesign --force --deep --sign - --entitlements "Chronology.entitlements" "$APP_BUNDLE"
+codesign --verify --deep --strict "$APP_BUNDLE"
 
 echo "Preparing DMG content..."
 rm -rf "dmg_content"
