@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="chronology_app_icon.svg" width="128" alt="Chronology app icon">
+  <img src="Design/AppIcon.png" width="128" alt="Chronology app icon">
 </p>
 
 <h1 align="center">Chronology</h1>
