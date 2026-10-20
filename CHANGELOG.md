@@ -7,6 +7,8 @@ separately: Mac tags are `vX.Y.Z`, iOS tags are `ios-vX.Y.Z`.
 
 ## [Unreleased]
 
+## [ios-1.0.2] - 2026-10-20 (iPhone & iPad)
+
 ### Changed
 - iPhone Week view scrolls sideways through days, three to a screen, instead of squeezing seven narrow columns; swipe past Sunday into the next week. iPad keeps the seven-day grid.
 
@@ -58,5 +60,6 @@ First iPhone and iPad release, distributed as an unsigned `.ipa` for sideloading
 
 [Unreleased]: https://github.com/js-surya/Chronology/compare/v4.0.0...HEAD
 [4.0.0]: https://github.com/js-surya/Chronology/releases/tag/v4.0.0
+[ios-1.0.2]: https://github.com/js-surya/Chronology/compare/ios-v1.0.1...ios-v1.0.2
 [ios-1.0.1]: https://github.com/js-surya/Chronology/compare/ios-v1.0.0...ios-v1.0.1
 [ios-1.0.0]: https://github.com/js-surya/Chronology/releases/tag/ios-v1.0.0
