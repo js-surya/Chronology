@@ -100,4 +100,4 @@ Bug reports, ideas and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBU
 
 MIT — see [LICENSE](LICENSE).
 
-Made by Surya with AI assistance.
+Made by SyntaxError with AI assistance.
