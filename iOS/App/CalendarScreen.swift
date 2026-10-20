@@ -323,13 +323,14 @@ struct EventBlock: View {
         // a sliver too thin for text shows only its color
         let narrow = width < 70
         let showsText = width >= 30
+        let narrowTitle = narrow ? Self.narrowTitle(event.title, textWidth: width - 12) : nil
         HStack(alignment: .top, spacing: narrow ? 3 : 5) {
             Capsule().fill(color).frame(width: narrow ? 2 : 3)
             if showsText {
             VStack(alignment: .leading, spacing: 1) {
-                Text(event.title)
-                    .font(narrow ? .system(size: 10, weight: .semibold) : .caption.weight(.semibold))
-                    .lineLimit(narrow ? max(1, Int(height / 13) - 1) : (height > 60 ? 3 : 1))
+                Text(narrowTitle?.text ?? event.title)
+                    .font(narrowTitle.map { .system(size: $0.size, weight: .semibold) } ?? .caption.weight(.semibold))
+                    .lineLimit(narrowTitle.map { max(1, Int((height - 8) / ($0.size * 1.25))) } ?? (height > 60 ? 3 : 1))
                     .allowsTightening(true)
                 if height > 44 && !narrow {
                     Text(store.time(event.startTime) + (event.location.isEmpty || narrow ? "" : " · \(event.location)"))
@@ -357,5 +358,57 @@ struct EventBlock: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(event.title), \(store.timeRange(event))\(event.location.isEmpty ? "" : ", \(event.location)")")
         .accessibilityAddTraits(.isButton)
+    }
+
+    /// Title for a narrow card: the largest size (10pt down to 8pt) at which the longest word fits,
+    /// so lines wrap between words; words still too wide get soft hyphens instead of breaking mid-letter
+    static func narrowTitle(_ title: String, textWidth: CGFloat) -> (text: String, size: CGFloat) {
+        func wordWidth(_ word: Substring, _ size: CGFloat) -> CGFloat {
+            (String(word) as NSString).size(withAttributes: [.font: UIFont.systemFont(ofSize: size, weight: .semibold)]).width
+        }
+        // SwiftUI adds size-specific tracking that NSString measurement leaves out, so keep some slack
+        let textWidth = textWidth / 1.12
+        let words = title.split(whereSeparator: \.isWhitespace)
+        let longest = words.map { wordWidth($0, 10) }.max() ?? 0
+        guard longest > textWidth else { return (title, 10) }
+        let size = max(8, (10 * textWidth / longest * 2).rounded(.down) / 2)
+        var parts: [String] = []
+        for word in words {
+            // A lone separator ("Algebra - Tutorial") would get a line to itself: keep it on the previous word, or drop it
+            if word == "-" || word == "–", let last = parts.last {
+                if wordWidth(Substring(last + " -"), size) <= textWidth { parts[parts.count - 1] = last + "\u{00A0}" + word }
+                continue
+            }
+            parts.append(wordWidth(word, size) > textWidth ? hyphenated(word) : String(word))
+        }
+        return (parts.joined(separator: " "), size)
+    }
+
+    /// Inserts soft hyphens (U+00AD) at the word's hyphenation points; the line break shows a hyphen only where used
+    private static func hyphenated(_ word: Substring) -> String {
+        // Trailing punctuation ("Engineering,") hides the hyphenation points, so look them up on the letters only
+        let core = word.prefix { !$0.isPunctuation }
+        guard !core.isEmpty, core.count < word.count else { return hyphenatedCore(word) }
+        return hyphenatedCore(core) + word.dropFirst(core.count)
+    }
+
+    private static func hyphenatedCore(_ word: Substring) -> String {
+        let string = String(word) as NSString as CFString
+        let length = CFStringGetLength(string)
+        let locale = Locale.current as CFLocale
+        guard CFStringIsHyphenationAvailableForLocale(locale) else { return String(word) }
+        var breaks: [Int] = []
+        var index = length
+        while index > 0 {
+            let at = CFStringGetHyphenationLocationBeforeIndex(string, index, CFRange(location: 0, length: length), 0, locale, nil)
+            guard at != kCFNotFound, at > 0, at < index else { break }
+            breaks.append(at)
+            index = at
+        }
+        var result = String(word)
+        for at in breaks { // descending, so earlier offsets stay valid
+            result.insert("\u{00AD}", at: result.utf16.index(result.startIndex, offsetBy: at))
+        }
+        return result
     }
 }
