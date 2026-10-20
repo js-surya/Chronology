@@ -22,6 +22,11 @@ Subscribe to a TimeEdit iCal URL, see your next class in the menu bar, and brows
 ## Screenshots
 
 <p align="center">
+  <img src="docs/screenshots/mac-week.png" width="68%" alt="Mac week view with Next Up sidebar">
+  <img src="docs/screenshots/mac-menubar.png" width="30%" alt="Mac menu bar dropdown with the next class">
+</p>
+
+<p align="center">
   <img src="docs/screenshots/ipad-week.png" width="44%" alt="iPad week view">
   <img src="docs/screenshots/iphone-upnext.png" width="27%" alt="iPhone Up Next">
   <img src="docs/screenshots/iphone-day.png" width="27%" alt="iPhone day view">
