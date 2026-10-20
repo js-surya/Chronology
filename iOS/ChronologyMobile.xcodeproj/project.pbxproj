@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0327DC5189285657EE88A5B0 /* ChronologyCore in Frameworks */ = {isa = PBXBuildFile; productRef = D86770F43B939460E59CDEC9 /* ChronologyCore */; };
 		065E0A8D176CDC74FCA7CAA2 /* ChronologyCore in Frameworks */ = {isa = PBXBuildFile; productRef = DB77A92598C98C0155BE859D /* ChronologyCore */; };
 		07D0F53453353E899419DDEE /* ClassActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB4933DC50B0AA1413FC0A1 /* ClassActivity.swift */; };
 		092D692FA2D882D2E772A3EE /* SearchScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C9BC8B60EAAED1073009A0 /* SearchScreen.swift */; };
@@ -17,22 +18,41 @@
 		1178337999C12510558C4279 /* ClassActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB4933DC50B0AA1413FC0A1 /* ClassActivity.swift */; };
 		18361A4CA9BEF33EAF2BCB23 /* ChronologyCore in Frameworks */ = {isa = PBXBuildFile; productRef = AE0B19C85FD959E6B7CB67A0 /* ChronologyCore */; };
 		197723BBC4F157140E12C552 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA2BEAAFAC7AB1399B15BD8 /* MainTabView.swift */; };
+		1C6295A095D342CABA4DD315 /* ProfileSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3262CEA0124A3053747D5537 /* ProfileSelectionView.swift */; };
+		27B48C73316363D051A6D7C8 /* ScheduleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6A277A433C3D067AB814113 /* ScheduleViewModel.swift */; };
+		29217387C5466EE71FC92148 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21571CA428E774315594CE2B /* NotificationManager.swift */; };
 		2CD82B67E2BC1AC3F2EA5D59 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6CE4D7A58B05F517FA00838 /* Haptics.swift */; };
 		3089A107732DA6454044E41E /* ScreenTourUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AF90DC926B0AC20C70E317 /* ScreenTourUITests.swift */; };
+		33B7160B2166512723C017D5 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E64FE9F6FC0D421108FD647 /* AppViewModel.swift */; };
 		33BAFA8AEE4FA57B42EBDDFB /* EventDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F96A4E4CD2B2E5BCE53A76CA /* EventDetailView.swift */; };
+		396953184D9D1A82CF6FB96C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9950FF447732CC78A28A02B /* ContentView.swift */; };
 		413970917D275827CA78A335 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D65F4F4B603C610F7C4BADAD /* WidgetKit.framework */; };
 		43BB3FBAD9032055C638C8CB /* EventStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4FD5E05722E708F687D93B7 /* EventStyle.swift */; };
 		545D4C4AEDDD133C9C97F4D7 /* NextUpWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C7BA8DD5FEEED89F413222E /* NextUpWidget.swift */; };
+		644A2E1719A11BDC3AF5ACCD /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8848C5AE5FD09A284750304B /* SettingsView.swift */; };
+		64D30F11FCEF4A5632553EB8 /* SettingsComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3032169D7C89F528F78B8287 /* SettingsComponents.swift */; };
+		64E812A00043A8C29AA05B3B /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99A45779DB5975368508FB4A /* Theme.swift */; };
+		7598D3C241D248215340DBA5 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = AD9419659070FDB3F6D976F5 /* AppIcon.icon */; };
+		7C0B6EBAD6506DB53362B897 /* DayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43028743C1174FE2B10EE952 /* DayView.swift */; };
 		8565B3A29104570CE0946266 /* EventStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4FD5E05722E708F687D93B7 /* EventStyle.swift */; };
+		8CF39752FF29C3294AF6E124 /* ColorPalettes.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDD10F151953B66EB362269B /* ColorPalettes.swift */; };
 		8EF8E54D54FD87FAE427DAE6 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 019829833001DB0B00058B7E /* SwiftUI.framework */; };
 		9362531CA76AFD2C5D64731E /* ClassLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BFE9175E99449E5D7722453 /* ClassLiveActivity.swift */; };
+		9C7949675007595E276FA32B /* ChronologyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F38F7A86FA39E4199572F5F7 /* ChronologyApp.swift */; };
 		A0D33CDDEEE5DB359BB12641 /* AppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2640438DB4F2F3A9CD1075CA /* AppGroup.swift */; };
 		A5AD0698D42786BD576F441C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7F57D141FD29D90591A5F62A /* Assets.xcassets */; };
 		AA794E55E0973682798EC772 /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CF66E1A02353803AE958CB /* AppStore.swift */; };
+		AC088913F797880A4C542AD0 /* WeekGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F02772B3FB4968B3204B0E3 /* WeekGridView.swift */; };
 		B21FF7A0A90162BE644F776A /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = AD9419659070FDB3F6D976F5 /* AppIcon.icon */; };
+		BBA3196EC2F4BF42865ADFF2 /* NotificationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69BA6E22C34365CA47BBA324 /* NotificationDelegate.swift */; };
+		C43CD680B8069A7D2A6DCA23 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8101BF25283580F6BFA7A36A /* MenuBarView.swift */; };
+		C7950909FCD1D5E4BC2C4CE5 /* EventCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A70DAE08401ED91AF224858 /* EventCardView.swift */; };
+		CBE32247B305028900F11D99 /* LaunchAtLoginManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF83824265B040640C6D1AA7 /* LaunchAtLoginManager.swift */; };
 		DCAC4624B2B954ED657847CE /* AgendaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A80AB711E907FD7B378A56 /* AgendaView.swift */; };
+		E48A33F853CB17B46206D951 /* EventDetailPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BADCF996FAE1E2C822CEB8F /* EventDetailPopover.swift */; };
 		E48F15F9E415D91C96BE6ED7 /* CalendarScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C468E90F113A974CC86C58E /* CalendarScreen.swift */; };
 		F2B6B9E92B36EB6BDE09FEBA /* ChronologyWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 84F5BC8C3629A7C16D643FA0 /* ChronologyWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		FAC5D980574EF5B4F6F1D113 /* GlassComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05A1AECE0B9879DA35940E6B /* GlassComponents.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,25 +88,41 @@
 
 /* Begin PBXFileReference section */
 		019829833001DB0B00058B7E /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		05A1AECE0B9879DA35940E6B /* GlassComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassComponents.swift; sourceTree = "<group>"; };
 		0BFE9175E99449E5D7722453 /* ClassLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassLiveActivity.swift; sourceTree = "<group>"; };
 		0DB4933DC50B0AA1413FC0A1 /* ClassActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassActivity.swift; sourceTree = "<group>"; };
 		1380757F4470449A583E7E14 /* SettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
 		17CF66E1A02353803AE958CB /* AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStore.swift; sourceTree = "<group>"; };
+		21571CA428E774315594CE2B /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		254978B3E28CAF1670A80FA6 /* ChronologyMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChronologyMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2640438DB4F2F3A9CD1075CA /* AppGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppGroup.swift; sourceTree = "<group>"; };
+		3032169D7C89F528F78B8287 /* SettingsComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsComponents.swift; sourceTree = "<group>"; };
+		3262CEA0124A3053747D5537 /* ProfileSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSelectionView.swift; sourceTree = "<group>"; };
+		43028743C1174FE2B10EE952 /* DayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayView.swift; sourceTree = "<group>"; };
 		44C9BC8B60EAAED1073009A0 /* SearchScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchScreen.swift; sourceTree = "<group>"; };
+		4E64FE9F6FC0D421108FD647 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
 		50A80AB711E907FD7B378A56 /* AgendaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgendaView.swift; sourceTree = "<group>"; };
+		5BADCF996FAE1E2C822CEB8F /* EventDetailPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailPopover.swift; sourceTree = "<group>"; };
 		66F97442FA219090E9F8AB8A /* Chronology */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Chronology; path = ..; sourceTree = SOURCE_ROOT; };
+		69BA6E22C34365CA47BBA324 /* NotificationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationDelegate.swift; sourceTree = "<group>"; };
 		6CA66A6E7256B63056820B7B /* ChronologyMobileApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChronologyMobileApp.swift; sourceTree = "<group>"; };
 		6EDDE41CAB69446FBFE37D4E /* LiveActivityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityController.swift; sourceTree = "<group>"; };
 		7587EBF0C4C523C33FA109BA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		77B5FAD304B1C0C62F0B1287 /* ChronologyWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ChronologyWidgets.entitlements; sourceTree = "<group>"; };
 		7F57D141FD29D90591A5F62A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		8101BF25283580F6BFA7A36A /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		84F5BC8C3629A7C16D643FA0 /* ChronologyWidgets.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = ChronologyWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		8848C5AE5FD09A284750304B /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		8A70DAE08401ED91AF224858 /* EventCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventCardView.swift; sourceTree = "<group>"; };
 		8C468E90F113A974CC86C58E /* CalendarScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarScreen.swift; sourceTree = "<group>"; };
+		99A45779DB5975368508FB4A /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		9C7BA8DD5FEEED89F413222E /* NextUpWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextUpWidget.swift; sourceTree = "<group>"; };
 		9DF64BA3C17CA0E6947CA53E /* ChronologyMobileUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ChronologyMobileUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9F02772B3FB4968B3204B0E3 /* WeekGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekGridView.swift; sourceTree = "<group>"; };
 		AD9419659070FDB3F6D976F5 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		C3AF90DC926B0AC20C70E317 /* ScreenTourUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTourUITests.swift; sourceTree = "<group>"; };
+		C9950FF447732CC78A28A02B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		CDD10F151953B66EB362269B /* ColorPalettes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPalettes.swift; sourceTree = "<group>"; };
 		D65F4F4B603C610F7C4BADAD /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		D6CE4D7A58B05F517FA00838 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
 		E4FD5E05722E708F687D93B7 /* EventStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStyle.swift; sourceTree = "<group>"; };
@@ -94,7 +130,10 @@
 		EEA2BEAAFAC7AB1399B15BD8 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		EEBBC1C685E419C672343915 /* Chronology.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Chronology.entitlements; sourceTree = "<group>"; };
 		F0E1F5EC2DA279D3B7842079 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		F38F7A86FA39E4199572F5F7 /* ChronologyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChronologyApp.swift; sourceTree = "<group>"; };
+		F6A277A433C3D067AB814113 /* ScheduleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleViewModel.swift; sourceTree = "<group>"; };
 		F96A4E4CD2B2E5BCE53A76CA /* EventDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailView.swift; sourceTree = "<group>"; };
+		FF83824265B040640C6D1AA7 /* LaunchAtLoginManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +142,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				18361A4CA9BEF33EAF2BCB23 /* ChronologyCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BD21BB2007D542F495BAB81C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0327DC5189285657EE88A5B0 /* ChronologyCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -119,6 +166,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0695574F89254B2E66A94E62 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				C8ADBF65C38A713CA52BAE27 /* Chronology */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
 		12BB57FF29C6EFFAC6699633 /* App */ = {
 			isa = PBXGroup;
 			children = (
@@ -166,6 +221,15 @@
 			path = Shared;
 			sourceTree = "<group>";
 		};
+		4C2967880FDB5E76CA58C338 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				CDD10F151953B66EB362269B /* ColorPalettes.swift */,
+				99A45779DB5975368508FB4A /* Theme.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
 		5FE56E9B3A5CF6B7961A6005 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
@@ -174,10 +238,20 @@
 			name = Packages;
 			sourceTree = "<group>";
 		};
+		666FF2043DDF0683C3C12D4F /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				4E64FE9F6FC0D421108FD647 /* AppViewModel.swift */,
+				F6A277A433C3D067AB814113 /* ScheduleViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 		7345C145DD36BA63D08A6AA3 /* Chronology */ = {
 			isa = PBXGroup;
 			children = (
 				80A6B74D63588949ADC1E9A5 /* Design */,
+				0695574F89254B2E66A94E62 /* Sources */,
 			);
 			name = Chronology;
 			path = ..;
@@ -202,14 +276,54 @@
 			path = Design;
 			sourceTree = "<group>";
 		};
+		A5DEA0C29975251759F55007 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				FF83824265B040640C6D1AA7 /* LaunchAtLoginManager.swift */,
+				69BA6E22C34365CA47BBA324 /* NotificationDelegate.swift */,
+				21571CA428E774315594CE2B /* NotificationManager.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
 		B1F79AD84C34B3BD4A83066D /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				254978B3E28CAF1670A80FA6 /* ChronologyMac.app */,
 				EC5C2076B8E35BAD80FA54C7 /* ChronologyMobile.app */,
 				9DF64BA3C17CA0E6947CA53E /* ChronologyMobileUITests.xctest */,
 				84F5BC8C3629A7C16D643FA0 /* ChronologyWidgets.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B298B1B2EFEEDF29466DA5D8 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				C9950FF447732CC78A28A02B /* ContentView.swift */,
+				43028743C1174FE2B10EE952 /* DayView.swift */,
+				8A70DAE08401ED91AF224858 /* EventCardView.swift */,
+				5BADCF996FAE1E2C822CEB8F /* EventDetailPopover.swift */,
+				05A1AECE0B9879DA35940E6B /* GlassComponents.swift */,
+				8101BF25283580F6BFA7A36A /* MenuBarView.swift */,
+				3262CEA0124A3053747D5537 /* ProfileSelectionView.swift */,
+				3032169D7C89F528F78B8287 /* SettingsComponents.swift */,
+				8848C5AE5FD09A284750304B /* SettingsView.swift */,
+				9F02772B3FB4968B3204B0E3 /* WeekGridView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		C8ADBF65C38A713CA52BAE27 /* Chronology */ = {
+			isa = PBXGroup;
+			children = (
+				F38F7A86FA39E4199572F5F7 /* ChronologyApp.swift */,
+				4C2967880FDB5E76CA58C338 /* Model */,
+				A5DEA0C29975251759F55007 /* Services */,
+				666FF2043DDF0683C3C12D4F /* ViewModel */,
+				B298B1B2EFEEDF29466DA5D8 /* Views */,
+			);
+			path = Chronology;
 			sourceTree = "<group>";
 		};
 		E30E34264B4E144AFEF5E338 = {
@@ -288,6 +402,26 @@
 			productReference = EC5C2076B8E35BAD80FA54C7 /* ChronologyMobile.app */;
 			productType = "com.apple.product-type.application";
 		};
+		ECE2FD1BD36A2B499C6EEF37 /* ChronologyMac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4E35706897A0D50DE31D872C /* Build configuration list for PBXNativeTarget "ChronologyMac" */;
+			buildPhases = (
+				8EA710DDF930AA8FCA2A06C0 /* Sources */,
+				69F807DBE61229D426AFECF5 /* Resources */,
+				BD21BB2007D542F495BAB81C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ChronologyMac;
+			packageProductDependencies = (
+				D86770F43B939460E59CDEC9 /* ChronologyCore */,
+			);
+			productName = ChronologyMac;
+			productReference = 254978B3E28CAF1670A80FA6 /* ChronologyMac.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -298,16 +432,20 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					1E66093B1CF8DF99760FB625 = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = 3K4RU72283;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 922D2943F7A5C16D90810F37;
 					};
 					52986D67B7CDD97A3C72AE80 = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = 3K4RU72283;
 						ProvisioningStyle = Automatic;
 					};
 					922D2943F7A5C16D90810F37 = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = 3K4RU72283;
+						ProvisioningStyle = Automatic;
+					};
+					ECE2FD1BD36A2B499C6EEF37 = {
+						DevelopmentTeam = 3K4RU72283;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -332,6 +470,7 @@
 				922D2943F7A5C16D90810F37 /* ChronologyMobile */,
 				52986D67B7CDD97A3C72AE80 /* ChronologyWidgets */,
 				1E66093B1CF8DF99760FB625 /* ChronologyMobileUITests */,
+				ECE2FD1BD36A2B499C6EEF37 /* ChronologyMac */,
 			);
 		};
 /* End PBXProject section */
@@ -343,6 +482,14 @@
 			files = (
 				B21FF7A0A90162BE644F776A /* AppIcon.icon in Resources */,
 				A5AD0698D42786BD576F441C /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		69F807DBE61229D426AFECF5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7598D3C241D248215340DBA5 /* AppIcon.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -358,6 +505,31 @@
 				9362531CA76AFD2C5D64731E /* ClassLiveActivity.swift in Sources */,
 				8565B3A29104570CE0946266 /* EventStyle.swift in Sources */,
 				545D4C4AEDDD133C9C97F4D7 /* NextUpWidget.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8EA710DDF930AA8FCA2A06C0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				33B7160B2166512723C017D5 /* AppViewModel.swift in Sources */,
+				9C7949675007595E276FA32B /* ChronologyApp.swift in Sources */,
+				8CF39752FF29C3294AF6E124 /* ColorPalettes.swift in Sources */,
+				396953184D9D1A82CF6FB96C /* ContentView.swift in Sources */,
+				7C0B6EBAD6506DB53362B897 /* DayView.swift in Sources */,
+				C7950909FCD1D5E4BC2C4CE5 /* EventCardView.swift in Sources */,
+				E48A33F853CB17B46206D951 /* EventDetailPopover.swift in Sources */,
+				FAC5D980574EF5B4F6F1D113 /* GlassComponents.swift in Sources */,
+				CBE32247B305028900F11D99 /* LaunchAtLoginManager.swift in Sources */,
+				C43CD680B8069A7D2A6DCA23 /* MenuBarView.swift in Sources */,
+				BBA3196EC2F4BF42865ADFF2 /* NotificationDelegate.swift in Sources */,
+				29217387C5466EE71FC92148 /* NotificationManager.swift in Sources */,
+				1C6295A095D342CABA4DD315 /* ProfileSelectionView.swift in Sources */,
+				27B48C73316363D051A6D7C8 /* ScheduleViewModel.swift in Sources */,
+				64D30F11FCEF4A5632553EB8 /* SettingsComponents.swift in Sources */,
+				644A2E1719A11BDC3AF5ACCD /* SettingsView.swift in Sources */,
+				64E812A00043A8C29AA05B3B /* Theme.swift in Sources */,
+				AC088913F797880A4C542AD0 /* WeekGridView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -442,7 +614,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 3K4RU72283;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -454,14 +626,33 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		1F40FD8BB67FD542ECC93900 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Mac/ChronologyMac.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = Mac/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.codingpasanga.Chronology;
+				PRODUCT_NAME = Chronology;
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};
@@ -589,7 +780,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 3K4RU72283;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -607,15 +798,34 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		CC05E5975CDC0E47CA066F23 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Mac/ChronologyMac.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = Mac/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.codingpasanga.Chronology;
+				PRODUCT_NAME = Chronology;
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
@@ -639,6 +849,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		4E35706897A0D50DE31D872C /* Build configuration list for PBXNativeTarget "ChronologyMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC05E5975CDC0E47CA066F23 /* Debug */,
+				1F40FD8BB67FD542ECC93900 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		5752EBC67FDA38AAE8874532 /* Build configuration list for PBXNativeTarget "ChronologyMobileUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -686,6 +905,10 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		AE0B19C85FD959E6B7CB67A0 /* ChronologyCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ChronologyCore;
+		};
+		D86770F43B939460E59CDEC9 /* ChronologyCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ChronologyCore;
 		};

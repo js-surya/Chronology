@@ -17,7 +17,10 @@ struct ChronologyMobileApp: App {
                 .environment(store)
                 .tint(store.accentColor)
                 .preferredColorScheme(store.appearance.colorScheme)
-                .task { await store.refresh() }
+                .task {
+                    store.startCloudSync()
+                    await store.refresh()
+                }
                 .onChange(of: scenePhase) { _, phase in
                     if phase == .active { Task { await store.refreshIfStale() } }
                 }

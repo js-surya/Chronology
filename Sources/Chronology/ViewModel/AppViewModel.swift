@@ -7,7 +7,19 @@ import ChronologyCore
 @MainActor
 class AppViewModel: ObservableObject {
     // MARK: - Settings Storage
-    @AppStorage("use24HourFormat") var use24HourFormat: Bool = true
+    @AppStorage("use24HourFormat") var use24HourFormat: Bool = true {
+        didSet { pushToCloud(use24HourFormat, .timeFormat) }
+    }
+    /// Schedules, course colors, notes, Important classes and 24-hour time follow the user across devices.
+    @AppStorage("iCloudSyncEnabled") var iCloudSyncEnabled: Bool = true {
+        didSet {
+            if iCloudSyncEnabled {
+                // Merge again rather than trusting versions seen before sync was off
+                cloud.resetSeenVersions()
+                syncFromCloud()
+            }
+        }
+    }
     @AppStorage("startHour") var startHour: Int = 8
     @AppStorage("endHour") var endHour: Int = 20
     
@@ -120,6 +132,9 @@ class AppViewModel: ObservableObject {
         }
         
         startMenuBarUpdates()
+        
+        cloud.start { [weak self] in self?.syncFromCloud() }
+        syncFromCloud()
     }
     
     func startMenuBarUpdates() {
@@ -211,10 +226,59 @@ class AppViewModel: ObservableObject {
         }
     }
     
+    // MARK: - iCloud sync
+    
+    private lazy var cloud = CloudSync(store: UbiquitousSyncStore(), defaults: .standard)
+    /// Set while applying another device's changes, so they aren't pushed straight back.
+    private var applyingRemote = false
+    
+    var iCloudAvailable: Bool { UbiquitousSyncStore.isAvailable }
+    
+    /// The Mac keeps course colors as a list; the synced form is title → color, like iOS.
+    private var courseColors: [String: CodableColor] {
+        Dictionary(courseCustomizations.compactMap { c in c.customColor.map { (c.courseName, $0) } },
+                   uniquingKeysWith: { first, _ in first })
+    }
+    
+    func syncFromCloud() {
+        guard iCloudSyncEnabled, hasInitialized else { return }
+        applyingRemote = true
+        defer { applyingRemote = false }
+        if let value = cloud.reconcile(.profiles, local: profiles, firstMerge: CloudSync.union) {
+            profiles = value
+            saveProfiles()
+            if !profiles.contains(where: { $0.id.uuidString == activeProfileId }) {
+                activeProfileId = profiles.first?.id.uuidString ?? ""
+            }
+        }
+        if let value = cloud.reconcile(.courseColors, local: courseColors, firstMerge: CloudSync.union) {
+            courseCustomizations = value.map { CourseCustomization(courseName: $0.key, customColor: $0.value) }
+            saveCustomizations()
+        }
+        if let value = cloud.reconcile(.notes, local: eventNotes, firstMerge: CloudSync.union) {
+            eventNotes = value
+            saveEventNotes()
+        }
+        if let value = cloud.reconcile(.importantEvents, local: importantEvents, firstMerge: CloudSync.union) {
+            importantEvents = value
+            saveImportantEvents()
+            NotificationCenter.default.post(name: .rescheduleNotifications, object: nil)
+        }
+        if let value = cloud.reconcile(.timeFormat, local: use24HourFormat, firstMerge: { remote, _ in remote }) {
+            use24HourFormat = value
+        }
+    }
+    
+    private func pushToCloud<T: Codable>(_ value: T, _ section: SyncSection) {
+        guard iCloudSyncEnabled, hasInitialized, !applyingRemote else { return }
+        cloud.push(value, to: section)
+    }
+    
     func saveProfiles() {
         if let encoded = try? JSONEncoder().encode(profiles) {
             profilesData = encoded
         }
+        pushToCloud(profiles, .profiles)
     }
     
     func addProfile(_ profile: ScheduleProfile) {
@@ -263,6 +327,7 @@ class AppViewModel: ObservableObject {
         if let encoded = try? JSONEncoder().encode(courseCustomizations) {
             courseCustomizationsData = encoded
         }
+        pushToCloud(courseColors, .courseColors)
     }
     
     func getCustomColor(for courseName: String) -> Color? {
@@ -295,6 +360,7 @@ class AppViewModel: ObservableObject {
         if let encoded = try? JSONEncoder().encode(eventNotes) {
             eventNotesData = encoded
         }
+        pushToCloud(eventNotes, .notes)
     }
     
     func getNote(for event: Event) -> EventNote? {
@@ -337,6 +403,7 @@ class AppViewModel: ObservableObject {
         if let encoded = try? JSONEncoder().encode(importantEvents) {
             importantEventsData = encoded
         }
+        pushToCloud(importantEvents, .importantEvents)
     }
     
     func isEventImportant(_ event: Event) -> Bool {

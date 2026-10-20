@@ -640,6 +640,17 @@ struct SystemPane: View {
             Text("System")
                 .font(.title2).fontWeight(.bold)
 
+            SettingsSection(title: "iCloud", systemImage: "icloud") {
+                SettingsRow(title: "iCloud Sync",
+                            subtitle: appViewModel.iCloudSyncEnabled && !appViewModel.iCloudAvailable
+                                ? "This Mac isn't signed in to iCloud, so changes stay here."
+                                : "Schedules, course colors, notes, Important classes and 24-hour time on all your devices") {
+                    Toggle("", isOn: $appViewModel.iCloudSyncEnabled)
+                        .toggleStyle(.switch)
+                        .labelsHidden()
+                }
+            }
+
             SettingsSection(title: "Startup", systemImage: "power") {
                 SettingsRow(title: "Launch at Login",
                             subtitle: "Start Chronology automatically when you log in") {

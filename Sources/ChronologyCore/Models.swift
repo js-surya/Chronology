@@ -75,7 +75,7 @@ public struct ScheduleProfile: Identifiable, Codable, Hashable, Sendable {
 
 // MARK: - User Customizations
 
-public struct CourseCustomization: Identifiable, Codable, Sendable {
+public struct CourseCustomization: Identifiable, Codable, Equatable, Sendable {
     public let id: UUID
     public let courseName: String
     public var customColor: CodableColor?
@@ -87,7 +87,7 @@ public struct CourseCustomization: Identifiable, Codable, Sendable {
     }
 }
 
-public struct EventNote: Identifiable, Codable, Sendable {
+public struct EventNote: Identifiable, Codable, Equatable, Sendable {
     public let id: UUID
     public let eventTitle: String
     public let eventDate: Date
@@ -105,7 +105,7 @@ public struct EventNote: Identifiable, Codable, Sendable {
     }
 }
 
-public struct ImportantEvent: Identifiable, Codable, Sendable {
+public struct ImportantEvent: Identifiable, Codable, Equatable, Sendable {
     public let id: UUID
     public let eventTitle: String
     public let eventDate: Date

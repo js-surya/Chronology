@@ -52,6 +52,18 @@ struct SettingsScreen: View {
                     Text("Swipe right to switch, left to delete.")
                 }
 
+                Section {
+                    Toggle(isOn: $store.iCloudSyncEnabled) {
+                        Label("iCloud Sync", systemImage: "icloud")
+                    }
+                } footer: {
+                    if store.iCloudSyncEnabled && !store.iCloudAvailable {
+                        Text("This device isn't signed in to iCloud, so changes stay here.")
+                    } else {
+                        Text("Keeps schedules, course colors, notes, Important classes and 24-hour time the same on your iPhone, iPad and Mac.")
+                    }
+                }
+
                 Section("Appearance") {
                     Picker("Theme", selection: $store.appearance) {
                         ForEach(Appearance.allCases) { Text($0.title).tag($0) }

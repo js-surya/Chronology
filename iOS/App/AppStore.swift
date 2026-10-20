@@ -11,7 +11,7 @@ final class AppStore {
     // MARK: - Persisted settings
 
     var profiles: [ScheduleProfile] = [] {
-        didSet { persist(profiles, key: Keys.profiles) }
+        didSet { persist(profiles, key: Keys.profiles); pushToCloud(profiles, .profiles) }
     }
     var activeProfileID: UUID? {
         didSet {
@@ -24,7 +24,18 @@ final class AppStore {
         }
     }
     var use24HourFormat = true {
-        didSet { defaults.set(use24HourFormat, forKey: Keys.use24Hour); publishSnapshot(); syncLiveActivity() }
+        didSet { defaults.set(use24HourFormat, forKey: Keys.use24Hour); publishSnapshot(); syncLiveActivity(); pushToCloud(use24HourFormat, .timeFormat) }
+    }
+    /// Schedules, course colors, notes, Important classes and 24-hour time follow the user across devices.
+    var iCloudSyncEnabled = true {
+        didSet {
+            defaults.set(iCloudSyncEnabled, forKey: Keys.iCloudSync)
+            if iCloudSyncEnabled {
+                // Merge again rather than trusting versions seen before sync was off
+                cloud.resetSeenVersions()
+                syncFromCloud()
+            }
+        }
     }
     var hapticsEnabled = true {
         didSet { defaults.set(hapticsEnabled, forKey: Keys.haptics) }
@@ -64,13 +75,13 @@ final class AppStore {
         didSet { defaults.set(dayEndHour, forKey: Keys.dayEnd) }
     }
     private(set) var customColors: [String: CodableColor] = [:] {
-        didSet { persist(customColors, key: Keys.customColors); publishSnapshot(); syncLiveActivity() }
+        didSet { persist(customColors, key: Keys.customColors); publishSnapshot(); syncLiveActivity(); pushToCloud(customColors, .courseColors) }
     }
     private(set) var notes: [EventNote] = [] {
-        didSet { persist(notes, key: Keys.notes) }
+        didSet { persist(notes, key: Keys.notes); pushToCloud(notes, .notes) }
     }
     private(set) var importantEvents: [ImportantEvent] = [] {
-        didSet { persist(importantEvents, key: Keys.important); rescheduleReminders() }
+        didSet { persist(importantEvents, key: Keys.important); rescheduleReminders(); pushToCloud(importantEvents, .importantEvents) }
     }
 
     // MARK: - Schedule state
@@ -84,6 +95,9 @@ final class AppStore {
     private(set) var manualRefreshFailed = 0
 
     private let defaults = AppGroup.defaults
+    @ObservationIgnored private lazy var cloud = CloudSync(store: UbiquitousSyncStore(), defaults: defaults)
+    /// Set while applying another device's changes, so they aren't pushed straight back.
+    @ObservationIgnored private var applyingRemote = false
 
     private enum Keys {
         static let profiles = "profiles"
@@ -103,6 +117,7 @@ final class AppStore {
         static let alertAtStart = "alertAtClassStart"
         static let alertAtEnd = "alertAtClassEnd"
         static let haptics = "hapticsEnabled"
+        static let iCloudSync = "iCloudSyncEnabled"
     }
 
     init() {
@@ -124,6 +139,7 @@ final class AppStore {
         alertAtClassStart = defaults.object(forKey: Keys.alertAtStart) as? Bool ?? true
         alertAtClassEnd = defaults.object(forKey: Keys.alertAtEnd) as? Bool ?? false
         hapticsEnabled = defaults.object(forKey: Keys.haptics) as? Bool ?? true
+        iCloudSyncEnabled = defaults.object(forKey: Keys.iCloudSync) as? Bool ?? true
         // Show the last snapshot immediately; a refresh replaces it
         if let snapshot = ScheduleSnapshot.load(from: defaults), snapshot.profileURL == activeProfile?.icalUrl {
             events = snapshot.events
@@ -194,6 +210,38 @@ final class AppStore {
             return
         }
         await refresh()
+    }
+
+    // MARK: - iCloud sync
+
+    var iCloudAvailable: Bool { UbiquitousSyncStore.isAvailable }
+
+    /// Pulls other devices' changes now and whenever they save.
+    func startCloudSync() {
+        cloud.start { [weak self] in self?.syncFromCloud() }
+        syncFromCloud()
+    }
+
+    func syncFromCloud() {
+        guard iCloudSyncEnabled else { return }
+        applyingRemote = true
+        defer { applyingRemote = false }
+        if let value = cloud.reconcile(.profiles, local: profiles, firstMerge: CloudSync.union) { profiles = value }
+        if let value = cloud.reconcile(.courseColors, local: customColors, firstMerge: CloudSync.union) { customColors = value }
+        if let value = cloud.reconcile(.notes, local: notes, firstMerge: CloudSync.union) { notes = value }
+        if let value = cloud.reconcile(.importantEvents, local: importantEvents, firstMerge: CloudSync.union) { importantEvents = value }
+        if let value = cloud.reconcile(.timeFormat, local: use24HourFormat, firstMerge: { remote, _ in remote }) { use24HourFormat = value }
+        // A schedule deleted on another device may have been the active one
+        if let active = activeProfileID, !profiles.contains(where: { $0.id == active }) {
+            activeProfileID = profiles.first?.id
+        } else if activeProfileID == nil, let first = profiles.first {
+            activeProfileID = first.id
+        }
+    }
+
+    private func pushToCloud<T: Codable>(_ value: T, _ section: SyncSection) {
+        guard iCloudSyncEnabled, !applyingRemote else { return }
+        cloud.push(value, to: section)
     }
 
     // MARK: - Live Activity
