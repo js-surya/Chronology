@@ -24,3 +24,10 @@ CLAUDE.md
 # Xcode per-user state (iOS project)
 xcuserdata/
 *.xcuserstate
+
+# Local build output and hand-off material
+/Chronology.app/
+*.zip
+/Chronology-handoff/
+/HANDOFF.md
+/dmg_content/
