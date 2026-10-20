@@ -24,7 +24,9 @@ Menu bar schedule viewer for macOS. Subscribe to a TimeEdit iCal URL, see your n
 
 ## Install
 
-Download `Chronology.dmg` from [Releases](https://github.com/js-surya/Chronology/releases) → open → drag to `/Applications`.
+**Mac:** download `Chronology.dmg` from [Releases](https://github.com/js-surya/Chronology/releases) → open → drag to `/Applications`.
+
+**iPhone & iPad (unsigned):** download `Chronology-iOS-*-unsigned.ipa` from the `ios-v*` release and install it with a sideloading tool such as [AltStore](https://altstore.io) or [Sideloadly](https://sideloadly.io), which signs it with your own Apple ID. With a free Apple ID the app must be refreshed every 7 days. iCloud sync isn't available in this build.
 
 ## Build from source
 
