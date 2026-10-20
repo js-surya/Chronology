@@ -6,6 +6,7 @@ import ChronologyCore
 struct ChronologyWidgets: WidgetBundle {
     var body: some Widget {
         NextUpWidget()
+        ClassLiveActivity()
     }
 }
 

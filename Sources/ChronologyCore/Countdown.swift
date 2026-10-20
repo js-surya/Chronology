@@ -1,6 +1,13 @@
 import Foundation
 
 public enum Countdown {
+    /// The class a Live Activity should show: the one in progress, else the next one starting within `leadTime`.
+    public static func liveActivityTarget(in events: [Event], now: Date, leadTime: TimeInterval) -> Event? {
+        let upcoming = events.filter { !$0.isAllDay && $0.endTime > now }.sorted { $0.startTime < $1.startTime }
+        if let current = upcoming.first(where: { $0.startTime <= now }) { return current }
+        return upcoming.first { $0.startTime.timeIntervalSince(now) <= leadTime }
+    }
+
     /// Countdown to the next timed event, or time remaining in the current one. "✓" when nothing is left.
     public static func menuBarLabel(for events: [Event], now: Date) -> String {
         let next = events

@@ -24,7 +24,11 @@ final class AppStore {
         }
     }
     var use24HourFormat = true {
-        didSet { defaults.set(use24HourFormat, forKey: Keys.use24Hour); publishSnapshot() }
+        didSet { defaults.set(use24HourFormat, forKey: Keys.use24Hour); publishSnapshot(); syncLiveActivity() }
+    }
+    /// Dynamic Island / Lock Screen activity for the current or next class.
+    var liveActivityEnabled = true {
+        didSet { defaults.set(liveActivityEnabled, forKey: Keys.liveActivity); syncLiveActivity() }
     }
     var notificationsEnabled = false {
         didSet { defaults.set(notificationsEnabled, forKey: Keys.notifications); rescheduleReminders() }
@@ -50,7 +54,7 @@ final class AppStore {
         didSet { defaults.set(dayEndHour, forKey: Keys.dayEnd) }
     }
     private(set) var customColors: [String: CodableColor] = [:] {
-        didSet { persist(customColors, key: Keys.customColors); publishSnapshot() }
+        didSet { persist(customColors, key: Keys.customColors); publishSnapshot(); syncLiveActivity() }
     }
     private(set) var notes: [EventNote] = [] {
         didSet { persist(notes, key: Keys.notes) }
@@ -82,6 +86,7 @@ final class AppStore {
         static let customAccent = "customAccent"
         static let dayStart = "dayStartHour"
         static let dayEnd = "dayEndHour"
+        static let liveActivity = "liveActivityEnabled"
     }
 
     init() {
@@ -99,6 +104,7 @@ final class AppStore {
         customAccent = load(CodableColor.self, key: Keys.customAccent)
         dayStartHour = defaults.object(forKey: Keys.dayStart) as? Int ?? 8
         dayEndHour = defaults.object(forKey: Keys.dayEnd) as? Int ?? 20
+        liveActivityEnabled = defaults.object(forKey: Keys.liveActivity) as? Bool ?? true
         // Show the last snapshot immediately; a refresh replaces it
         if let snapshot = ScheduleSnapshot.load(from: defaults), snapshot.profileURL == activeProfile?.icalUrl {
             events = snapshot.events
@@ -153,6 +159,7 @@ final class AppStore {
             lastLoaded = Date()
             publishSnapshot()
             rescheduleReminders()
+            syncLiveActivity()
         } catch {
             guard profile.id == activeProfile?.id else { return }
             errorMessage = error.localizedDescription
@@ -161,8 +168,43 @@ final class AppStore {
 
     /// Refresh when returning to the app if the data is older than the cache window.
     func refreshIfStale() async {
-        if let lastLoaded, Date().timeIntervalSince(lastLoaded) < ScheduleService.defaultMaxAge { return }
+        if let lastLoaded, Date().timeIntervalSince(lastLoaded) < ScheduleService.defaultMaxAge {
+            syncLiveActivity()
+            return
+        }
         await refresh()
+    }
+
+    // MARK: - Live Activity
+
+    private var boundaryTask: Task<Void, Never>?
+
+    var liveActivitiesAllowedBySystem: Bool { LiveActivityController.systemAllowsActivities }
+
+    /// Brings the Live Activity in line with the schedule, then re-syncs at the next class
+    /// boundary while the app keeps running (the stale date covers the rest).
+    func syncLiveActivity() {
+        let events = events, enabled = liveActivityEnabled, use24 = use24HourFormat
+        let name = activeProfile?.name ?? AboutText.appName
+        let colors = customColors
+        Task {
+            await LiveActivityController.sync(
+                enabled: enabled, events: events, profileName: name,
+                color: { colors[$0.title] ?? CodableColor(color: $0.color(from: $0.title)) },
+                use24Hour: use24)
+        }
+
+        boundaryTask?.cancel()
+        let now = Date()
+        let next = events.flatMap { [$0.startTime.addingTimeInterval(-LiveActivityController.leadTime), $0.startTime, $0.endTime] }
+            .filter { $0 > now }
+            .min()
+        guard enabled, let next else { return }
+        boundaryTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(next.timeIntervalSince(now) + 1))
+            guard !Task.isCancelled else { return }
+            self?.syncLiveActivity()
+        }
     }
 
     // MARK: - Appearance

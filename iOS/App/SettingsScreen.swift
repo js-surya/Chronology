@@ -101,6 +101,20 @@ struct SettingsScreen: View {
                 }
 
                 Section {
+                    Toggle(isOn: $store.liveActivityEnabled) {
+                        Label("Live Activity", systemImage: "platter.filled.top.iphone")
+                    }
+                } header: {
+                    Text("Dynamic Island")
+                } footer: {
+                    if store.liveActivityEnabled && !store.liveActivitiesAllowedBySystem {
+                        Text("Live Activities are turned off for Chronology in the Settings app.")
+                    } else {
+                        Text("Shows the current class, or the next one starting within an hour, in the Dynamic Island and on the Lock Screen.")
+                    }
+                }
+
+                Section {
                     Toggle("Reminders", isOn: Binding(
                         get: { store.notificationsEnabled },
                         set: { value in Task { await store.setNotificationsEnabled(value) } }

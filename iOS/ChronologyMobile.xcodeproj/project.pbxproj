@@ -8,10 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		065E0A8D176CDC74FCA7CAA2 /* ChronologyCore in Frameworks */ = {isa = PBXBuildFile; productRef = DB77A92598C98C0155BE859D /* ChronologyCore */; };
+		07D0F53453353E899419DDEE /* ClassActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB4933DC50B0AA1413FC0A1 /* ClassActivity.swift */; };
 		092D692FA2D882D2E772A3EE /* SearchScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C9BC8B60EAAED1073009A0 /* SearchScreen.swift */; };
+		0B1CA77C29A0F6D6279222C6 /* LiveActivityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EDDE41CAB69446FBFE37D4E /* LiveActivityController.swift */; };
 		0E87907D5E70435CEBF69873 /* SettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1380757F4470449A583E7E14 /* SettingsScreen.swift */; };
 		0EFB938E56A31445A7F7C1B2 /* AppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2640438DB4F2F3A9CD1075CA /* AppGroup.swift */; };
 		0F8934ADC9B14AC5BBF2F24D /* ChronologyMobileApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CA66A6E7256B63056820B7B /* ChronologyMobileApp.swift */; };
+		1178337999C12510558C4279 /* ClassActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB4933DC50B0AA1413FC0A1 /* ClassActivity.swift */; };
 		18361A4CA9BEF33EAF2BCB23 /* ChronologyCore in Frameworks */ = {isa = PBXBuildFile; productRef = AE0B19C85FD959E6B7CB67A0 /* ChronologyCore */; };
 		197723BBC4F157140E12C552 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA2BEAAFAC7AB1399B15BD8 /* MainTabView.swift */; };
 		3089A107732DA6454044E41E /* ScreenTourUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AF90DC926B0AC20C70E317 /* ScreenTourUITests.swift */; };
@@ -21,6 +24,7 @@
 		545D4C4AEDDD133C9C97F4D7 /* NextUpWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C7BA8DD5FEEED89F413222E /* NextUpWidget.swift */; };
 		8565B3A29104570CE0946266 /* EventStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4FD5E05722E708F687D93B7 /* EventStyle.swift */; };
 		8EF8E54D54FD87FAE427DAE6 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 019829833001DB0B00058B7E /* SwiftUI.framework */; };
+		9362531CA76AFD2C5D64731E /* ClassLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BFE9175E99449E5D7722453 /* ClassLiveActivity.swift */; };
 		A0D33CDDEEE5DB359BB12641 /* AppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2640438DB4F2F3A9CD1075CA /* AppGroup.swift */; };
 		A5AD0698D42786BD576F441C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7F57D141FD29D90591A5F62A /* Assets.xcassets */; };
 		AA794E55E0973682798EC772 /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CF66E1A02353803AE958CB /* AppStore.swift */; };
@@ -63,6 +67,8 @@
 
 /* Begin PBXFileReference section */
 		019829833001DB0B00058B7E /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		0BFE9175E99449E5D7722453 /* ClassLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassLiveActivity.swift; sourceTree = "<group>"; };
+		0DB4933DC50B0AA1413FC0A1 /* ClassActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassActivity.swift; sourceTree = "<group>"; };
 		1380757F4470449A583E7E14 /* SettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
 		17CF66E1A02353803AE958CB /* AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStore.swift; sourceTree = "<group>"; };
 		2640438DB4F2F3A9CD1075CA /* AppGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppGroup.swift; sourceTree = "<group>"; };
@@ -70,6 +76,7 @@
 		50A80AB711E907FD7B378A56 /* AgendaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgendaView.swift; sourceTree = "<group>"; };
 		66F97442FA219090E9F8AB8A /* Chronology */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Chronology; path = ..; sourceTree = SOURCE_ROOT; };
 		6CA66A6E7256B63056820B7B /* ChronologyMobileApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChronologyMobileApp.swift; sourceTree = "<group>"; };
+		6EDDE41CAB69446FBFE37D4E /* LiveActivityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityController.swift; sourceTree = "<group>"; };
 		7587EBF0C4C523C33FA109BA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		77B5FAD304B1C0C62F0B1287 /* ChronologyWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ChronologyWidgets.entitlements; sourceTree = "<group>"; };
 		7F57D141FD29D90591A5F62A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -121,6 +128,7 @@
 				6CA66A6E7256B63056820B7B /* ChronologyMobileApp.swift */,
 				F96A4E4CD2B2E5BCE53A76CA /* EventDetailView.swift */,
 				7587EBF0C4C523C33FA109BA /* Info.plist */,
+				6EDDE41CAB69446FBFE37D4E /* LiveActivityController.swift */,
 				EEA2BEAAFAC7AB1399B15BD8 /* MainTabView.swift */,
 				44C9BC8B60EAAED1073009A0 /* SearchScreen.swift */,
 				1380757F4470449A583E7E14 /* SettingsScreen.swift */,
@@ -149,6 +157,7 @@
 			isa = PBXGroup;
 			children = (
 				2640438DB4F2F3A9CD1075CA /* AppGroup.swift */,
+				0DB4933DC50B0AA1413FC0A1 /* ClassActivity.swift */,
 				E4FD5E05722E708F687D93B7 /* EventStyle.swift */,
 			);
 			path = Shared;
@@ -175,6 +184,7 @@
 			isa = PBXGroup;
 			children = (
 				77B5FAD304B1C0C62F0B1287 /* ChronologyWidgets.entitlements */,
+				0BFE9175E99449E5D7722453 /* ClassLiveActivity.swift */,
 				F0E1F5EC2DA279D3B7842079 /* Info.plist */,
 				9C7BA8DD5FEEED89F413222E /* NextUpWidget.swift */,
 			);
@@ -341,6 +351,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				0EFB938E56A31445A7F7C1B2 /* AppGroup.swift in Sources */,
+				07D0F53453353E899419DDEE /* ClassActivity.swift in Sources */,
+				9362531CA76AFD2C5D64731E /* ClassLiveActivity.swift in Sources */,
 				8565B3A29104570CE0946266 /* EventStyle.swift in Sources */,
 				545D4C4AEDDD133C9C97F4D7 /* NextUpWidget.swift in Sources */,
 			);
@@ -355,8 +367,10 @@
 				AA794E55E0973682798EC772 /* AppStore.swift in Sources */,
 				E48F15F9E415D91C96BE6ED7 /* CalendarScreen.swift in Sources */,
 				0F8934ADC9B14AC5BBF2F24D /* ChronologyMobileApp.swift in Sources */,
+				1178337999C12510558C4279 /* ClassActivity.swift in Sources */,
 				33BAFA8AEE4FA57B42EBDDFB /* EventDetailView.swift in Sources */,
 				43BB3FBAD9032055C638C8CB /* EventStyle.swift in Sources */,
+				0B1CA77C29A0F6D6279222C6 /* LiveActivityController.swift in Sources */,
 				197723BBC4F157140E12C552 /* MainTabView.swift in Sources */,
 				092D692FA2D882D2E772A3EE /* SearchScreen.swift in Sources */,
 				0E87907D5E70435CEBF69873 /* SettingsScreen.swift in Sources */,
