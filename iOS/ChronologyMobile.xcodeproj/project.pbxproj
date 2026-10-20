@@ -17,6 +17,7 @@
 		1178337999C12510558C4279 /* ClassActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB4933DC50B0AA1413FC0A1 /* ClassActivity.swift */; };
 		18361A4CA9BEF33EAF2BCB23 /* ChronologyCore in Frameworks */ = {isa = PBXBuildFile; productRef = AE0B19C85FD959E6B7CB67A0 /* ChronologyCore */; };
 		197723BBC4F157140E12C552 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA2BEAAFAC7AB1399B15BD8 /* MainTabView.swift */; };
+		2CD82B67E2BC1AC3F2EA5D59 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6CE4D7A58B05F517FA00838 /* Haptics.swift */; };
 		3089A107732DA6454044E41E /* ScreenTourUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AF90DC926B0AC20C70E317 /* ScreenTourUITests.swift */; };
 		33BAFA8AEE4FA57B42EBDDFB /* EventDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F96A4E4CD2B2E5BCE53A76CA /* EventDetailView.swift */; };
 		413970917D275827CA78A335 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D65F4F4B603C610F7C4BADAD /* WidgetKit.framework */; };
@@ -87,6 +88,7 @@
 		AD9419659070FDB3F6D976F5 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		C3AF90DC926B0AC20C70E317 /* ScreenTourUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTourUITests.swift; sourceTree = "<group>"; };
 		D65F4F4B603C610F7C4BADAD /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		D6CE4D7A58B05F517FA00838 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
 		E4FD5E05722E708F687D93B7 /* EventStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStyle.swift; sourceTree = "<group>"; };
 		EC5C2076B8E35BAD80FA54C7 /* ChronologyMobile.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ChronologyMobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEA2BEAAFAC7AB1399B15BD8 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
@@ -127,6 +129,7 @@
 				EEBBC1C685E419C672343915 /* Chronology.entitlements */,
 				6CA66A6E7256B63056820B7B /* ChronologyMobileApp.swift */,
 				F96A4E4CD2B2E5BCE53A76CA /* EventDetailView.swift */,
+				D6CE4D7A58B05F517FA00838 /* Haptics.swift */,
 				7587EBF0C4C523C33FA109BA /* Info.plist */,
 				6EDDE41CAB69446FBFE37D4E /* LiveActivityController.swift */,
 				EEA2BEAAFAC7AB1399B15BD8 /* MainTabView.swift */,
@@ -370,6 +373,7 @@
 				1178337999C12510558C4279 /* ClassActivity.swift in Sources */,
 				33BAFA8AEE4FA57B42EBDDFB /* EventDetailView.swift in Sources */,
 				43BB3FBAD9032055C638C8CB /* EventStyle.swift in Sources */,
+				2CD82B67E2BC1AC3F2EA5D59 /* Haptics.swift in Sources */,
 				0B1CA77C29A0F6D6279222C6 /* LiveActivityController.swift in Sources */,
 				197723BBC4F157140E12C552 /* MainTabView.swift in Sources */,
 				092D692FA2D882D2E772A3EE /* SearchScreen.swift in Sources */,

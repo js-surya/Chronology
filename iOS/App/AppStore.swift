@@ -26,6 +26,9 @@ final class AppStore {
     var use24HourFormat = true {
         didSet { defaults.set(use24HourFormat, forKey: Keys.use24Hour); publishSnapshot(); syncLiveActivity() }
     }
+    var hapticsEnabled = true {
+        didSet { defaults.set(hapticsEnabled, forKey: Keys.haptics) }
+    }
     /// Dynamic Island / Lock Screen activity for the current or next class.
     var liveActivityEnabled = true {
         didSet { defaults.set(liveActivityEnabled, forKey: Keys.liveActivity); syncLiveActivity() }
@@ -76,6 +79,9 @@ final class AppStore {
     private(set) var isLoading = false
     private(set) var errorMessage: String?
     private(set) var lastLoaded: Date?
+    /// Bumped after a pull-to-refresh, so views can play success/error haptics.
+    private(set) var manualRefreshSucceeded = 0
+    private(set) var manualRefreshFailed = 0
 
     private let defaults = AppGroup.defaults
 
@@ -96,6 +102,7 @@ final class AppStore {
         static let liveActivity = "liveActivityEnabled"
         static let alertAtStart = "alertAtClassStart"
         static let alertAtEnd = "alertAtClassEnd"
+        static let haptics = "hapticsEnabled"
     }
 
     init() {
@@ -116,6 +123,7 @@ final class AppStore {
         liveActivityEnabled = defaults.object(forKey: Keys.liveActivity) as? Bool ?? true
         alertAtClassStart = defaults.object(forKey: Keys.alertAtStart) as? Bool ?? true
         alertAtClassEnd = defaults.object(forKey: Keys.alertAtEnd) as? Bool ?? false
+        hapticsEnabled = defaults.object(forKey: Keys.haptics) as? Bool ?? true
         // Show the last snapshot immediately; a refresh replaces it
         if let snapshot = ScheduleSnapshot.load(from: defaults), snapshot.profileURL == activeProfile?.icalUrl {
             events = snapshot.events
@@ -171,9 +179,11 @@ final class AppStore {
             publishSnapshot()
             rescheduleReminders()
             syncLiveActivity()
+            if force { manualRefreshSucceeded += 1 }
         } catch {
             guard profile.id == activeProfile?.id else { return }
             errorMessage = error.localizedDescription
+            if force { manualRefreshFailed += 1 }
         }
     }
 

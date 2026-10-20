@@ -27,6 +27,14 @@ struct MainTabView: View {
             }
         }
         .tabViewStyle(.sidebarAdaptable)
+        .haptic(.selection, trigger: selection)
+        .haptic(.success, trigger: store.manualRefreshSucceeded)
+        .haptic(.error, trigger: store.manualRefreshFailed)
+        .haptic(.selection, trigger: store.activeProfileID)
+        // Adding a schedule succeeds; removing one gets a lighter tap
+        .haptic(trigger: store.profiles.count) { old, new in
+            new > old ? .success : .impact(weight: .light)
+        }
         .tabBarMinimizeBehavior(.onScrollDown)
         .sheet(item: $selectedEvent) { event in
             EventDetailView(event: event)

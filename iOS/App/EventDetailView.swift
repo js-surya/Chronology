@@ -109,6 +109,10 @@ struct EventDetailView: View {
                     Button("Done", systemImage: "checkmark") { dismiss() }
                 }
             }
+            .haptic(trigger: store.isImportant(event)) { _, important in
+                important ? .success : .impact(weight: .light)
+            }
+            .haptic(.selection, trigger: store.customColors[event.title])
             .onAppear { noteText = store.note(for: event) }
             .onDisappear { store.setNote(noteText, for: event) }
         }

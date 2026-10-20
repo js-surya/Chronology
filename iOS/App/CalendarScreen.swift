@@ -50,6 +50,8 @@ struct CalendarScreen: View {
                 }
             }
             .refreshable { await store.refresh(force: true) }
+            // Day strip taps, swipes, Today and the arrows all move the anchor
+            .haptic(.selection, trigger: anchor)
         }
     }
 

@@ -57,6 +57,7 @@ struct SettingsScreen: View {
                         ForEach(Appearance.allCases) { Text($0.title).tag($0) }
                     }
                     .pickerStyle(.segmented)
+                    .haptic(.selection, trigger: store.appearance)
 
                     HStack(spacing: 10) {
                         ForEach(AccentPreset.all) { preset in
@@ -84,6 +85,11 @@ struct SettingsScreen: View {
                         .labelsHidden()
                     }
                     .padding(.vertical, 2)
+                    .haptic(.selection, trigger: store.accentPreset)
+
+                    Toggle(isOn: $store.hapticsEnabled) {
+                        Label("Haptics", systemImage: "iphone.radiowaves.left.and.right")
+                    }
                 }
 
                 Section {
@@ -164,6 +170,10 @@ struct SettingsScreen: View {
                 }
             }
             .navigationTitle("Settings")
+            .haptic(trigger: testResult) { _, result in
+                guard let result else { return nil }
+                return result.hasPrefix("Test sent") ? .success : .warning
+            }
             .tint(store.accentColor) // menu pickers in a Form don't inherit the root tint
             .sheet(item: $editing) { ProfileEditorView(profile: $0) }
             .sheet(isPresented: $addingProfile) { ProfileEditorView(profile: nil) }
@@ -379,6 +389,12 @@ struct ProfileEditorView: View {
                 }
             }
             .navigationTitle(profile == nil ? "New Schedule" : "Edit Schedule")
+            .haptic(trigger: checkResult) { _, result in
+                guard result != nil else { return nil }
+                return checkFailed ? .warning : .success
+            }
+            .haptic(.selection, trigger: icon)
+            .haptic(.selection, trigger: iconColor)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
