@@ -1,8 +1,31 @@
-# Chronology
+<p align="center">
+  <img src="chronology_app_icon.svg" width="128" alt="Chronology app icon">
+</p>
 
-Menu bar schedule viewer for macOS. Subscribe to a TimeEdit iCal URL, see your next class in the menu bar, browse week/day views in a native SwiftUI window.
+<h1 align="center">Chronology</h1>
 
-![Chronology](chronology_app_icon.svg)
+<p align="center">
+  Your TimeEdit class schedule in the macOS menu bar, and on iPhone and iPad.
+</p>
+
+<p align="center">
+  <a href="https://github.com/js-surya/Chronology/releases/latest"><img src="https://img.shields.io/github/v/release/js-surya/Chronology?label=Mac" alt="Latest Mac release"></a>
+  <a href="https://github.com/js-surya/Chronology/actions/workflows/ci.yml"><img src="https://github.com/js-surya/Chronology/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <img src="https://img.shields.io/badge/macOS-26%2B-blue" alt="macOS 26+">
+  <img src="https://img.shields.io/badge/iOS-26%2B-blue" alt="iOS 26+">
+  <img src="https://img.shields.io/badge/Swift-5.9-orange" alt="Swift 5.9">
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/js-surya/Chronology" alt="MIT License"></a>
+</p>
+
+Subscribe to a TimeEdit iCal URL, see your next class in the menu bar, and browse week and day views in a native SwiftUI window. A companion iPhone and iPad app adds a countdown, widgets and a Live Activity.
+
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/ipad-week.png" width="44%" alt="iPad week view">
+  <img src="docs/screenshots/iphone-upnext.png" width="27%" alt="iPhone Up Next">
+  <img src="docs/screenshots/iphone-day.png" width="27%" alt="iPhone day view">
+</p>
 
 ## Features
 
@@ -13,7 +36,7 @@ Menu bar schedule viewer for macOS. Subscribe to a TimeEdit iCal URL, see your n
 - **Per-course colors** — pick from curated palettes or custom
 - **Personal notes** — attach notes to any event
 - **Themes** — Light / Dark / AMOLED black, 7 accent presets + custom color, 12/24h time
-- **Privacy** — all data stored locally, no cloud sync
+- **Privacy** — no accounts, no analytics, no Chronology server; data stays on your devices (optional iCloud sync when built with a developer team)
 - **Launch at login**, menu-bar-only mode
 
 ## Requirements
@@ -69,10 +92,12 @@ Find your iCal URL on your TimeEdit schedule page → **Subscribe / Export** →
 
 Swift · SwiftUI · Liquid Glass · UserNotifications · WidgetKit · AppKit (menu bar). Shared logic lives in the `ChronologyCore` Swift package used by both apps. No third-party dependencies.
 
+## Contributing
+
+Bug reports, ideas and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) to get started, and the [CHANGELOG](CHANGELOG.md) for what's new. Please follow the [Code of Conduct](CODE_OF_CONDUCT.md), and report security issues privately as described in [SECURITY.md](SECURITY.md).
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
 
----
-
-v3.0.0 — Made by Surya with AI assistance.
+Made by Surya with AI assistance.

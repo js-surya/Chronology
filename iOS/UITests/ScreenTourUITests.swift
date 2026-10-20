@@ -17,9 +17,13 @@ final class ScreenTourUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["NEXT UP"].waitForExistence(timeout: 10) || app.staticTexts["NOW"].exists)
         snapshot("1-UpNext")
 
-        app.buttons["Calendar"].tap()
+        app.buttons["Calendar"].firstMatch.tap()
         XCTAssertTrue(app.buttons["Today"].waitForExistence(timeout: 5))
-        snapshot("2-Calendar")
+        app.buttons["Day"].firstMatch.tap()
+        snapshot("2-Calendar-Day")
+        app.buttons["Week"].firstMatch.tap()
+        snapshot("2-Calendar-Week")
+        app.buttons["Day"].firstMatch.tap()
 
         // Open the first event block in the timeline
         let block = app.buttons.matching(NSPredicate(format: "label CONTAINS '–'")).firstMatch
@@ -30,11 +34,11 @@ final class ScreenTourUITests: XCTestCase {
             app.buttons["Done"].tap()
         }
 
-        app.buttons["Settings"].tap()
+        app.buttons["Settings"].firstMatch.tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
         snapshot("4-Settings")
 
-        app.buttons["Search"].tap()
+        app.buttons["Search"].firstMatch.tap()
         let field = app.searchFields.firstMatch
         XCTAssertTrue(field.waitForExistence(timeout: 5))
         field.tap()

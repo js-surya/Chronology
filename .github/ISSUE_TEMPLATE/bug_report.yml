@@ -1,0 +1,57 @@
+name: Bug report
+description: Something isn't working as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! **Don't paste your TimeEdit iCal URL** — anyone with it can read your schedule.
+        Security issues: use [private reporting](https://github.com/js-surya/Chronology/security/advisories/new) instead.
+  - type: dropdown
+    id: app
+    attributes:
+      label: App
+      options:
+        - Mac
+        - iPhone
+        - iPad
+        - Widget / Live Activity
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Chronology version
+      description: Settings → About
+      placeholder: "4.0.0"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS version
+      placeholder: "macOS 26.1 / iOS 26.1"
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open …
+        2. Click …
+        3. See …
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots or logs
+      description: Screenshots, error messages, or a trimmed `.ics` snippet with personal details removed.
