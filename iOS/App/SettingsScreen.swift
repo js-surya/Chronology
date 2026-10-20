@@ -126,6 +126,12 @@ struct SettingsScreen: View {
                             Text("30 minutes before").tag(30)
                             Text("1 hour before").tag(60)
                         }
+                        Toggle(isOn: $store.alertAtClassStart) {
+                            Label("When Class Starts", systemImage: "bell.and.waves.left.and.right")
+                        }
+                        Toggle(isOn: $store.alertAtClassEnd) {
+                            Label("When Class Ends", systemImage: "checkmark.circle")
+                        }
                     }
                     NavigationLink {
                         ImportantEventsView()

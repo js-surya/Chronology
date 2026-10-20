@@ -14,8 +14,30 @@ public enum NotificationPlanner {
     public static let maxPending = 60
 
     /// Future reminders for timed events plus important-event reminders, soonest first, capped at `maxPending`.
-    public static func plan(events: [Event], minutesBefore: Int, importantEvents: [ImportantEvent], now: Date) -> [PlannedNotification] {
+    /// `atStart` / `atEnd` add an alert when a class's countdown runs out (it starts, or it ends).
+    public static func plan(events: [Event], minutesBefore: Int, importantEvents: [ImportantEvent], now: Date,
+                            atStart: Bool = false, atEnd: Bool = false) -> [PlannedNotification] {
         var planned: [PlannedNotification] = []
+
+        for event in events where !event.isAllDay {
+            let place = event.location.isEmpty ? "" : " · \(event.location)"
+            if atStart, event.startTime > now {
+                planned.append(PlannedNotification(
+                    id: "start.\(event.id)",
+                    title: "\(event.title) is starting",
+                    body: "Now until \(timeString(event.endTime))\(place)",
+                    fireDate: event.startTime
+                ))
+            }
+            if atEnd, event.endTime > now {
+                planned.append(PlannedNotification(
+                    id: "end.\(event.id)",
+                    title: "\(event.title) has ended",
+                    body: "Class is over\(place).",
+                    fireDate: event.endTime
+                ))
+            }
+        }
 
         for event in events where !event.isAllDay {
             let fireDate = event.startTime.addingTimeInterval(-Double(minutesBefore) * 60)

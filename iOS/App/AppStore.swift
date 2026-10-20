@@ -36,6 +36,13 @@ final class AppStore {
     var reminderMinutes = 15 {
         didSet { defaults.set(reminderMinutes, forKey: Keys.reminderMinutes); rescheduleReminders() }
     }
+    /// Alert when a class's countdown runs out: when it starts, and when it ends.
+    var alertAtClassStart = true {
+        didSet { defaults.set(alertAtClassStart, forKey: Keys.alertAtStart); rescheduleReminders() }
+    }
+    var alertAtClassEnd = false {
+        didSet { defaults.set(alertAtClassEnd, forKey: Keys.alertAtEnd); rescheduleReminders() }
+    }
     var appearance: Appearance = .system {
         didSet { defaults.set(appearance.rawValue, forKey: Keys.appearance) }
     }
@@ -87,6 +94,8 @@ final class AppStore {
         static let dayStart = "dayStartHour"
         static let dayEnd = "dayEndHour"
         static let liveActivity = "liveActivityEnabled"
+        static let alertAtStart = "alertAtClassStart"
+        static let alertAtEnd = "alertAtClassEnd"
     }
 
     init() {
@@ -105,6 +114,8 @@ final class AppStore {
         dayStartHour = defaults.object(forKey: Keys.dayStart) as? Int ?? 8
         dayEndHour = defaults.object(forKey: Keys.dayEnd) as? Int ?? 20
         liveActivityEnabled = defaults.object(forKey: Keys.liveActivity) as? Bool ?? true
+        alertAtClassStart = defaults.object(forKey: Keys.alertAtStart) as? Bool ?? true
+        alertAtClassEnd = defaults.object(forKey: Keys.alertAtEnd) as? Bool ?? false
         // Show the last snapshot immediately; a refresh replaces it
         if let snapshot = ScheduleSnapshot.load(from: defaults), snapshot.profileURL == activeProfile?.icalUrl {
             events = snapshot.events
@@ -334,7 +345,8 @@ final class AppStore {
             return
         }
         ReminderScheduler.replacePending(with: NotificationPlanner.plan(
-            events: events, minutesBefore: reminderMinutes, importantEvents: importantEvents, now: Date()))
+            events: events, minutesBefore: reminderMinutes, importantEvents: importantEvents, now: Date(),
+            atStart: alertAtClassStart, atEnd: alertAtClassEnd))
     }
 
     // MARK: - Widgets

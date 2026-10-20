@@ -75,3 +75,38 @@ final class NotificationPlanTests: XCTestCase {
         XCTAssertTrue(plan[0].body.hasPrefix("Starts at "))
     }
 }
+
+final class CountdownAlertTests: XCTestCase {
+    private let now = Date(timeIntervalSince1970: 1_700_000_000)
+
+    private func event(startIn minutes: Double, length: Double = 60) -> Event {
+        let start = now.addingTimeInterval(minutes * 60)
+        return Event(title: "Math", location: "Room 1", startTime: start, endTime: start.addingTimeInterval(length * 60), description: nil)
+    }
+
+    func testOffByDefault() {
+        let plan = NotificationPlanner.plan(events: [event(startIn: 60)], minutesBefore: 15, importantEvents: [], now: now)
+        XCTAssertFalse(plan.contains { $0.id.hasPrefix("start.") || $0.id.hasPrefix("end.") })
+    }
+
+    func testStartAndEndAlertsFireWhenCountdownRunsOut() {
+        let e = event(startIn: 60)
+        let plan = NotificationPlanner.plan(events: [e], minutesBefore: 15, importantEvents: [], now: now, atStart: true, atEnd: true)
+        XCTAssertEqual(plan.first { $0.id == "start.\(e.id)" }?.fireDate, e.startTime)
+        XCTAssertEqual(plan.first { $0.id == "end.\(e.id)" }?.fireDate, e.endTime)
+        XCTAssertEqual(plan.first { $0.id == "start.\(e.id)" }?.title, "Math is starting")
+    }
+
+    func testClassInProgressOnlyGetsEndAlert() {
+        let e = event(startIn: -10)
+        let plan = NotificationPlanner.plan(events: [e], minutesBefore: 15, importantEvents: [], now: now, atStart: true, atEnd: true)
+        XCTAssertEqual(plan.map(\.id), ["end.\(e.id)"])
+    }
+
+    func testEachToggleIsIndependent() {
+        let e = event(startIn: 60)
+        let startOnly = NotificationPlanner.plan(events: [e], minutesBefore: 15, importantEvents: [], now: now, atStart: true)
+        XCTAssertTrue(startOnly.contains { $0.id.hasPrefix("start.") })
+        XCTAssertFalse(startOnly.contains { $0.id.hasPrefix("end.") })
+    }
+}
