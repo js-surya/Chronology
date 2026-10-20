@@ -7,7 +7,6 @@ Only the latest release of each app receives fixes.
 | App | Version | Supported |
 | --- | --- | --- |
 | Mac | 4.x | Yes |
-| Mac | < 4.0 | No |
 | iPhone & iPad | 1.x | Yes |
 
 ## Reporting a vulnerability

@@ -7,9 +7,14 @@ separately: Mac tags are `vX.Y.Z`, iOS tags are `ios-vX.Y.Z`.
 
 ## [Unreleased]
 
+## [ios-1.0.1] - 2026-10-20 (iPhone & iPad)
+
+### Fixed
+- Week view on iPhone: class titles in narrow columns wrap between words (or at a hyphen) instead of breaking mid-word
+
 ## [4.0.0] - 2026-10-20 (Mac)
 
-Requires macOS 26 (Tahoe) or later. Stay on 3.0.0 for macOS 14 or 15.
+Requires macOS 26 (Tahoe) or later.
 
 ### Added
 - Liquid Glass design for macOS 26: native glass toolbar, Calendar-style title, Day/Week switch, Today navigation, search
@@ -48,20 +53,7 @@ First iPhone and iPad release, distributed as an unsigned `.ipa` for sideloading
 - Live Activity may stay on "Starts in 0:00" at class start until the app is opened
 - iCloud sync is not included in the unsigned build
 
-## [3.0.0] - 2026-04-20 (Mac)
-
-Requires macOS 14 or later.
-
-### Added
-- Refreshed UI and new Settings window
-- Multiple profiles, per-course colors, themes, notifications
-
-## [2.0.0] - 2025-11-23 (Mac)
-
-First public release (tag `stable`): menu bar schedule viewer for TimeEdit iCal feeds.
-
 [Unreleased]: https://github.com/js-surya/Chronology/compare/v4.0.0...HEAD
-[4.0.0]: https://github.com/js-surya/Chronology/compare/v3.0.0...v4.0.0
+[4.0.0]: https://github.com/js-surya/Chronology/releases/tag/v4.0.0
+[ios-1.0.1]: https://github.com/js-surya/Chronology/compare/ios-v1.0.0...ios-v1.0.1
 [ios-1.0.0]: https://github.com/js-surya/Chronology/releases/tag/ios-v1.0.0
-[3.0.0]: https://github.com/js-surya/Chronology/compare/stable...v3.0.0
-[2.0.0]: https://github.com/js-surya/Chronology/releases/tag/stable
