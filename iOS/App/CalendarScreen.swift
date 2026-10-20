@@ -1,14 +1,16 @@
 import SwiftUI
 import ChronologyCore
 
-/// One-day timeline on iPhone, seven-day grid when there's room (iPad, landscape).
+/// Day timeline or seven-day grid. Defaults to Week on iPad and Day on iPhone; the choice is remembered.
 struct CalendarScreen: View {
     @Binding var selectedEvent: Event?
     @Environment(AppStore.self) private var store
     @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var anchor = Calendar.current.startOfDay(for: Date())
+    /// "day", "week", or "" to follow the device (Week when there's room).
+    @AppStorage("calendarMode", store: AppGroup.defaults) private var mode = ""
 
-    private var showsWeek: Bool { sizeClass == .regular }
+    private var showsWeek: Bool { mode.isEmpty ? sizeClass == .regular : mode == "week" }
 
     private var weekDays: [Date] {
         let cal = Calendar.current
@@ -24,8 +26,25 @@ struct CalendarScreen: View {
                     ScheduleStatusView()
                 } else {
                     VStack(spacing: 0) {
+                        Picker("View", selection: Binding(
+                            get: { showsWeek ? "week" : "day" },
+                            set: { mode = $0 }
+                        )) {
+                            Text("Day").tag("day")
+                            Text("Week").tag("week")
+                        }
+                        .pickerStyle(.segmented)
+                        .frame(maxWidth: 260)
+                        .padding(.horizontal)
+                        .padding(.vertical, 6)
+
                         if showsWeek {
-                            DayHeaderRow(days: weekDays, selected: anchor, timeColumn: TimelineGrid.timeColumn) { anchor = $0 }
+                            // Tapping a day opens it in Day view
+                            DayHeaderRow(days: weekDays, selected: anchor, timeColumn: TimelineGrid.timeColumn,
+                                         stacked: sizeClass == .compact) { day in
+                                anchor = day
+                                mode = "day"
+                            }
                         } else {
                             WeekStrip(days: weekDays, selected: $anchor)
                         }
@@ -36,7 +55,7 @@ struct CalendarScreen: View {
             }
             .navigationTitle(title)
             // iPadOS 26 hides inline titles under the top tab bar, so the week range needs a large title
-            .navigationBarTitleDisplayMode(showsWeek ? .large : .inline)
+            .navigationBarTitleDisplayMode(showsWeek && sizeClass == .regular ? .large : .inline)
             .toolbar {
                 ProfileSwitcher()
                 ToolbarItemGroup(placement: .topBarTrailing) {
@@ -52,6 +71,7 @@ struct CalendarScreen: View {
             .refreshable { await store.refresh(force: true) }
             // Day strip taps, swipes, Today and the arrows all move the anchor
             .haptic(.selection, trigger: anchor)
+            .haptic(.selection, trigger: showsWeek)
         }
     }
 
@@ -129,6 +149,8 @@ private struct DayHeaderRow: View {
     let days: [Date]
     let selected: Date
     let timeColumn: CGFloat
+    /// Narrow columns (iPhone): weekday above the date instead of beside it.
+    var stacked = false
     let onSelect: (Date) -> Void
 
     var body: some View {
@@ -138,8 +160,9 @@ private struct DayHeaderRow: View {
             ForEach(days, id: \.self) { day in
                 let isToday = Calendar.current.isDateInToday(day)
                 Button { onSelect(day) } label: {
-                    HStack(spacing: 6) {
-                        Text(day.formatted(.dateTime.weekday(.abbreviated)).uppercased())
+                    let layout = stacked ? AnyLayout(VStackLayout(spacing: 2)) : AnyLayout(HStackLayout(spacing: 6))
+                    layout {
+                        Text(day.formatted(.dateTime.weekday(stacked ? .narrow : .abbreviated)).uppercased())
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(isToday ? Color.accentColor : .secondary)
                         Text(day.formatted(.dateTime.day()))
@@ -247,7 +270,7 @@ struct TimelineGrid: View {
                 let slot = slots[event.id] ?? .init(column: 0, columnCount: 1)
                 let width = columnWidth / CGFloat(slot.columnCount)
                 let height = max(24, CGFloat(event.duration / 3600) * hourHeight - 2)
-                EventBlock(event: event, height: height, narrow: width < 70)
+                EventBlock(event: event, height: height, width: width)
                     .frame(width: width - 3, height: height)
                     .offset(x: Self.timeColumn + CGFloat(index) * columnWidth + CGFloat(slot.column) * width + 1.5,
                             y: yOffset(event.startTime) + 1)
@@ -289,20 +312,26 @@ struct TimelineGrid: View {
 struct EventBlock: View {
     let event: Event
     let height: CGFloat
-    var narrow = false
+    let width: CGFloat
     @Environment(AppStore.self) private var store
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         let color = store.color(for: event)
         let shape = RoundedRectangle(cornerRadius: 8, style: .continuous)
-        HStack(alignment: .top, spacing: 5) {
-            Capsule().fill(color).frame(width: 3)
+        // Narrow (iPhone week, overlaps): smaller title wrapped over the card's height instead of "Lin…";
+        // a sliver too thin for text shows only its color
+        let narrow = width < 70
+        let showsText = width >= 30
+        HStack(alignment: .top, spacing: narrow ? 3 : 5) {
+            Capsule().fill(color).frame(width: narrow ? 2 : 3)
+            if showsText {
             VStack(alignment: .leading, spacing: 1) {
                 Text(event.title)
-                    .font(.caption.weight(.semibold))
-                    .lineLimit(narrow ? 1 : (height > 60 ? 3 : 1))
-                if height > 44 {
+                    .font(narrow ? .system(size: 10, weight: .semibold) : .caption.weight(.semibold))
+                    .lineLimit(narrow ? max(1, Int(height / 13) - 1) : (height > 60 ? 3 : 1))
+                    .allowsTightening(true)
+                if height > 44 && !narrow {
                     Text(store.time(event.startTime) + (event.location.isEmpty || narrow ? "" : " · \(event.location)"))
                         .font(.caption2)
                         .monospacedDigit()
@@ -310,10 +339,11 @@ struct EventBlock: View {
                         .lineLimit(1)
                 }
             }
+            }
             Spacer(minLength: 0)
         }
         .padding(.vertical, 4)
-        .padding(.leading, 3)
+        .padding(.leading, narrow ? 2 : 3)
         .padding(.trailing, 2)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background {
