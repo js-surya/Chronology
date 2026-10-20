@@ -11,6 +11,8 @@ struct CalendarScreen: View {
     @AppStorage("calendarMode", store: AppGroup.defaults) private var mode = ""
 
     private var showsWeek: Bool { mode.isEmpty ? sizeClass == .regular : mode == "week" }
+    /// Seven columns are too narrow on iPhone, so Week there scrolls through days three at a time.
+    private var scrollsDays: Bool { sizeClass == .compact }
 
     private var weekDays: [Date] {
         let cal = Calendar.current
@@ -38,7 +40,13 @@ struct CalendarScreen: View {
                         .padding(.horizontal)
                         .padding(.vertical, 6)
 
-                        if showsWeek {
+                        if showsWeek && scrollsDays {
+                            // Tapping a day opens it in Day view
+                            ScrollingWeekGrid(leadingDay: $anchor, selectedEvent: $selectedEvent) { day in
+                                anchor = day
+                                mode = "day"
+                            }
+                        } else if showsWeek {
                             // Tapping a day opens it in Day view
                             DayHeaderRow(days: weekDays, selected: anchor, timeColumn: TimelineGrid.timeColumn,
                                          stacked: sizeClass == .compact) { day in
@@ -48,8 +56,10 @@ struct CalendarScreen: View {
                         } else {
                             WeekStrip(days: weekDays, selected: $anchor)
                         }
-                        Divider()
-                        TimelineGrid(days: showsWeek ? weekDays : [anchor], selectedEvent: $selectedEvent)
+                        if !(showsWeek && scrollsDays) {
+                            Divider()
+                            TimelineGrid(days: showsWeek ? weekDays : [anchor], selectedEvent: $selectedEvent)
+                        }
                     }
                 }
             }
@@ -76,6 +86,11 @@ struct CalendarScreen: View {
     }
 
     private var title: String {
+        if showsWeek && scrollsDays {
+            let last = Calendar.current.date(byAdding: .day, value: ScrollingWeekGrid.visibleDays - 1, to: anchor) ?? anchor
+            let sameMonth = Calendar.current.isDate(anchor, equalTo: last, toGranularity: .month)
+            return "\(anchor.formatted(sameMonth ? .dateTime.day() : .dateTime.day().month(.abbreviated))) – \(last.formatted(.dateTime.day().month(.abbreviated)))"
+        }
         if showsWeek {
             let first = weekDays.first ?? anchor, last = weekDays.last ?? anchor
             let sameMonth = Calendar.current.isDate(first, equalTo: last, toGranularity: .month)

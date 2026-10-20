@@ -38,6 +38,7 @@
 		8CF39752FF29C3294AF6E124 /* ColorPalettes.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDD10F151953B66EB362269B /* ColorPalettes.swift */; };
 		8EF8E54D54FD87FAE427DAE6 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 019829833001DB0B00058B7E /* SwiftUI.framework */; };
 		9362531CA76AFD2C5D64731E /* ClassLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BFE9175E99449E5D7722453 /* ClassLiveActivity.swift */; };
+		9BE49A5B729FEFE458B6E29B /* ScrollingWeekGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 971A36B7C2CBA7FF8339F429 /* ScrollingWeekGrid.swift */; };
 		9C7949675007595E276FA32B /* ChronologyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F38F7A86FA39E4199572F5F7 /* ChronologyApp.swift */; };
 		A0D33CDDEEE5DB359BB12641 /* AppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2640438DB4F2F3A9CD1075CA /* AppGroup.swift */; };
 		A5AD0698D42786BD576F441C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7F57D141FD29D90591A5F62A /* Assets.xcassets */; };
@@ -117,6 +118,7 @@
 		8848C5AE5FD09A284750304B /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		8A70DAE08401ED91AF224858 /* EventCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventCardView.swift; sourceTree = "<group>"; };
 		8C468E90F113A974CC86C58E /* CalendarScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarScreen.swift; sourceTree = "<group>"; };
+		971A36B7C2CBA7FF8339F429 /* ScrollingWeekGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollingWeekGrid.swift; sourceTree = "<group>"; };
 		99A45779DB5975368508FB4A /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		9C7BA8DD5FEEED89F413222E /* NextUpWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextUpWidget.swift; sourceTree = "<group>"; };
 		9DF64BA3C17CA0E6947CA53E /* ChronologyMobileUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ChronologyMobileUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -191,6 +193,7 @@
 				7587EBF0C4C523C33FA109BA /* Info.plist */,
 				6EDDE41CAB69446FBFE37D4E /* LiveActivityController.swift */,
 				EEA2BEAAFAC7AB1399B15BD8 /* MainTabView.swift */,
+				971A36B7C2CBA7FF8339F429 /* ScrollingWeekGrid.swift */,
 				44C9BC8B60EAAED1073009A0 /* SearchScreen.swift */,
 				1380757F4470449A583E7E14 /* SettingsScreen.swift */,
 			);
@@ -560,6 +563,7 @@
 				2CD82B67E2BC1AC3F2EA5D59 /* Haptics.swift in Sources */,
 				0B1CA77C29A0F6D6279222C6 /* LiveActivityController.swift in Sources */,
 				197723BBC4F157140E12C552 /* MainTabView.swift in Sources */,
+				9BE49A5B729FEFE458B6E29B /* ScrollingWeekGrid.swift in Sources */,
 				092D692FA2D882D2E772A3EE /* SearchScreen.swift in Sources */,
 				0E87907D5E70435CEBF69873 /* SettingsScreen.swift in Sources */,
 			);

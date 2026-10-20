@@ -23,6 +23,10 @@ final class ScreenTourUITests: XCTestCase {
         snapshot("2-Calendar-Day")
         app.buttons["Week"].firstMatch.tap()
         snapshot("2-Calendar-Week")
+        // Narrow screens scroll the week sideways; drag across the middle of the grid
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.55))
+        start.press(forDuration: 0.05, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.3, dy: 0.55)))
+        snapshot("2-Calendar-Week-Scrolled")
         app.buttons["Day"].firstMatch.tap()
 
         // Open the first event block in the timeline

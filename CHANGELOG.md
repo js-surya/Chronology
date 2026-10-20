@@ -7,6 +7,9 @@ separately: Mac tags are `vX.Y.Z`, iOS tags are `ios-vX.Y.Z`.
 
 ## [Unreleased]
 
+### Changed
+- iPhone Week view scrolls sideways through days, three to a screen, instead of squeezing seven narrow columns; swipe past Sunday into the next week. iPad keeps the seven-day grid.
+
 ## [ios-1.0.1] - 2026-10-20 (iPhone & iPad)
 
 ### Fixed
