@@ -133,8 +133,10 @@ class AppViewModel: ObservableObject {
         
         startMenuBarUpdates()
         
-        cloud.start { [weak self] in self?.syncFromCloud() }
-        syncFromCloud()
+        if iCloudInBuild {
+            cloud.start { [weak self] in self?.syncFromCloud() }
+            syncFromCloud()
+        }
     }
     
     func startMenuBarUpdates() {
@@ -233,6 +235,7 @@ class AppViewModel: ObservableObject {
     private var applyingRemote = false
     
     var iCloudAvailable: Bool { UbiquitousSyncStore.isAvailable }
+    var iCloudInBuild: Bool { UbiquitousSyncStore.isEnabledInBuild }
     
     /// The Mac keeps course colors as a list; the synced form is title → color, like iOS.
     private var courseColors: [String: CodableColor] {
@@ -241,7 +244,7 @@ class AppViewModel: ObservableObject {
     }
     
     func syncFromCloud() {
-        guard iCloudSyncEnabled, hasInitialized else { return }
+        guard iCloudSyncEnabled, iCloudInBuild, hasInitialized else { return }
         applyingRemote = true
         defer { applyingRemote = false }
         if let value = cloud.reconcile(.profiles, local: profiles, firstMerge: CloudSync.union) {
@@ -270,7 +273,7 @@ class AppViewModel: ObservableObject {
     }
     
     private func pushToCloud<T: Codable>(_ value: T, _ section: SyncSection) {
-        guard iCloudSyncEnabled, hasInitialized, !applyingRemote else { return }
+        guard iCloudSyncEnabled, iCloudInBuild, hasInitialized, !applyingRemote else { return }
         cloud.push(value, to: section)
     }
     

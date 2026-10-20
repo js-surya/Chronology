@@ -46,6 +46,8 @@ open iOS/ChronologyMobile.xcodeproj
 
 Pick the **ChronologyMobile** scheme and a simulator or device. To run on a device, set your team under *Signing & Capabilities* for both the app and the **ChronologyWidgets** extension (they share the App Group `group.com.codingpasanga.chronology`). The project is generated from `iOS/project.yml` with [XcodeGen](https://github.com/yonaskolb/XcodeGen) — run `xcodegen generate` in `iOS/` after adding files.
 
+iCloud sync between the Mac and iOS apps is built in but needs a paid Apple Developer Program team to switch on — see [docs/ICLOUD_SETUP.md](docs/ICLOUD_SETUP.md).
+
 The iOS app has Up Next (countdown + agenda), a day timeline (iPhone) / week grid (iPad), search, event notes, colors and important reminders, plus a **Next Up** widget for the Home and Lock Screen and a **Live Activity** in the Dynamic Island for the current or next class (can be turned off in Settings).
 
 ## Usage

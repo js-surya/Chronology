@@ -1,0 +1,14 @@
+// Signing for the iOS app, widget and Mac app. See docs/ICLOUD_SETUP.md.
+
+// Team that signs the builds. Change to the Apple Developer Program team ID once the paid account is active.
+DEVELOPMENT_TEAM = 3K4RU72283
+
+// YES only with a paid Apple Developer Program team: iCloud key-value storage needs it.
+// NO builds and signs on a free personal team; sync then stays off and Settings says why.
+CHRONOLOGY_ICLOUD = NO
+
+// Picks the entitlements file to match
+CHRONOLOGY_APP_ENTITLEMENTS_YES = App/Chronology-iCloud.entitlements
+CHRONOLOGY_APP_ENTITLEMENTS_NO = App/Chronology.entitlements
+CHRONOLOGY_MAC_ENTITLEMENTS_YES = Mac/ChronologyMac-iCloud.entitlements
+CHRONOLOGY_MAC_ENTITLEMENTS_NO = Mac/ChronologyMac.entitlements

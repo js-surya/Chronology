@@ -23,6 +23,12 @@ public final class UbiquitousSyncStore: KeyValueSyncStore {
 
     /// Whether this device is signed in to iCloud.
     public static var isAvailable: Bool { FileManager.default.ubiquityIdentityToken != nil }
+
+    /// Whether this build carries the iCloud entitlement (Info.plist `ChronologyICloud` = YES).
+    /// Builds from a free team or `package_app.sh` don't, so sync stays off there.
+    public static var isEnabledInBuild: Bool {
+        (Bundle.main.object(forInfoDictionaryKey: "ChronologyICloud") as? String) == "YES"
+    }
 }
 
 /// For tests and previews. Several `CloudSync` instances can share one to act as separate devices.

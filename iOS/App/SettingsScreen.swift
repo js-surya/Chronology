@@ -56,8 +56,11 @@ struct SettingsScreen: View {
                     Toggle(isOn: $store.iCloudSyncEnabled) {
                         Label("iCloud Sync", systemImage: "icloud")
                     }
+                    .disabled(!store.iCloudInBuild)
                 } footer: {
-                    if store.iCloudSyncEnabled && !store.iCloudAvailable {
+                    if !store.iCloudInBuild {
+                        Text("iCloud sync isn't available in this build yet. Your schedules stay on this device.")
+                    } else if store.iCloudSyncEnabled && !store.iCloudAvailable {
                         Text("This device isn't signed in to iCloud, so changes stay here.")
                     } else {
                         Text("Keeps schedules, course colors, notes, Important classes and 24-hour time the same on your iPhone, iPad and Mac.")

@@ -102,9 +102,11 @@
 		44C9BC8B60EAAED1073009A0 /* SearchScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchScreen.swift; sourceTree = "<group>"; };
 		4E64FE9F6FC0D421108FD647 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
 		50A80AB711E907FD7B378A56 /* AgendaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgendaView.swift; sourceTree = "<group>"; };
+		56F4AB3E5DF97921F235C1BD /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
 		5BADCF996FAE1E2C822CEB8F /* EventDetailPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailPopover.swift; sourceTree = "<group>"; };
 		66F97442FA219090E9F8AB8A /* Chronology */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Chronology; path = ..; sourceTree = SOURCE_ROOT; };
 		69BA6E22C34365CA47BBA324 /* NotificationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationDelegate.swift; sourceTree = "<group>"; };
+		6AEE8170EA3E71C561E29BF5 /* Chronology-iCloud.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Chronology-iCloud.entitlements"; sourceTree = "<group>"; };
 		6CA66A6E7256B63056820B7B /* ChronologyMobileApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChronologyMobileApp.swift; sourceTree = "<group>"; };
 		6EDDE41CAB69446FBFE37D4E /* LiveActivityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityController.swift; sourceTree = "<group>"; };
 		7587EBF0C4C523C33FA109BA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -181,6 +183,7 @@
 				17CF66E1A02353803AE958CB /* AppStore.swift */,
 				7F57D141FD29D90591A5F62A /* Assets.xcassets */,
 				8C468E90F113A974CC86C58E /* CalendarScreen.swift */,
+				6AEE8170EA3E71C561E29BF5 /* Chronology-iCloud.entitlements */,
 				EEBBC1C685E419C672343915 /* Chronology.entitlements */,
 				6CA66A6E7256B63056820B7B /* ChronologyMobileApp.swift */,
 				F96A4E4CD2B2E5BCE53A76CA /* EventDetailView.swift */,
@@ -314,6 +317,14 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		C1AACD8E775196F4C5F6E9A4 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				56F4AB3E5DF97921F235C1BD /* Signing.xcconfig */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
 		C8ADBF65C38A713CA52BAE27 /* Chronology */ = {
 			isa = PBXGroup;
 			children = (
@@ -331,6 +342,7 @@
 			children = (
 				12BB57FF29C6EFFAC6699633 /* App */,
 				7345C145DD36BA63D08A6AA3 /* Chronology */,
+				C1AACD8E775196F4C5F6E9A4 /* Config */,
 				5FE56E9B3A5CF6B7961A6005 /* Packages */,
 				3614673BC29B09E216B97703 /* Shared */,
 				2CAC429D64757D26860BC462 /* UITests */,
@@ -579,6 +591,7 @@
 /* Begin XCBuildConfiguration section */
 		0B6BE92625C88B7A511D5D0E /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 56F4AB3E5DF97921F235C1BD /* Signing.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -614,7 +627,6 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 3K4RU72283;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -641,7 +653,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = Mac/ChronologyMac.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "$(CHRONOLOGY_MAC_ENTITLEMENTS_$(CHRONOLOGY_ICLOUD))";
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = Mac/Info.plist;
@@ -661,7 +673,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = App/Chronology.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "$(CHRONOLOGY_APP_ENTITLEMENTS_$(CHRONOLOGY_ICLOUD))";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -713,7 +725,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = App/Chronology.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "$(CHRONOLOGY_APP_ENTITLEMENTS_$(CHRONOLOGY_ICLOUD))";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -745,6 +757,7 @@
 		};
 		97AF61402C6852957BB7C5DA /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 56F4AB3E5DF97921F235C1BD /* Signing.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -780,7 +793,6 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 3K4RU72283;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -814,7 +826,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = Mac/ChronologyMac.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "$(CHRONOLOGY_MAC_ENTITLEMENTS_$(CHRONOLOGY_ICLOUD))";
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = Mac/Info.plist;

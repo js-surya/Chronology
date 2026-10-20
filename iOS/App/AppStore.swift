@@ -215,15 +215,17 @@ final class AppStore {
     // MARK: - iCloud sync
 
     var iCloudAvailable: Bool { UbiquitousSyncStore.isAvailable }
+    var iCloudInBuild: Bool { UbiquitousSyncStore.isEnabledInBuild }
 
     /// Pulls other devices' changes now and whenever they save.
     func startCloudSync() {
+        guard iCloudInBuild else { return }
         cloud.start { [weak self] in self?.syncFromCloud() }
         syncFromCloud()
     }
 
     func syncFromCloud() {
-        guard iCloudSyncEnabled else { return }
+        guard iCloudSyncEnabled, iCloudInBuild else { return }
         applyingRemote = true
         defer { applyingRemote = false }
         if let value = cloud.reconcile(.profiles, local: profiles, firstMerge: CloudSync.union) { profiles = value }
@@ -240,7 +242,7 @@ final class AppStore {
     }
 
     private func pushToCloud<T: Codable>(_ value: T, _ section: SyncSection) {
-        guard iCloudSyncEnabled, !applyingRemote else { return }
+        guard iCloudSyncEnabled, iCloudInBuild, !applyingRemote else { return }
         cloud.push(value, to: section)
     }
 

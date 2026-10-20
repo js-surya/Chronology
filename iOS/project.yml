@@ -7,6 +7,11 @@ options:
   createIntermediateGroups: true
   developmentLanguage: en
 
+# Team and the iCloud switch live in Config/Signing.xcconfig
+configFiles:
+  Debug: Config/Signing.xcconfig
+  Release: Config/Signing.xcconfig
+
 packages:
   Chronology:
     path: ..
@@ -17,8 +22,6 @@ settings:
     MARKETING_VERSION: "1.0.0"
     CURRENT_PROJECT_VERSION: "1"
     CODE_SIGN_STYLE: Automatic
-    # Your team (same as ByteCache); needed for the App Group and iCloud on devices
-    DEVELOPMENT_TEAM: 3K4RU72283
 
 targets:
   ChronologyMobile:
@@ -35,13 +38,6 @@ targets:
       - package: Chronology
         product: ChronologyCore
       - target: ChronologyWidgets
-    entitlements:
-      path: App/Chronology.entitlements
-      properties:
-        com.apple.security.application-groups:
-          - group.com.codingpasanga.chronology
-        # Same identifier in the Mac app, so both read one key-value store
-        com.apple.developer.ubiquity-kvstore-identifier: $(TeamIdentifierPrefix)com.codingpasanga.chronology
     info:
       path: App/Info.plist
       properties:
@@ -51,6 +47,8 @@ targets:
         UILaunchScreen: {}
         UIApplicationSupportsIndirectInputEvents: true
         NSSupportsLiveActivities: true
+        # Read at runtime so Settings can tell whether this build can sync
+        ChronologyICloud: $(CHRONOLOGY_ICLOUD)
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationLandscapeLeft
@@ -63,6 +61,8 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.codingpasanga.Chronology.mobile
+        # Same kvstore identifier as the Mac app, so both read one store
+        CODE_SIGN_ENTITLEMENTS: $(CHRONOLOGY_APP_ENTITLEMENTS_$(CHRONOLOGY_ICLOUD))
         TARGETED_DEVICE_FAMILY: "1,2"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
@@ -124,10 +124,6 @@ targets:
     dependencies:
       - package: Chronology
         product: ChronologyCore
-    entitlements:
-      path: Mac/ChronologyMac.entitlements
-      properties:
-        com.apple.developer.ubiquity-kvstore-identifier: $(TeamIdentifierPrefix)com.codingpasanga.chronology
     info:
       path: Mac/Info.plist
       properties:
@@ -138,10 +134,12 @@ targets:
         CFBundleIconName: AppIcon
         LSUIElement: false
         NSUserNotificationsUsageDescription: Chronology needs permission to send you reminders before your classes start.
+        ChronologyICloud: $(CHRONOLOGY_ICLOUD)
     settings:
       base:
         PRODUCT_NAME: Chronology
         PRODUCT_BUNDLE_IDENTIFIER: com.codingpasanga.Chronology
+        CODE_SIGN_ENTITLEMENTS: $(CHRONOLOGY_MAC_ENTITLEMENTS_$(CHRONOLOGY_ICLOUD))
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ENABLE_HARDENED_RUNTIME: YES
 

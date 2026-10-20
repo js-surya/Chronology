@@ -642,12 +642,15 @@ struct SystemPane: View {
 
             SettingsSection(title: "iCloud", systemImage: "icloud") {
                 SettingsRow(title: "iCloud Sync",
-                            subtitle: appViewModel.iCloudSyncEnabled && !appViewModel.iCloudAvailable
+                            subtitle: !appViewModel.iCloudInBuild
+                                ? "Not available in this build yet. Your schedules stay on this Mac."
+                                : appViewModel.iCloudSyncEnabled && !appViewModel.iCloudAvailable
                                 ? "This Mac isn't signed in to iCloud, so changes stay here."
                                 : "Schedules, course colors, notes, Important classes and 24-hour time on all your devices") {
                     Toggle("", isOn: $appViewModel.iCloudSyncEnabled)
                         .toggleStyle(.switch)
                         .labelsHidden()
+                        .disabled(!appViewModel.iCloudInBuild)
                 }
             }
 
